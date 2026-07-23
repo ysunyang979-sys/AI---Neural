@@ -182,7 +182,7 @@
             <textarea id="chat-input" placeholder="Message Neural Core..." rows="1"></textarea>
             <!-- Bottom Action Bar -->
             <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; min-width:0;">
-              <div class="chat-input-actions" style="display:flex; gap:2px; position:relative; min-width:0; flex-shrink:1; overflow-x:auto; scrollbar-width:none;">
+              <div class="chat-input-actions" style="display:flex; gap:2px; position:relative; min-width:0; flex-shrink:1; overflow:visible;">
                 <button class="chat-input-action-btn" id="chat-attach-btn" title="Attach File"><i data-lucide="plus"></i></button>
                 <input accept="image/*,.pdf" id="chat-file-input" style="display:none;" type="file" multiple/>
                 <button class="chat-input-action-btn" id="chat-search-toggle" title="Web Search"><i data-lucide="globe"></i></button>
@@ -199,7 +199,7 @@
                 <button class="chat-input-action-btn" id="chat-personas-toggle-btn" title="Personas"><i data-lucide="sparkles"></i></button>
                 <button class="chat-input-action-btn" id="chat-code-mode-toggle" title="Output Format"><i data-lucide="layout-template"></i></button>
                 <!-- Format Dropdown -->
-                <div id="chat-format-dropdown" style="display:none; position:absolute; bottom:100%; left:70px; margin-bottom:8px; padding:4px; z-index:100; flex-direction:row; gap:4px; white-space:nowrap;">
+                <div id="chat-format-dropdown" style="display:none; position:absolute; bottom:100%; left:80px; margin-bottom:8px; padding:6px; z-index:1000; flex-direction:row; gap:4px; white-space:nowrap; background:var(--bg-secondary); border:1px solid var(--border-light); border-radius:12px; box-shadow:0 10px 25px -5px rgba(0,0,0,0.15);">
                   <button class="chat-input-action-btn format-option active" data-format="default" title="默认回复 (Default)"><i data-lucide="message-square"></i></button>
                   <button class="chat-input-action-btn format-option" data-format="code" title="纯代码 (Code)"><i data-lucide="square-terminal"></i></button>
                   <button class="chat-input-action-btn format-option" data-format="table" title="纯表格 (Table)"><i data-lucide="table"></i></button>
@@ -213,7 +213,7 @@
                   <button class="chat-input-action-btn" id="mode-btn" title="AI 工作模式">
                       <i data-lucide="cpu"></i>
                   </button>
-                  <div id="mode-menu" class="mode-menu" style="display: none; left: 0; right: auto; width: max-content;">
+                  <div id="mode-menu" class="mode-menu" style="display: none; position: absolute; bottom: 100%; left: 0; margin-bottom: 8px; z-index: 1000; flex-direction: row; gap: 4px; white-space: nowrap; background: var(--bg-secondary); border: 1px solid var(--border-light); border-radius: 12px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.15); padding: 6px;">
                       <div class="mode-item active" data-mode="normal" title="常规模式 (Mistral)"><i data-lucide="globe" style="width:18px; height:18px;"></i></div>
                       <div class="mode-item" data-mode="collaborative" title="圆桌会议 (全模型群聊)"><i data-lucide="swords" style="width:18px; height:18px;"></i></div>
                       <div style="width: 1px; height: 20px; background: var(--border-color); margin: 0 4px;"></div>
@@ -575,6 +575,6 @@
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
   <script src="keys.js"></script>
-  <script src="app.js?v=32"></script>
+  <script src="app.js?v=33"></script>
 </body>
 </html>

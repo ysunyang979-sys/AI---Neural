@@ -6883,21 +6883,23 @@ document.addEventListener('change', (e) => {
 
 window.currentAiMode = 'normal';
 
-document.addEventListener('DOMContentLoaded', () => {
+function initModeSwitcher() {
     const modeBtn = document.getElementById('mode-btn');
     const modeMenu = document.getElementById('mode-menu');
     
-    if (modeBtn && modeMenu) {
+    if (modeBtn && modeMenu && !modeBtn.hasAttribute('data-initialized')) {
+        modeBtn.setAttribute('data-initialized', 'true');
         modeBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            modeMenu.style.display = modeMenu.style.display === 'none' ? 'flex' : 'none';
+            const isHidden = getComputedStyle(modeMenu).display === 'none' || modeMenu.style.display === 'none';
+            modeMenu.style.display = isHidden ? 'flex' : 'none';
         });
         
         document.addEventListener('click', () => {
-            modeMenu.style.display = 'none';
+            if (modeMenu) modeMenu.style.display = 'none';
         });
         
-        window.activeCollaborators = ['single_groq', 'single_deepseek', 'single_glm', 'single_qwen', 'single_mistral', 'single_mistral_code', 'single_pixtral']; // default all active
+        window.activeCollaborators = ['single_groq', 'single_deepseek', 'single_glm', 'single_qwen', 'single_mistral', 'single_mistral_code', 'single_pixtral'];
         modeMenu.querySelectorAll('.mode-item').forEach(item => {
             item.addEventListener('click', (e) => {
                 const clickedMode = item.getAttribute('data-mode');
@@ -6975,7 +6977,15 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     }
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initModeSwitcher);
+} else {
+    initModeSwitcher();
+}
+window.addEventListener('load', initModeSwitcher);
+setTimeout(initModeSwitcher, 300);
 
 // Flashcard interactive controls
 window.prevFlashCard = function(deckId) {
