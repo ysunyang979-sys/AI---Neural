@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Neural Core AI</title>
+  <meta name="description" content="Neural Core — An advanced AI assistant powered by Mistral AI. Chat, search the web, run Python code, and more."/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <link href="style.css?v=20" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/d3@3/d3.min.js"></script>
+  <script src="https://unpkg.com/function-plot@1.22.8/dist/function-plot.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/alasql"></script>
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</head>
+<body>
+  <div class="chat-page-container">
+
+    <!-- ═══ LEFT SIDEBAR ═══ -->
+    <aside class="chat-sidebar" id="chat-sidebar">
+      <div class="chat-sidebar-header">
+        <div class="chat-sidebar-top-row">
+          <a class="chat-home-btn" href="/" title="Back to Home">
+            <svg class="chat-logo-img" style="background: transparent; box-shadow: none; width: 32px; height: 32px;" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="sunFlameGradSidebar" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#FFA726"/>
+                  <stop offset="50%" stop-color="#FB8C00"/>
+                  <stop offset="100%" stop-color="#E65100"/>
+                </linearGradient>
+                <filter id="whiteGlowSidebar" x="-30%" y="-30%" width="160%" height="160%">
+                  <feGaussianBlur stdDeviation="1.2" result="blur"/>
+                  <feMerge>
+                    <feMergeNode in="blur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
+                <g id="sunRaySidebar">
+                  <path d="M45.5 25 L50 6 L54.5 25 Z" fill="url(#sunFlameGradSidebar)"/>
+                </g>
+              </defs>
+              <g>
+                <use href="#sunRaySidebar"/>
+                <use href="#sunRaySidebar" transform="rotate(30 50 50)"/>
+                <use href="#sunRaySidebar" transform="rotate(60 50 50)"/>
+                <use href="#sunRaySidebar" transform="rotate(90 50 50)"/>
+                <use href="#sunRaySidebar" transform="rotate(120 50 50)"/>
+                <use href="#sunRaySidebar" transform="rotate(150 50 50)"/>
+                <use href="#sunRaySidebar" transform="rotate(180 50 50)"/>
+                <use href="#sunRaySidebar" transform="rotate(210 50 50)"/>
+                <use href="#sunRaySidebar" transform="rotate(240 50 50)"/>
+                <use href="#sunRaySidebar" transform="rotate(270 50 50)"/>
+                <use href="#sunRaySidebar" transform="rotate(300 50 50)"/>
+                <use href="#sunRaySidebar" transform="rotate(330 50 50)"/>
+              </g>
+              <circle cx="50" cy="50" r="26" fill="none" stroke="#FFFFFF" stroke-width="2.5"/>
+              <circle cx="50" cy="50" r="25" fill="url(#sunFlameGradSidebar)"/>
+              <g filter="url(#whiteGlowSidebar)">
+                <path d="M50 30 C50 43 57 50 70 50 C57 50 50 57 50 70 C50 57 43 50 30 50 C43 50 50 43 50 30 Z" fill="#FFFFFF"/>
+                <circle cx="50" cy="50" r="3" fill="#FFFFFF"/>
+              </g>
+            </svg>
+            <span class="chat-logo-text">Neural Core</span>
+          </a>
+          <button class="chat-header-btn" id="chat-sidebar-toggle" title="Toggle Sidebar"><i data-lucide="panel-left"></i></button>
+        </div>
+        <div class="chat-mode-tabs">
+          <button class="chat-mode-tab active" data-mode="chat">Chat</button>
+          <button class="chat-mode-tab" data-mode="search">Search</button>
+          <button class="chat-mode-tab" data-mode="code">Code</button>
+        </div>
+        <button class="chat-new-btn" id="chat-new-btn"><i data-lucide="plus"></i> <span class="btn-text">New Chat</span></button>
+      </div>
+
+      <div class="chat-session-list" id="chat-session-list"></div>
+
+      <div class="chat-sidebar-footer">
+        <div class="chat-sidebar-user-wrapper">
+          <div class="user-menu-popup" id="user-menu-popup">
+            <button class="user-menu-item" id="user-menu-settings-btn"><i data-lucide="settings"></i> 设置 (Settings)</button>
+            <div class="user-menu-item user-menu-theme">
+              <span class="theme-toggle-label">Dark Mode</span>
+              <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle Theme"></button>
+            </div>
+            <button class="user-menu-item" id="user-menu-about-btn"><i data-lucide="info"></i> 介绍 AI</button>
+          </div>
+          <button class="chat-sidebar-user" id="chat-sidebar-user-btn">
+            <div class="user-avatar">S</div>
+            <div style="text-align: left;">
+              <div class="user-name">Sunny</div>
+              <div class="user-plan">Neural Core Pro</div>
+            </div>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ═══ MAIN CHAT AREA ═══ -->
+    <main class="chat-main">
+      <header class="chat-main-header">
+        <div class="chat-current-title" id="chat-current-title">New Conversation</div>
+        <div class="chat-header-controls">
+        </div>
+      </header>
+
+      <!-- ═══ CHAT LOG ═══ -->
+      <div class="chat-log-full" id="chat-log-full">
+        <div class="chat-welcome">
+          <div class="chat-welcome-logo">
+            <svg style="width: 72px; height: 72px; transition: transform 0.3s ease;" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="sunFlameGradWelcome" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#FFA726"/>
+                  <stop offset="50%" stop-color="#FB8C00"/>
+                  <stop offset="100%" stop-color="#E65100"/>
+                </linearGradient>
+                <filter id="whiteGlowWelcome" x="-30%" y="-30%" width="160%" height="160%">
+                  <feGaussianBlur stdDeviation="1.2" result="blur"/>
+                  <feMerge>
+                    <feMergeNode in="blur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
+                <g id="sunRayWelcome">
+                  <path d="M45.5 25 L50 6 L54.5 25 Z" fill="url(#sunFlameGradWelcome)"/>
+                </g>
+              </defs>
+              <g>
+                <use href="#sunRayWelcome"/>
+                <use href="#sunRayWelcome" transform="rotate(30 50 50)"/>
+                <use href="#sunRayWelcome" transform="rotate(60 50 50)"/>
+                <use href="#sunRayWelcome" transform="rotate(90 50 50)"/>
+                <use href="#sunRayWelcome" transform="rotate(120 50 50)"/>
+                <use href="#sunRayWelcome" transform="rotate(150 50 50)"/>
+                <use href="#sunRayWelcome" transform="rotate(180 50 50)"/>
+                <use href="#sunRayWelcome" transform="rotate(210 50 50)"/>
+                <use href="#sunRayWelcome" transform="rotate(240 50 50)"/>
+                <use href="#sunRayWelcome" transform="rotate(270 50 50)"/>
+                <use href="#sunRayWelcome" transform="rotate(300 50 50)"/>
+                <use href="#sunRayWelcome" transform="rotate(330 50 50)"/>
+              </g>
+              <circle cx="50" cy="50" r="26" fill="none" stroke="#FFFFFF" stroke-width="2.5"/>
+              <circle cx="50" cy="50" r="25" fill="url(#sunFlameGradWelcome)"/>
+              <g filter="url(#whiteGlowWelcome)">
+                <path d="M50 30 C50 43 57 50 70 50 C57 50 50 57 50 70 C50 57 43 50 30 50 C43 50 50 43 50 30 Z" fill="#FFFFFF"/>
+                <circle cx="50" cy="50" r="3" fill="#FFFFFF"/>
+              </g>
+            </svg>
+          </div>
+          <h2>Welcome back, Sunny</h2>
+          <div class="chat-welcome-suggestions">
+            <div class="chat-suggestion-item" data-prompt="帮我搜索今天最新的AI新闻"><i data-lucide="search"></i> Deep research on the latest AI news</div>
+            <div class="chat-suggestion-item" data-prompt="用Python写一个2048游戏"><i data-lucide="code-2"></i> Write a 2048 game in Python</div>
+            <div class="chat-suggestion-item" data-prompt="解释一下什么是Transformer架构"><i data-lucide="lightbulb"></i> Explain the Transformer architecture</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ INPUT AREA ═══ -->
+      <div class="chat-input-wrapper-full">
+        <div id="chat-image-preview-container" style="display:none"></div>
+        <div class="chat-input-box" style="position:relative; display:flex; align-items:flex-end; padding:10px 14px; gap:8px; min-width:0;">
+          <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:8px;">
+            <!-- Personas Row -->
+            <div id="personas-row" style="max-height:0; opacity:0; overflow:hidden; transition:all 0.25s ease; display:flex; justify-content:space-between; align-items:center; padding:0 4px; gap:8px; min-width:0;">
+              <div class="personas-presets" style="display:flex; gap:6px; flex:1; min-width:0; overflow-x:auto; scrollbar-width:none;">
+                <button class="preset-btn-text" data-color="#8b5cf6" data-prompt="你是一位采用苏格拉底教学法的导师。核心规则:1.不要直接给出结论性答案,而是通过层层递进的提问引导我自己推导出来;2.每次提问聚焦一个具体的思考点,避免同时抛出多个问题;3.如果我的回答方向有误,不要直接否定,而是用反例或极端情况的追问让我自己发现矛盾;4.当我卡住时可给一个小提示(而非答案)再让我继续尝试;5.最终在我得出结论后,帮我总结整个推理链条并指出应用场景。如果我明确要求'直接告诉我答案',可以配合给出,但仍附上简要推导过程。" title="引导"><i data-lucide="landmark"></i>引导</button>
+                <button class="preset-btn-text" data-color="#10b981" data-prompt="你是一名精通系统底层与网络安全的极客。风格要求:1.回答简洁直接,拒绝废话和过度礼貌用语;2.每次回复开头用一行简短的系统状态式前缀,例如[STATUS: 已解析请求 | 风险等级: 低],不要每次都堆砌无意义的行话;3.涉及代码或命令时优先给出可直接执行的方案,再补充关键原理;4.遇到危险操作(如删库、提权、越权访问等)明确用一句话标注风险;5.可使用专业术语(payload、exploit、attack surface等)但确保准确,不为耍酷而滥用。" title="极客"><i data-lucide="terminal"></i>极客</button>
+                <button class="preset-btn-text" data-color="#f59e0b" data-prompt="你是一名资深代码审查员。审查代码时按以下结构输出:🔴安全问题(如有):漏洞类型、触发条件、修复建议;🟡性能瓶颈(如有):具体位置、复杂度分析、优化方向;🔵可维护性/最佳实践:命名、结构、可测试性建议;✅亮点:代码中做得好的地方。要求:每条建议附具体代码示例;按严重程度排序;如代码整体无明显问题直接说明,不硬找问题;涉及语言/框架特定实践时说明依据。" title="代码"><i data-lucide="shield-check"></i>代码</button>
+                <button class="preset-btn-text" data-color="#ec4899" data-prompt="你是一名资深翻译官,精通多语言互译与本地化。翻译时遵循:1.优先保留原文的语气、情感色彩和文体(正式/口语/幽默/专业文本区别对待);2.遇到文化专有概念、俚语、双关语时找目标语言中对应的表达,无法完全对应时用括号注明原意;3.专有名词按行业惯例翻译,不确定时保留原文并标注;4.原文存在歧义时按最合理理解翻译并在末尾简要说明;5.默认仅输出译文,如我要求'附说明'或原文有明显歧义再补充解释。" title="翻译"><i data-lucide="languages"></i>翻译</button>
+                <button class="preset-btn-text" data-color="#06b6d4" data-prompt="你是一名深度研究员。研究任务执行标准:1.主动判断是否需要搜索(涉及时效性数据、最新论文、具体统计数字等必须搜索,不要凭记忆作答);2.关键结论至少交叉验证2个独立来源,信息来源单一或存在争议时明确说明;3.输出结构为先给出核心结论摘要,再分点展开论据,最后列出信息来源;4.区分'已有共识的事实'和'存在争议的观点',后者并列呈现不同立场;5.学术语气但不堆砌术语;6.搜索结果不足以支撑确定性结论时诚实说明局限性。" title="研究"><i data-lucide="search"></i>研究</button>
+                <button class="preset-btn-text" data-color="#8b5cf6" data-prompt="你是一位以逻辑和结构著称的辩论家。你的目标是用清晰的论点和严谨的逻辑说服对方,而不是情绪攻击。回复时:1.结构化输出:每次回复先亮出你的核心论点,再分条列出支撑论据(论据必须真实可查);2.反驳机制:在提出自己观点前,先引用对方观点并简要复述(展现你听懂了),然后指出其逻辑漏洞或事实错误;3.避免稻草人:只攻击核心论点,不歪曲对方意思;4.保持礼貌:即使观点相左也要用专业、客观的语言;5.结尾总结:每次发言结束时用一句话总结你的观点和对方观点的核心差异。" title="辩论家"><i data-lucide="target"></i>辩论家</button>
+                <button class="preset-btn-text" id="more-skills-btn" title="更多提示词"><i data-lucide="list"></i>人物skill</button>
+              </div>
+              <button class="preset-btn-text" data-color="" data-prompt="You are Neural Core, an advanced AI assistant..." id="personas-reset-btn" style="flex-shrink:0;">Default</button>
+            </div>
+            <!-- Textarea -->
+            <textarea id="chat-input" placeholder="Message Neural Core..." rows="1"></textarea>
+            <!-- Bottom Action Bar -->
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; min-width:0;">
+              <div class="chat-input-actions" style="display:flex; gap:2px; position:relative; min-width:0; flex-shrink:1; overflow-x:auto; scrollbar-width:none;">
+                <button class="chat-input-action-btn" id="chat-attach-btn" title="Attach File"><i data-lucide="plus"></i></button>
+                <input accept="image/*,.pdf" id="chat-file-input" style="display:none;" type="file" multiple/>
+                <button class="chat-input-action-btn" id="chat-search-toggle" title="Web Search"><i data-lucide="globe"></i></button>
+                <button class="chat-input-action-btn" id="chat-draw-toggle" title="Drawing Mode"><i data-lucide="image"></i></button>
+                <!-- Aspect Ratio Dropdown -->
+                <div id="chat-draw-dropdown" style="display:none; position:absolute; bottom:100%; left:40px; margin-bottom:8px; padding:4px; z-index:100; flex-direction:row; gap:4px; white-space:nowrap; background:var(--bg-secondary); border:1px solid var(--border-light); border-radius:12px; box-shadow:0 10px 25px -5px rgba(0,0,0,0.1);">
+                  <button class="chat-input-action-btn draw-option active" data-ratio="1:1" title="1:1 Square" style="font-size:0.75rem; font-weight:bold; width:36px; padding:4px;">1:1</button>
+                  <button class="chat-input-action-btn draw-option" data-ratio="16:9" title="16:9 Landscape" style="font-size:0.75rem; font-weight:bold; width:36px; padding:4px;">16:9</button>
+                  <button class="chat-input-action-btn draw-option" data-ratio="9:16" title="9:16 Portrait" style="font-size:0.75rem; font-weight:bold; width:36px; padding:4px;">9:16</button>
+                  <button class="chat-input-action-btn draw-option" data-ratio="4:3" title="4:3 Standard" style="font-size:0.75rem; font-weight:bold; width:36px; padding:4px;">4:3</button>
+                  <button class="chat-input-action-btn draw-option" data-ratio="3:4" title="3:4 Standard" style="font-size:0.75rem; font-weight:bold; width:36px; padding:4px;">3:4</button>
+                </div>
+                <button class="chat-input-action-btn" id="chat-canvas-toggle" title="Canvas Mode (生成多文件项目 + ZIP打包)"><i data-lucide="layout-panel-left"></i></button>
+                <button class="chat-input-action-btn" id="chat-personas-toggle-btn" title="Personas"><i data-lucide="sparkles"></i></button>
+                <button class="chat-input-action-btn" id="chat-code-mode-toggle" title="Output Format"><i data-lucide="layout-template"></i></button>
+                <!-- Format Dropdown -->
+                <div id="chat-format-dropdown" style="display:none; position:absolute; bottom:100%; left:70px; margin-bottom:8px; padding:4px; z-index:100; flex-direction:row; gap:4px; white-space:nowrap;">
+                  <button class="chat-input-action-btn format-option active" data-format="default" title="默认回复 (Default)"><i data-lucide="message-square"></i></button>
+                  <button class="chat-input-action-btn format-option" data-format="code" title="纯代码 (Code)"><i data-lucide="square-terminal"></i></button>
+                  <button class="chat-input-action-btn format-option" data-format="table" title="纯表格 (Table)"><i data-lucide="table"></i></button>
+                  <button class="chat-input-action-btn format-option" data-format="outline" title="大纲列表 (Outline)"><i data-lucide="list-tree"></i></button>
+                  <button class="chat-input-action-btn format-option" data-format="concise" title="极简 (Concise)"><i data-lucide="minimize-2"></i></button>
+                  <button class="chat-input-action-btn format-option" data-format="stepbystep" title="分步指南 (Step-by-Step)"><i data-lucide="list-ordered"></i></button>
+                  <button class="chat-input-action-btn format-option" data-format="bilingual" title="双语对照 (Bilingual)"><i data-lucide="languages"></i></button>
+                  <button class="chat-input-action-btn format-option" data-format="socratic" title="启发引导 (Socratic)"><i data-lucide="help-circle"></i></button>
+                </div>
+                <div style="position: relative; display: inline-block;" id="mode-switcher-container">
+                  <button class="chat-input-action-btn" id="mode-btn" title="AI 工作模式">
+                      <i data-lucide="cpu"></i>
+                  </button>
+                  <div id="mode-menu" class="mode-menu" style="display: none; left: 0; right: auto; width: max-content;">
+                      <div class="mode-item active" data-mode="normal" title="常规模式 (Mistral)"><i data-lucide="globe" style="width:18px; height:18px;"></i></div>
+                      <div class="mode-item" data-mode="collaborative" title="圆桌会议 (全模型群聊)"><i data-lucide="swords" style="width:18px; height:18px;"></i></div>
+                      <div style="width: 1px; height: 20px; background: var(--border-color); margin: 0 4px;"></div>
+                      <div class="mode-item" data-mode="single_groq" title="单用: Groq (Llama 70B)"><i data-lucide="rocket" style="width:18px; height:18px;"></i></div>
+                      <div class="mode-item" data-mode="single_deepseek" title="单用: DeepSeek-R1"><i data-lucide="brain" style="width:18px; height:18px;"></i></div>
+                      <div class="mode-item" data-mode="single_glm" title="单用: GLM-4-Flash"><i data-lucide="zap" style="width:18px; height:18px;"></i></div>
+                      <div class="mode-item" data-mode="single_qwen" title="单用: Qwen-2.5-7B"><i data-lucide="box" style="width:18px; height:18px;"></i></div>
+                      <div class="mode-item" data-mode="single_mistral" title="单用: Mistral Large"><i data-lucide="cloud" style="width:18px; height:18px;"></i></div>
+                      <div class="mode-item" data-mode="single_mistral_code" title="单用: Codestral"><i data-lucide="code" style="width:18px; height:18px;"></i></div>
+                      <div class="mode-item" data-mode="single_pixtral" title="单用: Pixtral"><i data-lucide="image" style="width:18px; height:18px;"></i></div>
+                  </div>
+                </div>
+              </div>
+              <div style="display:flex; align-items:center; flex-shrink:0;">
+                <select class="chat-model-select" id="chat-model-select">
+                  <option value="ministral-8b-2512">Low</option>
+                  <option selected value="mistral-small-latest">High</option>
+                  <option value="mistral-large-latest">Max</option>
+                  <option value="codestral-latest">Code</option>
+                  <option value="pixtral-12b-2409">Nemo</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <!-- More Skills Dropdown -->
+          <div id="more-skills-dropdown" style="display:none; position:absolute; right:12px; bottom:100%; margin-bottom:8px; flex-direction:column; gap:2px; z-index:9999; min-width:140px;">
+            <div class="skill-dropdown-item" data-url="https://peoskill.358966.xyz/elon-musk-skill.md">马斯克</div>
+            <div class="skill-dropdown-item" data-url="https://peoskill.358966.xyz/feng-ge-skill.md">峰哥</div>
+            <div class="skill-dropdown-item" data-url="https://peoskill.358966.xyz/feynman-skill.md">费曼</div>
+            <div class="skill-dropdown-item" data-url="https://peoskill.358966.xyz/hu-chenfeng-skill.md">户晨风</div>
+            <div class="skill-dropdown-item" data-url="https://peoskill.358966.xyz/mrbeast-skill.md">MrBeast</div>
+            <div class="skill-dropdown-item" data-url="https://peoskill.358966.xyz/munger-skill.md">芒格</div>
+            <div class="skill-dropdown-item" data-url="https://peoskill.358966.xyz/naval-skill.md">纳瓦尔</div>
+            <div class="skill-dropdown-item" data-url="https://peoskill.358966.xyz/nuwa-skill.md">女娲</div>
+            <div class="skill-dropdown-item" data-url="https://peoskill.358966.xyz/paul-graham-skill.md">保罗·格雷厄姆</div>
+            <div class="skill-dropdown-item" data-url="https://peoskill.358966.xyz/steve-jobs-skill.md">乔布斯</div>
+            <div class="skill-dropdown-item" data-url="https://peoskill.358966.xyz/sun-yuchen-skill.md">孙宇晨</div>
+            <div class="skill-dropdown-item" data-url="https://peoskill.358966.xyz/taleb-skill.md">塔勒布</div>
+            <div class="skill-dropdown-item" data-url="https://peoskill.358966.xyz/tong-jincheng-skill.md">童锦程</div>
+            <div class="skill-dropdown-item" data-url="https://peoskill.358966.xyz/trump-skill.md">特朗普</div>
+            <div class="skill-dropdown-item" data-url="https://peoskill.358966.xyz/x-mentor-skill.md">X-Mentor</div>
+            <div class="skill-dropdown-item" data-url="https://peoskill.358966.xyz/zhangxuefeng-skill.md">张雪峰</div>
+          </div>
+          <button class="chat-send-btn" id="chat-send-btn" style="flex-shrink:0; margin-bottom:2px; z-index:5;"><i data-lucide="send"></i></button>
+        </div>
+        <div class="chat-input-footer">Neural Core is AI and can make mistakes. Please double-check responses.</div>
+      </div>
+
+      <!-- ═══ SETTINGS MODAL ═══ -->
+      <div class="ai-settings-overlay" id="ai-settings-modal" style="display:none;">
+        <div class="ai-settings-box">
+          <div class="ai-settings-header">
+            <h3><i data-lucide="sliders"></i> Neural Core Settings</h3>
+            <button class="chat-header-btn" id="close-settings-btn"><i data-lucide="x"></i></button>
+          </div>
+          <div class="ai-settings-body">
+            <input id="ai-sys-prompt" type="hidden"/>
+            <div class="setting-group">
+              <label for="ai-user-prompt">Custom Instructions</label>
+              <textarea id="ai-user-prompt" placeholder="e.g. Always reply in Chinese, keep it brief, explain like I'm 5..." rows="3"></textarea>
+            </div>
+            <div class="setting-group">
+              <label for="ai-memory-length">Context Memory</label>
+              <select id="ai-memory-length">
+                <option value="1">1 round (saves tokens)</option>
+                <option value="5">5 rounds</option>
+                <option value="10">10 rounds</option>
+                <option value="999">All</option>
+              </select>
+            </div>
+            <div class="setting-group">
+              <label for="ai-output-length">Output Length</label>
+              <select id="ai-output-length">
+                <option value="auto">Auto</option>
+                <option value="short">Short & concise</option>
+                <option value="detailed">Detailed & thorough</option>
+              </select>
+            </div>
+            <div class="setting-group">
+              <label for="ai-debate-rounds">协同辩论轮数 (Collaborative Rounds)</label>
+              <select id="ai-debate-rounds">
+                <option value="1">1 轮 (主AI -> 本地初审 -> 主AI总结)</option>
+                <option value="2">2 轮 (更深度辩论)</option>
+                <option value="3">3 轮 (极致探讨)</option>
+              </select>
+            </div>
+            <div class="setting-group">
+              <label for="ai-search-toggle-setting">Enable Web Search by default</label>
+              <input id="ai-search-toggle-setting" type="checkbox"/>
+            </div>
+            <div class="setting-group">
+              <label for="ai-temperature">Creativity: <span id="temp-val-display">0.25</span></label>
+              <input id="ai-temperature" max="1" min="0" step="0.05" type="range" value="0.25"/>
+            </div>
+          </div>
+          <div class="ai-settings-footer">
+            <button class="chat-new-btn" id="save-settings-btn">Save & Apply</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ ABOUT AI MODAL ═══ -->
+      <div class="ai-settings-overlay" id="ai-about-modal" style="display:none;">
+        <div class="ai-about-box">
+          <div class="ai-about-hero">
+            <button class="chat-header-btn ai-about-close-btn" id="close-about-btn" title="Close"><i data-lucide="x"></i></button>
+            <div class="ai-about-brand">
+              <div class="ai-about-logo-wrapper">
+                <svg class="ai-about-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="sunFlameGradAbout" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#FFA726"/>
+                      <stop offset="50%" stop-color="#FB8C00"/>
+                      <stop offset="100%" stop-color="#E65100"/>
+                    </linearGradient>
+                    <filter id="whiteGlowAbout" x="-30%" y="-30%" width="160%" height="160%">
+                      <feGaussianBlur stdDeviation="1.2" result="blur"/>
+                      <feMerge>
+                        <feMergeNode in="blur"/>
+                        <feMergeNode in="SourceGraphic"/>
+                      </feMerge>
+                    </filter>
+                    <g id="sunRayAbout">
+                      <path d="M45.5 25 L50 6 L54.5 25 Z" fill="url(#sunFlameGradAbout)"/>
+                    </g>
+                  </defs>
+                  <g>
+                    <use href="#sunRayAbout"/>
+                    <use href="#sunRayAbout" transform="rotate(30 50 50)"/>
+                    <use href="#sunRayAbout" transform="rotate(60 50 50)"/>
+                    <use href="#sunRayAbout" transform="rotate(90 50 50)"/>
+                    <use href="#sunRayAbout" transform="rotate(120 50 50)"/>
+                    <use href="#sunRayAbout" transform="rotate(150 50 50)"/>
+                    <use href="#sunRayAbout" transform="rotate(180 50 50)"/>
+                    <use href="#sunRayAbout" transform="rotate(210 50 50)"/>
+                    <use href="#sunRayAbout" transform="rotate(240 50 50)"/>
+                    <use href="#sunRayAbout" transform="rotate(270 50 50)"/>
+                    <use href="#sunRayAbout" transform="rotate(300 50 50)"/>
+                    <use href="#sunRayAbout" transform="rotate(330 50 50)"/>
+                  </g>
+                  <circle cx="50" cy="50" r="26" fill="none" stroke="#FFFFFF" stroke-width="2.5"/>
+                  <circle cx="50" cy="50" r="25" fill="url(#sunFlameGradAbout)"/>
+                  <g filter="url(#whiteGlowAbout)">
+                    <path d="M50 30 C50 43 57 50 70 50 C57 50 50 57 50 70 C50 57 43 50 30 50 C43 50 50 43 50 30 Z" fill="#FFFFFF"/>
+                    <circle cx="50" cy="50" r="3" fill="#FFFFFF"/>
+                  </g>
+                </svg>
+              </div>
+              <div class="ai-about-title-group">
+                <div class="ai-about-title-row">
+                  <h2>Neural Core AI</h2>
+                  <span class="ai-about-badge">v2.5 Pro</span>
+                </div>
+                <p class="ai-about-subtitle">下一代全能型 AI 智能助手与全栈协同工作台</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Navigation Tabs -->
+          <div class="ai-about-tabs">
+            <button class="ai-about-tab active" data-tab="features"><i data-lucide="sparkles"></i> 核心功能</button>
+            <button class="ai-about-tab" data-tab="models"><i data-lucide="cpu"></i> 模型矩阵</button>
+            <button class="ai-about-tab" data-tab="architecture"><i data-lucide="layers"></i> 技术架构</button>
+            <button class="ai-about-tab" data-tab="shortcuts"><i data-lucide="keyboard"></i> 快捷指南</button>
+          </div>
+
+          <div class="ai-about-body">
+            <!-- TAB 1: 核心功能 -->
+            <div class="ai-about-tab-content active" id="about-tab-features">
+              <div class="ai-feature-grid">
+                <div class="ai-feature-card">
+                  <div class="ai-feature-icon" style="background: rgba(139, 92, 246, 0.12); color: #8b5cf6;"><i data-lucide="swords"></i></div>
+                  <div class="ai-feature-info">
+                    <h4>多模型协同与辩论</h4>
+                    <p>支持 Mistral Large、DeepSeek-R1、Groq 等多模型交叉验证与圆桌协作。</p>
+                  </div>
+                </div>
+                <div class="ai-feature-card">
+                  <div class="ai-feature-icon" style="background: rgba(16, 185, 129, 0.12); color: #10b981;"><i data-lucide="globe"></i></div>
+                  <div class="ai-feature-info">
+                    <h4>全网智能实时搜索</h4>
+                    <p>集成联网搜索与维基百科、学术数据，快速抓取最新时效信息。</p>
+                  </div>
+                </div>
+                <div class="ai-feature-card">
+                  <div class="ai-feature-icon" style="background: rgba(245, 158, 11, 0.12); color: #f59e0b;"><i data-lucide="terminal"></i></div>
+                  <div class="ai-feature-info">
+                    <h4>Pyodide 客户端 Python</h4>
+                    <p>WebAssembly 驱动的零延迟本地 Python 执行、绘图与数据挖掘。</p>
+                  </div>
+                </div>
+                <div class="ai-feature-card">
+                  <div class="ai-feature-icon" style="background: rgba(6, 182, 212, 0.12); color: #06b6d4;"><i data-lucide="layout-panel-left"></i></div>
+                  <div class="ai-feature-info">
+                    <h4>Canvas 实时工作区</h4>
+                    <p>多文件代码可视化在线预览、编辑与一键 ZIP 压缩包打包导出。</p>
+                  </div>
+                </div>
+                <div class="ai-feature-card">
+                  <div class="ai-feature-icon" style="background: rgba(236, 72, 153, 0.12); color: #ec4899;"><i data-lucide="sparkles"></i></div>
+                  <div class="ai-feature-info">
+                    <h4>思维 Skill 与人设蒸馏</h4>
+                    <p>内置马斯克、乔布斯、纳瓦尔、女娲造人等 16+ 深度专家人格库。</p>
+                  </div>
+                </div>
+                <div class="ai-feature-card">
+                  <div class="ai-feature-icon" style="background: rgba(59, 130, 246, 0.12); color: #3b82f6;"><i data-lucide="image"></i></div>
+                  <div class="ai-feature-info">
+                    <h4>AI 绘画与多比例渲染</h4>
+                    <p>支持 1:1, 16:9, 9:16, 4:3 等多尺寸创意图像生成与构图调节。</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- TAB 2: 模型矩阵 -->
+            <div class="ai-about-tab-content" id="about-tab-models" style="display:none;">
+              <div class="ai-models-list">
+                <div class="ai-model-item">
+                  <span class="ai-model-tag tag-primary">Mistral Large</span>
+                  <div class="ai-model-details">
+                    <strong>旗舰级通用推理引擎</strong>
+                    <span>具备强大的逻辑推导、长文本理解与精细指令遵循能力。</span>
+                  </div>
+                </div>
+                <div class="ai-model-item">
+                  <span class="ai-model-tag tag-purple">DeepSeek-R1</span>
+                  <div class="ai-model-details">
+                    <strong>深度思维与数学逻辑</strong>
+                    <span>强化学习推理模型，擅长解构复杂算法、数学推演与底层 Debug。</span>
+                  </div>
+                </div>
+                <div class="ai-model-item">
+                  <span class="ai-model-tag tag-orange">Groq Llama 3 70B</span>
+                  <div class="ai-model-details">
+                    <strong>极速响应推理引擎</strong>
+                    <span>每秒数百 Token 极致输出，满足极速实时对话与交互需求。</span>
+                  </div>
+                </div>
+                <div class="ai-model-item">
+                  <span class="ai-model-tag tag-green">Codestral</span>
+                  <div class="ai-model-details">
+                    <strong>全栈代码专家</strong>
+                    <span>针对 80+ 编程语言优化的专门代码补全、重构与架构设计模型。</span>
+                  </div>
+                </div>
+                <div class="ai-model-item">
+                  <span class="ai-model-tag tag-blue">Pixtral 12B</span>
+                  <div class="ai-model-details">
+                    <strong>多模态视觉理解</strong>
+                    <span>原生的图像分析、图表识别与视觉问答多模态能力。</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- TAB 3: 技术架构 -->
+            <div class="ai-about-tab-content" id="about-tab-architecture" style="display:none;">
+              <div class="ai-arch-specs">
+                <div class="ai-arch-row">
+                  <span class="ai-arch-label">核心底层 (Core Engine)</span>
+                  <span class="ai-arch-value">Mistral AI API & Edge Gateway</span>
+                </div>
+                <div class="ai-arch-row">
+                  <span class="ai-arch-label">前端运行环境 (Frontend)</span>
+                  <span class="ai-arch-value">ES6 Modules + HTML5 + CSS3 Variables</span>
+                </div>
+                <div class="ai-arch-row">
+                  <span class="ai-arch-label">Wasm 交互引擎 (Runtime)</span>
+                  <span class="ai-arch-value">Pyodide 0.25.0 (Python 3.11 in Browser)</span>
+                </div>
+                <div class="ai-arch-row">
+                  <span class="ai-arch-label">渲染与可视化 (Visualization)</span>
+                  <span class="ai-arch-value">KaTeX / Mermaid.js / Leaflet / Highlight.js</span>
+                </div>
+                <div class="ai-arch-row">
+                  <span class="ai-arch-label">隐私与存储 (Privacy)</span>
+                  <span class="ai-arch-value">100% 客户端本地持久化存储 (LocalStorage)</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- TAB 4: 快捷指南 -->
+            <div class="ai-about-tab-content" id="about-tab-shortcuts" style="display:none;">
+              <div class="ai-shortcuts-list">
+                <div class="ai-shortcut-item">
+                  <span>发送消息</span>
+                  <div class="kbd-group"><kbd>Enter</kbd></div>
+                </div>
+                <div class="ai-shortcut-item">
+                  <span>输入框换行</span>
+                  <div class="kbd-group"><kbd>Shift</kbd> + <kbd>Enter</kbd></div>
+                </div>
+                <div class="ai-shortcut-item">
+                  <span>切换/关闭 Canvas 面板</span>
+                  <div class="kbd-group"><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd></div>
+                </div>
+                <div class="ai-shortcut-item">
+                  <span>关闭任何弹窗面板</span>
+                  <div class="kbd-group"><kbd>Esc</kbd></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="ai-about-footer">
+            <div class="ai-about-stats">
+              <span><i data-lucide="check-circle-2"></i> System Ready</span>
+              <span><i data-lucide="shield-check"></i> Private & Encrypted</span>
+            </div>
+            <button class="chat-new-btn" id="ai-about-confirm-btn">开始体验</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- 🌟🌟🌟 CANVAS RESIZER SPLITTER 🌟🌟🌟 -->
+    <div class="canvas-resizer" id="canvas-resizer" title="按住左右拖拽调节面板宽度"></div>
+
+    <!-- 🌟🌟🌟 CANVAS PANE 🌟🌟🌟 -->
+    <aside class="canvas-pane" id="canvas-pane">
+      <div class="canvas-header">
+        <div class="canvas-title-area">
+          <i data-lucide="layout-panel-left" style="width:16px;height:16px; opacity:0.7;"></i>
+          <span class="canvas-title" id="canvas-title">Artifact</span>
+        </div>
+        <div class="canvas-tabs">
+          <button class="canvas-tab active" id="canvas-tab-code">Code</button>
+          <button class="canvas-tab" id="canvas-tab-preview">Preview</button>
+        </div>
+        <div class="canvas-actions">
+          <button class="chat-header-btn" id="canvas-refresh-btn" title="Refresh"><i data-lucide="refresh-cw"></i></button>
+          <button class="chat-header-btn" id="canvas-download-btn" title="Download"><i data-lucide="download"></i></button>
+          <div class="canvas-divider"></div>
+          <button class="chat-header-btn" id="canvas-close-btn" title="Close Canvas"><i data-lucide="x"></i></button>
+        </div>
+      </div>
+      <div class="canvas-body">
+        <div class="canvas-content code-view active" id="canvas-code-view" style="overflow: auto; background: var(--bg-primary);">
+          <div style="position: relative; min-height: 100%; min-width: max-content;">
+            <pre aria-hidden="true" style="margin: 0; padding: 16px; pointer-events: none;"><code id="canvas-code-block" class="hljs" style="font-family: 'Fira Code', Consolas, monospace; font-size: 14px; line-height: 1.5; white-space: pre; tab-size: 4;"></code></pre>
+            <textarea id="canvas-code-textarea" spellcheck="false" style="position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; padding: 16px; font-family: 'Fira Code', Consolas, monospace; font-size: 14px; line-height: 1.5; white-space: pre; tab-size: 4; background: transparent; color: transparent; caret-color: var(--text-primary); border: none; resize: none; outline: none; overflow: hidden; z-index: 2; word-wrap: normal; overflow-wrap: normal;"></textarea>
+          </div>
+        </div>
+        <div class="canvas-content preview-view" id="canvas-preview-view">
+          <iframe id="canvas-iframe" sandbox="allow-scripts allow-same-origin allow-modals allow-forms allow-popups"></iframe>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+
+
+  <!-- Dependencies -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
+  <script src="keys.js"></script>
+  <script src="app.js?v=29"></script>
+</body>
+</html>

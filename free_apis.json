@@ -1,0 +1,957 @@
+[
+  {
+    "name": "Axolotl",
+    "url": "https://theaxolotlapi.netlify.app/",
+    "desc": "Collection of axolotl pictures and facts"
+  },
+  {
+    "name": "Cat Facts",
+    "url": "https://alexwohlbruck.github.io/cat-facts/",
+    "desc": "Daily cat facts"
+  },
+  {
+    "name": "Cat Facts",
+    "url": "https://catfact.ninja/",
+    "desc": "Random cat facts"
+  },
+  {
+    "name": "Cataas",
+    "url": "https://cataas.com/",
+    "desc": "Cat as a service (cats pictures and gifs)"
+  },
+  {
+    "name": "Dog Facts",
+    "url": "https://dukengn.github.io/Dog-facts-API/",
+    "desc": "Random dog facts"
+  },
+  {
+    "name": "Dog Facts",
+    "url": "https://kinduff.github.io/dog-api/",
+    "desc": "Random facts of Dogs"
+  },
+  {
+    "name": "Dogs",
+    "url": "https://dog.ceo/dog-api/",
+    "desc": "Based on the Stanford Dogs Dataset"
+  },
+  {
+    "name": "FishWatch",
+    "url": "https://www.fishwatch.gov/developers",
+    "desc": "Information and pictures about individual fish species"
+  },
+  {
+    "name": "HTTP Cat",
+    "url": "https://http.cat/",
+    "desc": "Cat for every HTTP Status"
+  },
+  {
+    "name": "HTTP Dog",
+    "url": "https://http.dog/",
+    "desc": "Dogs for every HTTP response status code"
+  },
+  {
+    "name": "MeowFacts",
+    "url": "https://github.com/wh-iterabb-it/meowfacts",
+    "desc": "Get random cat facts"
+  },
+  {
+    "name": "Movebank",
+    "url": "https://github.com/movebank/movebank-api-doc",
+    "desc": "Movement and Migration data of animals"
+  },
+  {
+    "name": "PlaceBear",
+    "url": "https://placebear.com/",
+    "desc": "Placeholder bear pictures"
+  },
+  {
+    "name": "PlaceDog",
+    "url": "https://place.dog",
+    "desc": "Placeholder Dog pictures"
+  },
+  {
+    "name": "RandomDog",
+    "url": "https://random.dog/woof.json",
+    "desc": "Random pictures of dogs"
+  },
+  {
+    "name": "RandomDuck",
+    "url": "https://random-d.uk/api",
+    "desc": "Random pictures of ducks"
+  },
+  {
+    "name": "RandomFox",
+    "url": "https://randomfox.ca/floof/",
+    "desc": "Random pictures of foxes"
+  },
+  {
+    "name": "RescueGroups",
+    "url": "https://userguide.rescuegroups.org/display/APIDG/API+Developers+Guide+Home",
+    "desc": "Adoption"
+  },
+  {
+    "name": "Shibe.Online",
+    "url": "http://shibe.online/",
+    "desc": "Random pictures of Shiba Inu, cats or birds"
+  },
+  {
+    "name": "xeno-canto",
+    "url": "https://xeno-canto.org/explore/api",
+    "desc": "Bird recordings"
+  },
+  {
+    "name": "AnimeChan",
+    "url": "https://github.com/RocktimSaikia/anime-chan",
+    "desc": "Anime quotes (over 10k+)"
+  },
+  {
+    "name": "AnimeFacts",
+    "url": "https://chandan-02.github.io/anime-facts-rest-api/",
+    "desc": "Anime Facts (over 100+)"
+  },
+  {
+    "name": "AnimeNewsNetwork",
+    "url": "https://www.animenewsnetwork.com/encyclopedia/api.php",
+    "desc": "Anime industry news"
+  },
+  {
+    "name": "Catboy",
+    "url": "https://catboys.com/api",
+    "desc": "Neko images, funny GIFs & more"
+  },
+  {
+    "name": "Jikan",
+    "url": "https://jikan.moe",
+    "desc": "Unofficial MyAnimeList API"
+  },
+  {
+    "name": "NekosBest",
+    "url": "https://docs.nekos.best",
+    "desc": "Neko Images & Anime roleplaying GIFs"
+  },
+  {
+    "name": "Studio Ghibli",
+    "url": "https://ghibliapi.herokuapp.com",
+    "desc": "Resources from Studio Ghibli films"
+  },
+  {
+    "name": "Trace Moe",
+    "url": "https://soruly.github.io/trace.moe-api/#/",
+    "desc": "A useful tool to get the exact scene of an anime from a screenshot"
+  },
+  {
+    "name": "Waifu.im",
+    "url": "https://waifu.im/docs",
+    "desc": "Get waifu pictures from an archive of over 4000 images and multiple tags"
+  },
+  {
+    "name": "Waifu.pics",
+    "url": "https://waifu.pics/docs",
+    "desc": "Image sharing platform for anime images"
+  },
+  {
+    "name": "URLhaus",
+    "url": "https://urlhaus-api.abuse.ch/",
+    "desc": "Bulk queries and Download Malware Samples"
+  },
+  {
+    "name": "Art Institute of Chicago",
+    "url": "https://api.artic.edu/docs/",
+    "desc": "Art"
+  },
+  {
+    "name": "Colormind",
+    "url": "http://colormind.io/api-access/",
+    "desc": "Color scheme generator"
+  },
+  {
+    "name": "ColourLovers",
+    "url": "http://www.colourlovers.com/api",
+    "desc": "Get various patterns, palettes and images"
+  },
+  {
+    "name": "DummyImage",
+    "url": "https://dummyimage.com/",
+    "desc": "Generate placeholder images with custom size, colors and text"
+  },
+  {
+    "name": "EmojiHub",
+    "url": "https://github.com/cheatsnake/emojihub",
+    "desc": "Get emojis by categories and groups"
+  },
+  {
+    "name": "Icon Horse",
+    "url": "https://icon.horse",
+    "desc": "Favicons for any website, with fallbacks"
+  },
+  {
+    "name": "Icons8",
+    "url": "https://img.icons8.com/",
+    "desc": "Icons (find \"search icon\" hyperlink in page)"
+  },
+  {
+    "name": "Lordicon",
+    "url": "https://lordicon.com/",
+    "desc": "Icons with predone Animations"
+  },
+  {
+    "name": "Metropolitan Museum of Art",
+    "url": "https://metmuseum.github.io/",
+    "desc": "Met Museum of Art"
+  },
+  {
+    "name": "PHP-Noise",
+    "url": "https://php-noise.com/",
+    "desc": "Noise Background Image Generator"
+  },
+  {
+    "name": "Pixel Encounter",
+    "url": "https://pixelencounter.com/api",
+    "desc": "SVG Icon Generator"
+  },
+  {
+    "name": "xColors",
+    "url": "https://x-colors.herokuapp.com/",
+    "desc": "Generate & convert colors"
+  },
+  {
+    "name": "Chainlink",
+    "url": "https://chain.link/developer-resources",
+    "desc": "Build hybrid smart contracts with Chainlink"
+  },
+  {
+    "name": "Chainpoint",
+    "url": "https://tierion.com/chainpoint/",
+    "desc": "Chainpoint is a global network for anchoring data to the Bitcoin blockchain"
+  },
+  {
+    "name": "Helium",
+    "url": "https://docs.helium.com/api/blockchain/introduction/",
+    "desc": "Helium is a global, distributed network of Hotspots that create public, long-range wireless coverage"
+  },
+  {
+    "name": "Steem",
+    "url": "https://developers.steem.io/",
+    "desc": "Blockchain-based blogging and social media website"
+  },
+  {
+    "name": "TWZRD Agent Intel",
+    "url": "https://intel.twzrd.xyz",
+    "desc": "Solana on-chain agent trust scoring via MCP; 4 free tools to score, resolve and verify AI agent wallets"
+  },
+  {
+    "name": "Walltime",
+    "url": "https://walltime.info/api.html",
+    "desc": "To retrieve Walltime's market info"
+  },
+  {
+    "name": "Bhagavad Gita telugu",
+    "url": "https://gita-api.vercel.app",
+    "desc": "Bhagavad Gita API in telugu and odia languages"
+  },
+  {
+    "name": "Bible-api",
+    "url": "https://bible-api.com/",
+    "desc": "Free Bible API with multiple languages"
+  },
+  {
+    "name": "British National Bibliography",
+    "url": "http://bnb.data.bl.uk/",
+    "desc": "Books"
+  },
+  {
+    "name": "Crossref Metadata Search",
+    "url": "https://github.com/CrossRef/rest-api-doc",
+    "desc": "Books & Articles Metadata"
+  },
+  {
+    "name": "GurbaniNow",
+    "url": "https://github.com/GurbaniNow/api",
+    "desc": "Fast and Accurate Gurbani RESTful API"
+  },
+  {
+    "name": "Gutendex",
+    "url": "https://gutendex.com/",
+    "desc": "Web-API for fetching data from Project Gutenberg Books Library"
+  },
+  {
+    "name": "KDP Intelligence",
+    "url": "https://kdp-intelligence-api.vercel.app/docs",
+    "desc": "KDP niche demand scores, competition analysis and revenue estimates"
+  },
+  {
+    "name": "Open Library",
+    "url": "https://openlibrary.org/developers/api",
+    "desc": "Books, book covers and related data"
+  },
+  {
+    "name": "Penguin Publishing",
+    "url": "http://www.penguinrandomhouse.biz/webservices/rest/",
+    "desc": "Books, book covers and related data"
+  },
+  {
+    "name": "PoetryDB",
+    "url": "https://github.com/thundercomb/poetrydb#readme",
+    "desc": "Enables you to get instant data from our vast poetry collection"
+  },
+  {
+    "name": "Quran",
+    "url": "https://quran.api-docs.io/",
+    "desc": "RESTful Quran API with multiple languages"
+  },
+  {
+    "name": "Quran Cloud",
+    "url": "https://alquran.cloud/api",
+    "desc": "A RESTful Quran API to retrieve an Ayah, Surah, Juz or the entire Holy Quran"
+  },
+  {
+    "name": "Quran-api",
+    "url": "https://github.com/fawazahmed0/quran-api#readme",
+    "desc": "Free Quran API Service with 90+ different languages and 400+ translations"
+  },
+  {
+    "name": "Rig Veda",
+    "url": "https://aninditabasu.github.io/indica/html/rv.html",
+    "desc": "Gods and poets, their categories, and the verse meters, with the mandal and sukta number"
+  },
+  {
+    "name": "Runyankole Bible",
+    "url": "https://runyankole-bible-api.vercel.app",
+    "desc": "Free REST API for the Runyankore-Rukiga Bible — 66 books, 31106 verses"
+  },
+  {
+    "name": "Thirukkural",
+    "url": "https://api-thirukkural.web.app/",
+    "desc": "1330 Thirukkural poems and explanation in Tamil and English"
+  },
+  {
+    "name": "Urantia Papers",
+    "url": "https://urantia.dev",
+    "desc": "Full-text + semantic search across the Urantia Papers, with audio narration, entities, translations"
+  },
+  {
+    "name": "Vedic Society",
+    "url": "https://aninditabasu.github.io/indica/html/vs.html",
+    "desc": "Descriptions of all nouns (names, places, animals, things) from vedic literature"
+  },
+  {
+    "name": "Wizard World",
+    "url": "https://wizard-world-api.herokuapp.com/swagger/index.html",
+    "desc": "Get information from the Harry Potter universe"
+  },
+  {
+    "name": "Wolne Lektury",
+    "url": "https://wolnelektury.pl/api/",
+    "desc": "API for obtaining information about e-books available on the WolneLektury.pl website"
+  },
+  {
+    "name": "Domainsdb.info",
+    "url": "https://domainsdb.info/",
+    "desc": "Registered Domain Names Search"
+  },
+  {
+    "name": "markerapi",
+    "url": "https://markerapi.com",
+    "desc": "Trademark Search"
+  },
+  {
+    "name": "Pick an Agency",
+    "url": "https://www.pickanagency.com/developers",
+    "desc": "Search 47,000+ marketing agencies by service, location and rating"
+  },
+  {
+    "name": "Tenders in Hungary",
+    "url": "https://tenders.guru/hu/api",
+    "desc": "Get data for procurements in Hungary in JSON format"
+  },
+  {
+    "name": "Tenders in Poland",
+    "url": "https://tenders.guru/pl/api",
+    "desc": "Get data for procurements in Poland in JSON format"
+  },
+  {
+    "name": "Tenders in Romania",
+    "url": "https://tenders.guru/ro/api",
+    "desc": "Get data for procurements in Romania in JSON format"
+  },
+  {
+    "name": "Tenders in Spain",
+    "url": "https://tenders.guru/es/api",
+    "desc": "Get data for procurements in Spain in JSON format"
+  },
+  {
+    "name": "Tenders in Ukraine",
+    "url": "https://tenders.guru/ua/api",
+    "desc": "Get data for procurements in Ukraine in JSON format"
+  },
+  {
+    "name": "caldays",
+    "url": "https://caldays.com/api",
+    "desc": "Public holidays for 195+ countries"
+  },
+  {
+    "name": "Church Calendar",
+    "url": "http://calapi.inadiutorium.cz/",
+    "desc": "Catholic liturgical calendar"
+  },
+  {
+    "name": "Czech Namedays Calendar",
+    "url": "https://svatky.adresa.info",
+    "desc": "Lookup for a name and returns nameday date"
+  },
+  {
+    "name": "Hebrew Calendar",
+    "url": "https://www.hebcal.com/home/developer-apis",
+    "desc": "Convert between Gregorian and Hebrew, fetch Shabbat and Holiday times, etc"
+  },
+  {
+    "name": "LectServe",
+    "url": "http://www.lectserve.com",
+    "desc": "Protestant liturgical calendar"
+  },
+  {
+    "name": "Nager.Date",
+    "url": "https://date.nager.at",
+    "desc": "Public holidays for more than 90 countries"
+  },
+  {
+    "name": "Namedays Calendar",
+    "url": "https://nameday.abalin.net",
+    "desc": "Provides namedays for multiple countries"
+  },
+  {
+    "name": "Non-Working Days",
+    "url": "https://github.com/gadael/icsdb",
+    "desc": "Database of ICS files for non working days"
+  },
+  {
+    "name": "Non-Working Days",
+    "url": "https://isdayoff.ru",
+    "desc": "Simple REST API for checking working, non-working or short days for Russia, CIS, USA and other"
+  },
+  {
+    "name": "Russian Calendar",
+    "url": "https://github.com/egno/work-calendar",
+    "desc": "Check if a date is a Russian holiday or not"
+  },
+  {
+    "name": "The Calendar",
+    "url": "https://the-calendar.net/api/",
+    "desc": "Public holidays for US states and 30 countries plus sports and finance calendars as static JSON"
+  },
+  {
+    "name": "UK Bank Holidays",
+    "url": "https://www.gov.uk/bank-holidays.json",
+    "desc": "Bank holidays in England and Wales, Scotland and Northern Ireland"
+  },
+  {
+    "name": "File.io",
+    "url": "https://www.file.io",
+    "desc": "Super simple file sharing, convenient, anonymous and secure"
+  },
+  {
+    "name": "FileUp",
+    "url": "https://github.com/RealSinaSnp/FileUp",
+    "desc": "Temporary file hosting with upload API, expiration times, and view limits"
+  },
+  {
+    "name": "Pantry",
+    "url": "https://getpantry.cloud/",
+    "desc": "Free JSON storage for small projects"
+  },
+  {
+    "name": "The Null Pointer",
+    "url": "https://0x0.st",
+    "desc": "No-bullshit file hosting and URL shortening service"
+  },
+  {
+    "name": "0x",
+    "url": "https://0x.org/api",
+    "desc": "API for querying token and pool stats across various liquidity pools"
+  },
+  {
+    "name": "1inch",
+    "url": "https://1inch.io/api/",
+    "desc": "API for querying decentralize exchange"
+  },
+  {
+    "name": "Alpha (Mossland)",
+    "url": "https://alpha.moss.land/developers",
+    "desc": "Korean crypto channel stance + RAG Q&A + canonical entity/topic/event store"
+  },
+  {
+    "name": "Bitcambio",
+    "url": "https://nova.bitcambio.com.br/api/v3/docs#a-public",
+    "desc": "Get the list of all traded assets in the exchange"
+  },
+  {
+    "name": "BitcoinCharts",
+    "url": "https://bitcoincharts.com/about/exchanges/",
+    "desc": "Financial and Technical Data related to the Bitcoin Network"
+  },
+  {
+    "name": "Block Lottos",
+    "url": "https://blocklottos.com/openapi.json",
+    "desc": "On-chain lottery, draw history, jackpot and advertising endpoints"
+  },
+  {
+    "name": "btcnode.uk",
+    "url": "https://btcnode.uk",
+    "desc": "Bitcoin blockchain data, fees, mempool, SEC insider trades, Reddit sentiment. x402 micropayments for paid endpoints."
+  },
+  {
+    "name": "CoinCap",
+    "url": "https://docs.coincap.io/",
+    "desc": "Real time Cryptocurrency prices through a RESTful API"
+  },
+  {
+    "name": "CoinDesk",
+    "url": "https://old.coindesk.com/coindesk-api/",
+    "desc": "CoinDesk's Bitcoin Price Index (BPI) in multiple currencies"
+  },
+  {
+    "name": "CoinGecko",
+    "url": "http://www.coingecko.com/api",
+    "desc": "Cryptocurrency Price, Market, and Developer/Social Data"
+  },
+  {
+    "name": "Coinlore",
+    "url": "https://www.coinlore.com/cryptocurrency-data-api",
+    "desc": "Cryptocurrencies prices, volume and more"
+  },
+  {
+    "name": "Coinpaprika",
+    "url": "https://api.coinpaprika.com",
+    "desc": "Cryptocurrencies prices, volume and more"
+  },
+  {
+    "name": "CoinStats",
+    "url": "https://documenter.getpostman.com/view/5734027/RzZ6Hzr3?version=latest",
+    "desc": "Crypto Tracker"
+  },
+  {
+    "name": "CryptAPI",
+    "url": "https://docs.cryptapi.io/",
+    "desc": "Cryptocurrency Payment Processor"
+  },
+  {
+    "name": "CryptingUp",
+    "url": "https://www.cryptingup.com/apidoc/#introduction",
+    "desc": "Cryptocurrency data"
+  },
+  {
+    "name": "CryptoCompare",
+    "url": "https://www.cryptocompare.com/api#",
+    "desc": "Cryptocurrencies Comparison"
+  },
+  {
+    "name": "Cryptonator",
+    "url": "https://www.cryptonator.com/api/",
+    "desc": "Cryptocurrencies Exchange Rates"
+  },
+  {
+    "name": "Gemini",
+    "url": "https://docs.gemini.com/rest-api/",
+    "desc": "Cryptocurrencies Exchange"
+  },
+  {
+    "name": "Localbitcoins",
+    "url": "https://localbitcoins.com/api-docs/",
+    "desc": "P2P platform to buy and sell Bitcoins"
+  },
+  {
+    "name": "Mempool",
+    "url": "https://mempool.space/api",
+    "desc": "Bitcoin API Service focusing on the transaction fee"
+  },
+  {
+    "name": "MercadoBitcoin",
+    "url": "https://www.mercadobitcoin.com.br/api-doc/",
+    "desc": "Brazilian Cryptocurrency Information"
+  },
+  {
+    "name": "Messari",
+    "url": "https://messari.io/api",
+    "desc": "Provides API endpoints for thousands of crypto assets"
+  },
+  {
+    "name": "Nexchange",
+    "url": "https://nexchange2.docs.apiary.io/",
+    "desc": "Automated cryptocurrency exchange service"
+  },
+  {
+    "name": "Solana JSON RPC",
+    "url": "https://docs.solana.com/developing/clients/jsonrpc-api",
+    "desc": "Provides various endpoints to interact with the Solana Blockchain"
+  },
+  {
+    "name": "ZMOK",
+    "url": "https://zmok.io",
+    "desc": "Ethereum JSON RPC API and Web3 provider"
+  },
+  {
+    "name": "Exchangerate.host",
+    "url": "https://exchangerate.host?utm_source=Github&utm_medium=Referral&utm_campaign=Public-apis-repo-Best-sellers",
+    "desc": "Free foreign exchange & crypto rates API"
+  },
+  {
+    "name": "Bank of Russia",
+    "url": "https://www.cbr.ru/development/SXML/",
+    "desc": "Exchange rates and currency conversion"
+  },
+  {
+    "name": "Currency-api",
+    "url": "https://github.com/fawazahmed0/currency-api#readme",
+    "desc": "Free Currency Exchange Rates API with 150+ Currencies & No Rate Limits"
+  },
+  {
+    "name": "Czech National Bank",
+    "url": "https://www.cnb.cz/cs/financni_trhy/devizovy_trh/kurzy_devizoveho_trhu/denni_kurz.xml",
+    "desc": "A collection of exchange rates"
+  },
+  {
+    "name": "Economia.Awesome",
+    "url": "https://docs.awesomeapi.com.br/api-de-moedas",
+    "desc": "Portuguese free currency prices and conversion with no rate limits"
+  },
+  {
+    "name": "Exchangerate.dev",
+    "url": "https://exchangerate.dev/docs",
+    "desc": "Live & historical FX, 168 pairs back to 1999, Frankfurter-compatible, free 10k/mo"
+  },
+  {
+    "name": "Frankfurter",
+    "url": "https://www.frankfurter.app/docs",
+    "desc": "Exchange rates, currency conversion and time series"
+  },
+  {
+    "name": "FreeForexAPI",
+    "url": "https://freeforexapi.com/Home/Api",
+    "desc": "Real-time foreign exchange rates for major currency pairs"
+  },
+  {
+    "name": "National Bank of Poland",
+    "url": "http://api.nbp.pl/en.html",
+    "desc": "A collection of currency exchange rates (data in XML and JSON)"
+  },
+  {
+    "name": "paralelo.bo",
+    "url": "https://paralelo.bo/api",
+    "desc": "Bolivia parallel-market USD/BOB exchange rate, aggregated from P2P sources every 60s"
+  },
+  {
+    "name": "VATComply.com",
+    "url": "https://www.vatcomply.com/documentation",
+    "desc": "Exchange rates, geolocation and VAT number validation"
+  },
+  {
+    "name": "Postman Echo",
+    "url": "https://www.postman-echo.com",
+    "desc": "Test api server to receive and return value from HTTP method"
+  },
+  {
+    "name": "PurgoMalum",
+    "url": "http://www.purgomalum.com",
+    "desc": "Content validator against profanity & obscenity"
+  },
+  {
+    "name": "24 Pull Requests",
+    "url": "https://24pullrequests.com/api",
+    "desc": "Project to promote open source collaboration during December"
+  },
+  {
+    "name": "Agify.io",
+    "url": "https://agify.io",
+    "desc": "Estimates the age from a first name"
+  },
+  {
+    "name": "API Grátis",
+    "url": "https://apigratis.com.br/",
+    "desc": "Multiples services and public APIs"
+  },
+  {
+    "name": "ApicAgent",
+    "url": "https://www.apicagent.com",
+    "desc": "Extract device details from user-agent string"
+  },
+  {
+    "name": "APIs.guru",
+    "url": "https://apis.guru/api-doc/",
+    "desc": "Wikipedia for Web APIs, OpenAPI/Swagger specs for public APIs"
+  },
+  {
+    "name": "Beeceptor",
+    "url": "https://beeceptor.com/",
+    "desc": "Build a mock Rest API endpoint in seconds"
+  },
+  {
+    "name": "Bored",
+    "url": "https://www.boredapi.com/",
+    "desc": "Find random activities to fight boredom"
+  },
+  {
+    "name": "BrewPage",
+    "url": "https://brewpage.app",
+    "desc": "Free hosting for HTML, JSON, key-value, files, multi-file sites with short URLs and TTL retention"
+  },
+  {
+    "name": "CDNJS",
+    "url": "https://api.cdnjs.com/libraries/jquery",
+    "desc": "Library info on CDNJS"
+  },
+  {
+    "name": "Changelogs.md",
+    "url": "https://changelogs.md",
+    "desc": "Structured changelog metadata from open source projects"
+  },
+  {
+    "name": "Ciprand",
+    "url": "https://github.com/polarspetroll/ciprand",
+    "desc": "Secure random string generator"
+  },
+  {
+    "name": "Cloudflare Trace",
+    "url": "https://github.com/fawazahmed0/cloudflare-trace-api",
+    "desc": "Get IP Address, Timestamp, User Agent, Country Code, IATA, HTTP Version, TLS/SSL Version & More"
+  },
+  {
+    "name": "Codex",
+    "url": "https://github.com/Jaagrav/CodeX",
+    "desc": "Online Compiler for Various Languages"
+  },
+  {
+    "name": "CORS Proxy",
+    "url": "https://github.com/burhanuday/cors-proxy",
+    "desc": "Get around the dreaded CORS error by using this proxy as a middle man"
+  },
+  {
+    "name": "CountAPI",
+    "url": "https://countapi.xyz",
+    "desc": "Free and simple counting service. You can use it to track page hits and specific events"
+  },
+  {
+    "name": "DigitalOcean Status",
+    "url": "https://status.digitalocean.com/api",
+    "desc": "Status of all DigitalOcean services"
+  },
+  {
+    "name": "DomainDb Info",
+    "url": "https://api.domainsdb.info/",
+    "desc": "Domain name search to find all domains containing particular words/phrases/etc"
+  },
+  {
+    "name": "DownStatus",
+    "url": "https://isitdownstatus.com",
+    "desc": "Real-time status for GitHub, AWS, Discord and 90+ services"
+  },
+  {
+    "name": "ExtendsClass JSON Storage",
+    "url": "https://extendsclass.com/json-storage.html",
+    "desc": "A simple JSON store API"
+  },
+  {
+    "name": "Genderize.io",
+    "url": "https://genderize.io",
+    "desc": "Estimates a gender from a first name"
+  },
+  {
+    "name": "host-t.com",
+    "url": "https://host-t.com",
+    "desc": "Basic DNS query via HTTP GET request"
+  },
+  {
+    "name": "HTTP2.Pro",
+    "url": "https://http2.pro/doc/api",
+    "desc": "Test endpoints for client and server HTTP/2 protocol support"
+  },
+  {
+    "name": "Httpbin",
+    "url": "https://httpbin.org/",
+    "desc": "A Simple HTTP Request & Response Service"
+  },
+  {
+    "name": "Httpbin Cloudflare",
+    "url": "https://cloudflare-quic.com/b/",
+    "desc": "A Simple HTTP Request & Response Service with HTTP/3 Support by Cloudflare"
+  },
+  {
+    "name": "Hipsum",
+    "url": "https://hipsum.co",
+    "desc": "Hipster-themed lorem ipsum generator for placeholder text"
+  },
+  {
+    "name": "Icanhazepoch",
+    "url": "https://icanhazepoch.com",
+    "desc": "Get Epoch time"
+  },
+  {
+    "name": "Icanhazip",
+    "url": "https://major.io/icanhazip-com-faq/",
+    "desc": "IP Address API"
+  },
+  {
+    "name": "IFTTT",
+    "url": "https://platform.ifttt.com/docs/connect_api",
+    "desc": "IFTTT Connect API"
+  },
+  {
+    "name": "Image-Charts",
+    "url": "https://documentation.image-charts.com/",
+    "desc": "Generate charts, QR codes and graph images"
+  },
+  {
+    "name": "ip-fast.com",
+    "url": "https://ip-fast.com/docs/",
+    "desc": "IP address, country and city"
+  },
+  {
+    "name": "IPify",
+    "url": "https://www.ipify.org/",
+    "desc": "A simple IP Address API"
+  },
+  {
+    "name": "IPinfo",
+    "url": "https://ipinfo.io/developers",
+    "desc": "Another simple IP Address API"
+  },
+  {
+    "name": "isitdownstatus",
+    "url": "https://isitdownstatus.com",
+    "desc": "Check if websites and online services are currently down"
+  },
+  {
+    "name": "jsDelivr",
+    "url": "https://github.com/jsdelivr/data.jsdelivr.com",
+    "desc": "Package info and download stats on jsDelivr CDN"
+  },
+  {
+    "name": "JSON 2 JSONP",
+    "url": "https://json2jsonp.com/",
+    "desc": "Convert JSON to JSONP (on-the-fly) for easy cross-domain data requests using client-side JavaScript"
+  },
+  {
+    "name": "JSONPlaceholder",
+    "url": "https://jsonplaceholder.typicode.com",
+    "desc": "Fake REST API for testing and prototyping"
+  },
+  {
+    "name": "Keyvalue",
+    "url": "https://keyvalue.immanuel.co/",
+    "desc": "Simple key-value storage REST API for quick prototyping"
+  },
+  {
+    "name": "Kroki",
+    "url": "https://kroki.io",
+    "desc": "Creates diagrams from textual descriptions"
+  },
+  {
+    "name": "License-API",
+    "url": "https://github.com/cmccandless/license-api/blob/master/README.md",
+    "desc": "Unofficial REST API for choosealicense.com"
+  },
+  {
+    "name": "Lua Decompiler",
+    "url": "https://lua-decompiler.ferib.dev/",
+    "desc": "Online Lua 5.1 Decompiler"
+  },
+  {
+    "name": "MicroENV",
+    "url": "https://microenv.com/",
+    "desc": "Fake Rest API for developers"
+  },
+  {
+    "name": "Mocky",
+    "url": "https://designer.mocky.io/",
+    "desc": "Mock user defined test JSON for REST API endpoints"
+  },
+  {
+    "name": "MY IP",
+    "url": "https://www.myip.com/api-docs/",
+    "desc": "Get IP address information"
+  },
+  {
+    "name": "Nationalize.io",
+    "url": "https://nationalize.io",
+    "desc": "Estimate the nationality of a first name"
+  },
+  {
+    "name": "NetworkCalc",
+    "url": "https://networkcalc.com/api/docs",
+    "desc": "Network calculators, including subnets, DNS, binary, and security tools"
+  },
+  {
+    "name": "npm Registry",
+    "url": "https://github.com/npm/registry/blob/master/docs/REGISTRY-API.md",
+    "desc": "Query information about your favorite Node.js libraries programatically"
+  },
+  {
+    "name": "oyyi",
+    "url": "https://oyyi.xyz/docs/1.0",
+    "desc": "API for Fake Data, image/video conversion, optimization, pdf optimization and thumbnail generation"
+  },
+  {
+    "name": "QR & Barcode",
+    "url": "https://solsigs.com/qrapi/",
+    "desc": "QR codes and barcodes (Code 128, EAN-13, Data Matrix, PDF417 + more). SVG or PNG output"
+  },
+  {
+    "name": "QR code",
+    "url": "https://www.qrtag.net/api/",
+    "desc": "Create an easy to read QR code and URL shortener"
+  },
+  {
+    "name": "QR code",
+    "url": "http://goqr.me/api/",
+    "desc": "Generate and decode / read QR code graphics"
+  },
+  {
+    "name": "Qrcode Monkey",
+    "url": "https://www.qrcode-monkey.com/qr-code-api-with-logo/",
+    "desc": "Integrate custom and unique looking QR codes into your system or workflow"
+  },
+  {
+    "name": "QuickChart",
+    "url": "https://quickchart.io/",
+    "desc": "Generate chart and graph images"
+  },
+  {
+    "name": "ReqRes",
+    "url": "https://reqres.in/",
+    "desc": "A hosted REST-API ready to respond to your AJAX requests"
+  },
+  {
+    "name": "RSS feed to JSON",
+    "url": "https://rss-to-json-serverless-api.vercel.app",
+    "desc": "Returns RSS feed in JSON format using feed URL"
+  },
+  {
+    "name": "Serialif Color",
+    "url": "https://color.serialif.com/",
+    "desc": "Color conversion, complementary, grayscale and contrasted text"
+  },
+  {
+    "name": "SHOUTCLOUD",
+    "url": "http://shoutcloud.io/",
+    "desc": "ALL-CAPS AS A SERVICE"
+  },
+  {
+    "name": "Sonar",
+    "url": "https://github.com/Cgboal/SonarSearch",
+    "desc": "Project Sonar DNS Enumeration API"
+  },
+  {
+    "name": "Statically",
+    "url": "https://statically.io/",
+    "desc": "A free CDN for developers"
+  },
+  {
+    "name": "Thunder Client",
+    "url": "https://www.thunderclient.com/",
+    "desc": "API testing tool"
+  },
+  {
+    "name": "Wandbox",
+    "url": "https://github.com/melpon/wandbox/blob/master/kennel2/API.rst",
+    "desc": "Code compiler supporting 35+ languages mentioned at wandbox.org"
+  }
+]

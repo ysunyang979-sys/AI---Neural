@@ -1,0 +1,23 @@
+# Private API Keys & Config
+keys.js
+config.local.js
+.env
+.env.*
+
+# Build Artifacts & Android SDK
+android/
+android-project/
+sdk/
+www/
+*.zip
+*.apk
+
+# System & Cache
+node_modules/
+.wrangler/
+__pycache__/
+*.log
+*.bak
+*.fixed
+mojibake_lines.txt
+payload.json
