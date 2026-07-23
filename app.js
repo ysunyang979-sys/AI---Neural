@@ -2,22 +2,22 @@ const _localKeys = window.MY_LOCAL_API_KEYS || {};
 
 window.collabApis = {
     siliconflow: {
-        url: 'https://api.siliconflow.cn/v1/chat/completions',
-        key: _localKeys.siliconflow || '',
+        url: _localKeys.siliconflow ? 'https://api.siliconflow.cn/v1/chat/completions' : '/api/siliconflow',
+        key: _localKeys.siliconflow || 'dummy',
         models: ['Qwen/Qwen2.5-7B-Instruct', 'deepseek-ai/DeepSeek-R1-0528-Qwen3-8B']
     },
     groq: {
-        url: 'https://api.groq.com/openai/v1/chat/completions',
-        key: _localKeys.groq || '',
+        url: _localKeys.groq ? 'https://api.groq.com/openai/v1/chat/completions' : '/api/groq',
+        key: _localKeys.groq || 'dummy',
         models: ['llama-3.3-70b-versatile', 'llama3-70b-8192']
     },
     glm: {
-        url: 'https://open.bigmodel.cn/api/paas/v4/chat/completions',
-        key: _localKeys.glm || '',
+        url: _localKeys.glm ? 'https://open.bigmodel.cn/api/paas/v4/chat/completions' : '/api/glm',
+        key: _localKeys.glm || 'dummy',
         models: ['glm-4-flash']
     },
     mistral: {
-        url: 'https://mist.358966.xyz/v1/chat/completions',
+        url: '/api/mistral',
         key: 'dummy',
         models: ['mistral-large-latest', 'codestral-latest', 'pixtral-12b-2409']
     }
@@ -25,10 +25,13 @@ window.collabApis = {
 
 // === ENHANCED MULTI-API ENGINE CONFIGURATION ===
 window.AI_ENHANCED_CONFIG = {
-  tavilyKeys: _localKeys.tavily || [],
+  tavilyKeys: _localKeys.tavily || ['dummy'],
+  tavilyApiUrl: _localKeys.tavily ? 'https://api.tavily.com/search' : '/api/tavily',
   tavilyKeyIndex: 0,
-  serperKey: _localKeys.serper || "",
-  weatherApiKey: _localKeys.weather || "",
+  serperKey: _localKeys.serper || "dummy",
+  serperApiUrl: _localKeys.serper ? 'https://google.serper.dev/search' : '/api/serper',
+  weatherApiKey: _localKeys.weather || "dummy",
+  weatherApiUrl: _localKeys.weather ? 'https://api.weatherapi.com/v1/current.json' : '/api/weather',
   openWeatherKey: _localKeys.openWeather || "",
   firecrawlKey: _localKeys.firecrawl || ""
 };
