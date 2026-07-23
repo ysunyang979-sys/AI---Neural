@@ -38,12 +38,13 @@ window.AI_ENHANCED_CONFIG = {
 
 // --- Tavily Search (Auto Key Rotation) ---
 window.callTavilySearch = async function(query) {
+  const tavilyUrl = window.AI_ENHANCED_CONFIG.tavilyApiUrl || "/api/tavily";
   const keys = window.AI_ENHANCED_CONFIG.tavilyKeys;
   for (let i = 0; i < keys.length; i++) {
     const keyIndex = (window.AI_ENHANCED_CONFIG.tavilyKeyIndex + i) % keys.length;
     const currentKey = keys[keyIndex];
     try {
-      const res = await fetch("https://api.tavily.com/search", {
+      const res = await fetch(tavilyUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -75,7 +76,8 @@ window.callTavilySearch = async function(query) {
 
 // --- Serper Google Search ---
 window.callSerperSearch = async function(query) {
-  const res = await fetch("https://google.serper.dev/search", {
+  const serperUrl = window.AI_ENHANCED_CONFIG.serperApiUrl || "/api/serper";
+  const res = await fetch(serperUrl, {
     method: "POST",
     headers: {
       "X-API-KEY": window.AI_ENHANCED_CONFIG.serperKey,
@@ -91,7 +93,7 @@ window.callSerperSearch = async function(query) {
   }
   if (data.organic && data.organic.length > 0) {
     data.organic.slice(0, 5).forEach((item, idx) => {
-      out += `${idx + 1}. [${item.title}](${item.link})\n摘要: ${item.snippet}\n\n`;
+      out += `${idx + 1}. [${item.title}](${item.link})\n摘要: ${item.snippet || ""}\n\n`;
     });
   }
   return out;
