@@ -4753,17 +4753,15 @@ sys.stdout = io.StringIO()
                 addLine(`❌ 天气查询失败`);
               }
             } else if (tc.function.name === "search_web" || tc.function.name === "search_tavily") {
-              addLine(`🔍 正在调用 Tavily/Serper 高级 AI 全网搜索: ${args.query}...`);
+              addLine(`🔍 正在调用全网 AI 实时搜索: ${args.query}...`);
               try {
                 result = await window.callTavilySearch(args.query);
-                addLine(`✅ Tavily 智能搜索完成`);
+                addLine(`✅ 全网 AI 智能搜索完成`);
               } catch (err1) {
-                addLine(`⚠️ Tavily 搜索未响应，自动切换至 Serper Google 搜索...`);
                 try {
                   result = await window.callSerperSearch(args.query);
-                  addLine(`✅ Serper Google 搜索完成`);
+                  addLine(`✅ Google 实时搜索完成`);
                 } catch(err2) {
-                  addLine(`⚠️ Serper 未响应，自动切至云端基础搜索...`);
                   try {
                     const res = await fetch("/api/search", {
                       method: "POST",
@@ -4777,7 +4775,7 @@ sys.stdout = io.StringIO()
                     const proxyUrl = "https://search.358966.xyz";
                     const res = await fetch(`${proxyUrl}/?q=${encodeURIComponent(args.query)}`);
                     result = await res.text();
-                    addLine(`✅ 普通搜索完成`);
+                    addLine(`✅ 搜索完成`);
                   }
                 }
               }
