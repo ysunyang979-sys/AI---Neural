@@ -1,5 +1,5 @@
-// Cloudflare Pages Functions - Reverse Proxy & API Key Shield Worker
-// Serves endpoints under /api/* on Cloudflare Edge
+// Cloudflare Pages Functions - Multi-Key Load Balancer & Reverse Proxy Worker
+// Serves endpoints under /api/* on Cloudflare Edge with Automatic Key Rotation & Failover
 
 export async function onRequest(context) {
   const { request, env } = context;
@@ -25,37 +25,31 @@ export async function onRequest(context) {
   };
 
   try {
-    // 1. SiliconFlow Proxy
+    // 1. SiliconFlow Multi-Key Proxy
     if (path.startsWith('siliconflow')) {
-      const apiKey = env.SILICONFLOW_KEY;
-      if (!apiKey) return new Response(JSON.stringify({ error: 'SILICONFLOW_KEY not set in Cloudflare Environment' }), { status: 500, headers: corsHeaders });
-
-      return await proxyRequest(request, 'https://api.siliconflow.cn/v1/chat/completions', {
-        'Authorization': `Bearer ${apiKey}`,
+      const keys = getKeys(env, 'SILICONFLOW_KEY');
+      return await proxyWithKeyRotation(request, 'https://api.siliconflow.cn/v1/chat/completions', keys, key => ({
+        'Authorization': `Bearer ${key}`,
         'Content-Type': 'application/json'
-      }, corsHeaders);
+      }), corsHeaders);
     }
 
-    // 2. Groq Proxy
+    // 2. Groq Multi-Key Proxy
     if (path.startsWith('groq')) {
-      const apiKey = env.GROQ_KEY;
-      if (!apiKey) return new Response(JSON.stringify({ error: 'GROQ_KEY not set in Cloudflare Environment' }), { status: 500, headers: corsHeaders });
-
-      return await proxyRequest(request, 'https://api.groq.com/openai/v1/chat/completions', {
-        'Authorization': `Bearer ${apiKey}`,
+      const keys = getKeys(env, 'GROQ_KEY');
+      return await proxyWithKeyRotation(request, 'https://api.groq.com/openai/v1/chat/completions', keys, key => ({
+        'Authorization': `Bearer ${key}`,
         'Content-Type': 'application/json'
-      }, corsHeaders);
+      }), corsHeaders);
     }
 
-    // 3. GLM (Zhipu BigModel) Proxy
+    // 3. GLM Multi-Key Proxy
     if (path.startsWith('glm')) {
-      const apiKey = env.GLM_KEY;
-      if (!apiKey) return new Response(JSON.stringify({ error: 'GLM_KEY not set in Cloudflare Environment' }), { status: 500, headers: corsHeaders });
-
-      return await proxyRequest(request, 'https://open.bigmodel.cn/api/paas/v4/chat/completions', {
-        'Authorization': `Bearer ${apiKey}`,
+      const keys = getKeys(env, 'GLM_KEY');
+      return await proxyWithKeyRotation(request, 'https://open.bigmodel.cn/api/paas/v4/chat/completions', keys, key => ({
+        'Authorization': `Bearer ${key}`,
         'Content-Type': 'application/json'
-      }, corsHeaders);
+      }), corsHeaders);
     }
 
     // 4. Mistral Proxy
@@ -65,35 +59,25 @@ export async function onRequest(context) {
       }, corsHeaders);
     }
 
-    // 5. Tavily Search Proxy
+    // 5. Tavily Search Multi-Key Proxy
     if (path.startsWith('tavily')) {
-      const apiKey = env.TAVILY_KEY;
-      let body = {};
-      try { body = await request.json(); } catch(e) {}
-      if (apiKey) body.api_key = apiKey;
-
-      const res = await fetch('https://api.tavily.com/search', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      });
-      return createCorsResponse(res, corsHeaders);
+      const keys = getKeys(env, 'TAVILY_KEY');
+      return await proxyTavilyWithRotation(request, keys, corsHeaders);
     }
 
-    // 6. Serper Google Search Proxy
+    // 6. Serper Google Search Multi-Key Proxy
     if (path.startsWith('serper')) {
-      const apiKey = env.SERPER_KEY;
-      if (!apiKey) return new Response(JSON.stringify({ error: 'SERPER_KEY not set in Cloudflare Environment' }), { status: 500, headers: corsHeaders });
-
-      return await proxyRequest(request, 'https://google.serper.dev/search', {
-        'X-API-KEY': apiKey,
+      const keys = getKeys(env, 'SERPER_KEY');
+      return await proxyWithKeyRotation(request, 'https://google.serper.dev/search', keys, key => ({
+        'X-API-KEY': key,
         'Content-Type': 'application/json'
-      }, corsHeaders);
+      }), corsHeaders);
     }
 
     // 7. Weather API Proxy
     if (path.startsWith('weather')) {
-      const apiKey = env.WEATHER_KEY;
+      const keys = getKeys(env, 'WEATHER_KEY');
+      const apiKey = keys[0] || '';
       const targetUrl = new URL('https://api.weatherapi.com/v1/current.json');
       url.searchParams.forEach((val, key) => targetUrl.searchParams.set(key, val));
       if (apiKey) targetUrl.searchParams.set('key', apiKey);
@@ -113,6 +97,99 @@ export async function onRequest(context) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
   }
+}
+
+// Extract multiple keys from single string (comma-separated) or numbered environment variables
+function getKeys(env, baseName) {
+  const keys = [];
+  const multiStr = env[`${baseName}S`] || env[baseName];
+  if (multiStr) {
+    multiStr.split(',').forEach(k => {
+      const trimmed = k.trim();
+      if (trimmed && !keys.includes(trimmed)) keys.push(trimmed);
+    });
+  }
+
+  for (let i = 1; i <= 10; i++) {
+    const k = env[`${baseName}_${i}`] || env[`${baseName}${i}`];
+    if (k && !keys.includes(k.trim())) keys.push(k.trim());
+  }
+  return keys;
+}
+
+// Proxy function with Multi-Key Load Balancing & Failover Retry
+async function proxyWithKeyRotation(incomingRequest, targetUrl, keys, makeHeadersFn, corsHeaders) {
+  if (!keys || keys.length === 0) {
+    return new Response(JSON.stringify({ error: `No API keys configured for endpoint` }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
+
+  // Shuffle keys for randomized load balancing
+  const shuffledKeys = [...keys].sort(() => Math.random() - 0.5);
+  const reqBody = incomingRequest.method !== 'GET' && incomingRequest.method !== 'HEAD' ? await incomingRequest.text() : null;
+
+  let lastResponse = null;
+
+  for (const apiKey of shuffledKeys) {
+    try {
+      const customHeaders = makeHeadersFn(apiKey);
+      const upstreamResponse = await fetch(targetUrl, {
+        method: incomingRequest.method,
+        headers: { ...customHeaders },
+        body: reqBody
+      });
+
+      // If successful, return immediately
+      if (upstreamResponse.status >= 200 && upstreamResponse.status < 300) {
+        return createCorsResponse(upstreamResponse, corsHeaders);
+      }
+
+      // If rate-limited (429), unauthorized (401/403), or server error (5xx), try next key
+      lastResponse = upstreamResponse;
+      console.warn(`Key ${apiKey.substring(0, 8)}... failed with status ${upstreamResponse.status}, retrying next key.`);
+    } catch (err) {
+      console.error(`Fetch failed with key:`, err);
+    }
+  }
+
+  if (lastResponse) return createCorsResponse(lastResponse, corsHeaders);
+  return new Response(JSON.stringify({ error: 'All API keys failed' }), {
+    status: 502,
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+  });
+}
+
+async function proxyTavilyWithRotation(incomingRequest, keys, corsHeaders) {
+  if (!keys || keys.length === 0) {
+    return new Response(JSON.stringify({ error: 'No Tavily keys configured' }), { status: 500, headers: corsHeaders });
+  }
+
+  const shuffledKeys = [...keys].sort(() => Math.random() - 0.5);
+  let rawBody = {};
+  try { rawBody = await incomingRequest.json(); } catch(e) {}
+
+  let lastRes = null;
+
+  for (const apiKey of shuffledKeys) {
+    try {
+      const payload = { ...rawBody, api_key: apiKey };
+      const res = await fetch('https://api.tavily.com/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.status >= 200 && res.status < 300) {
+        return createCorsResponse(res, corsHeaders);
+      }
+      lastRes = res;
+    } catch(e) {}
+  }
+
+  if (lastRes) return createCorsResponse(lastRes, corsHeaders);
+  return new Response(JSON.stringify({ error: 'All Tavily keys failed' }), { status: 502, headers: corsHeaders });
 }
 
 async function proxyRequest(incomingRequest, targetUrl, customHeaders, corsHeaders) {
