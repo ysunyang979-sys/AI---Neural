@@ -99,6 +99,25 @@ window.callSerperSearch = async function(query) {
   return out;
 };
 
+// --- Exa Neural AI Search ---
+window.callExaSearch = async function(query) {
+  const exaUrl = window.AI_ENHANCED_CONFIG.exaApiUrl || "/api/exa";
+  const res = await fetch(exaUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ query: query, numResults: 5 })
+  });
+  if (!res.ok) throw new Error("Exa API HTTP " + res.status);
+  const data = await res.json();
+  let out = `【Exa 神经网络 AI 搜索结果】\n`;
+  if (data.results && data.results.length > 0) {
+    data.results.forEach((item, idx) => {
+      out += `${idx + 1}. [${item.title || '网页'}](${item.url || '#'})\n摘要: ${item.text || item.snippet || item.content || ""}\n\n`;
+    });
+  }
+  return out;
+};
+
 // --- Firecrawl Web Scraper ---
 window.callFirecrawlScrape = async function(targetUrl) {
   const res = await fetch("https://api.firecrawl.dev/v1/scrape", {
@@ -3000,6 +3019,18 @@ window.getAvailableTools = () => {
           {
             type: "function",
             function: {
+              name: "search_exa",
+              description: "使用 Exa.ai 神经网络 AI 搜索引擎检索全网专业学术论文、深度分析文章与最新知识数据。",
+              parameters: {
+                type: "object",
+                properties: { query: { type: "string", description: "Exa 神经网络搜索关键词" } },
+                required: ["query"]
+              }
+            }
+          },
+          {
+            type: "function",
+            function: {
               name: "firecrawl_scrape",
               description: "使用 Firecrawl 深度提取引擎解析指定网页，清除广告和垃圾 HTML，返回纯净且 Token 极省的 Markdown 正文。",
               parameters: {
@@ -4787,6 +4818,15 @@ sys.stdout = io.StringIO()
               } catch(e) {
                 result = `Error: ${e.message}`;
                 addLine(`❌ Serper 搜索失败`);
+              }
+            } else if (tc.function.name === "search_exa") {
+              addLine(`🔍 正在调用 Exa 神经网络 AI 搜索: ${args.query}...`);
+              try {
+                result = await window.callExaSearch(args.query);
+                addLine(`✅ Exa 神经网络 AI 搜索完成`);
+              } catch(e) {
+                result = `Error: ${e.message}`;
+                addLine(`❌ Exa 搜索失败`);
               }
             } else if (tc.function.name === "read_webpage" || tc.function.name === "fetch_web_article" || tc.function.name === "firecrawl_scrape") {
               addLine(`🌐 正在使用 Firecrawl / Jina 深度抓取网页正文: ${args.url}...`);
