@@ -2228,6 +2228,31 @@ window.resolveMusicTrack = function(query, songName, artist) {
   };
 };
 
+window.fetchRealMusicTrack = async function(query, songName, artist) {
+  const searchQuery = songName && artist ? `${artist} ${songName}` : (query || songName || "周杰伦 晴天");
+  try {
+    const q = encodeURIComponent(searchQuery);
+    const searchRes = await fetch(`https://music.163.com/api/search/get/web?s=${q}&type=1&limit=5`);
+    if (searchRes.ok) {
+      const data = await searchRes.json();
+      const songs = data?.result?.songs || [];
+      for (let song of songs) {
+        const audioUrl = `https://music.163.com/song/media/outer/url?id=${song.id}.mp3`;
+        return {
+          title: song.name,
+          artist: song.artists && song.artists[0] ? song.artists[0].name.replace(/-$/, '') : "歌手",
+          pic: song.album && song.album.picUrl ? song.album.picUrl : "https://p1.music.126.net/4N8J1h6O1YyY0m3r1F0Z0w==/109951165647004070.jpg",
+          url: audioUrl,
+          lrc: `[00:00.00] ${song.name}\n[00:03.00] 歌手: ${song.artists && song.artists[0] ? song.artists[0].name : ''}\n[00:06.00] 正在为您播放网易云全网检索原声音轨`
+        };
+      }
+    }
+  } catch(e) {
+    console.warn("Real-time NetEase music search error, fallback to catalog:", e);
+  }
+  return window.resolveMusicTrack(searchQuery, songName, artist);
+};
+
 window.sanitizeChatMarkdown = function(text) {
     if (!text || typeof text !== 'string') return text || "";
     return text.replace(/\{"\s*chart_config\s*":\s*"[\s\S]*?"\}/gi, '')
@@ -6137,7 +6162,7 @@ ${cleanHtml}
               addLine(`🎵 正在通过全网音乐能力库 (music-lib) 检索歌曲与解析音轨...`);
               const query = args.query || "周杰伦 晴天";
               
-              const track = window.resolveMusicTrack(query, args.song_name, args.artist);
+              const track = await window.fetchRealMusicTrack(query, args.song_name, args.artist);
 
               const cardId = "audio-" + Math.random().toString(36).substr(2, 9);
               const cardHtml = `<div class="open-music-card" id="${cardId}" style="margin: 14px 0; border: 1px solid rgba(168, 85, 247, 0.5); border-radius: 16px; background: linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(30, 27, 75, 0.98)); padding: 18px 22px; font-family: var(--font-sans); color: #f8fafc; box-shadow: 0 12px 30px -5px rgba(168, 85, 247, 0.3);"><div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;"><div style="display: flex; align-items: center; gap: 14px;"><div style="width: 54px; height: 54px; border-radius: 12px; overflow: hidden; background: #1e293b; flex-shrink: 0; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px rgba(168, 85, 247, 0.4); border: 1px solid rgba(255,255,255,0.1);"><img src="${escapeChatHTML(track.pic)}" alt="Cover" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.onerror=null; this.parentElement.innerHTML='<div style=\\'font-size:24px;\\'>🎵</div>';" /></div><div><div style="font-weight: 700; font-size: 15px; color: #f8fafc; letter-spacing: -0.2px;">${escapeChatHTML(track.title)}</div><div style="font-size: 12px; color: #c084fc; margin-top: 2px;">${escapeChatHTML(track.artist)} • <span style="background: rgba(192, 132, 252, 0.2); padding: 2px 8px; border-radius: 4px; font-size: 10.5px; font-weight: 600;">music-lib 全网音轨解构</span></div></div></div><span style="font-size: 11px; color: #94a3b8; background: rgba(255,255,255,0.06); padding: 4px 10px; border-radius: 6px;">检索词: ${escapeChatHTML(query)}</span></div><div style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255,255,255,0.08); padding: 12px 16px; border-radius: 12px; margin-bottom: 12px;"><audio id="${cardId}-audio" controls crossorigin="anonymous" preload="auto" style="width: 100%; height: 38px; border-radius: 8px; outline: none;" src="${escapeChatHTML(track.url)}"></audio></div><div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px;"><button id="${cardId}-playbtn" onclick="window.playOpenMusicSynth('${cardId}', '${escapeChatHTML(track.url)}', '${escapeChatHTML(track.title)}')" style="flex: 1; padding: 10px 16px; background: linear-gradient(135deg, #9333ea, #4f46e5); color: white; border: none; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 14px rgba(147, 51, 234, 0.4); display: flex; align-items: center; justify-content: center; gap: 8px;">▶️ 点击立即无阻畅听 《${escapeChatHTML(track.title)}》 (双引擎 100% 保障)</button><a href="${escapeChatHTML(track.url)}" target="_blank" download style="padding: 10px 14px; background: rgba(255,255,255,0.08); color: #c084fc; border: 1px solid rgba(192, 132, 252, 0.3); border-radius: 10px; font-size: 12px; font-weight: 600; text-decoration: none; white-space: nowrap;">下载原声 MP3 ⬇</a></div><div id="${cardId}-status" style="font-size: 11px; color: #94a3b8; text-align: center; margin-top: 4px;">✨ 基于 music-lib 聚合流与 Web Audio 原生合成双引擎，任意浏览器 100% 畅听！</div></div>`;
