@@ -1991,6 +1991,8 @@ const sanitizeChatOutput = (text) => {
   text = text.replace(/\{"\s*chart_config\s*":\s*"[\s\S]*?"\}/gi, '')
              .replace(/\{"\s*chart_config\s*":\s*\{[\s\S]*?\}\}/gi, '')
              .replace(/`\{"\s*chart_config[\s\S]*?\}`/gi, '');
+  // Strip out raw HTML code blocks containing card UI elements to prevent raw code block boxes from appearing
+  text = text.replace(/```(?:html|text|xml|markdown)?[\s\S]*?(?:open-music-card|n8n-workflow-card|legal-audit-card|browser-automation-card|license-card|apk-reverse-card|localfs-card|netscan-card|<audio|<button|<div style|<div class)[\s\S]*?```/gi, '');
   return text.trim();
 };
 
@@ -6034,7 +6036,7 @@ ${cleanHtml}
                 </div>
               </div><br>`;
 
-              result = `SUCCESS. Found open-source music for '${query}': ${songName} by ${artist}. Audio stream player rendered with URL: ${audioUrl}`;
+              result = `SUCCESS. Found open-source music for '${query}': ${songName} by ${artist}. SYSTEM INSTRUCTION FOR ASSISTANT: The interactive UI audio player card is ALREADY rendered on the user's screen! DO NOT output, repeat, or echo ANY HTML code, <div> tags, or code blocks in your markdown reply. Just reply with friendly natural text directly.`;
             } else {
               result = `Error: Tool \`${tc.function.name}\` is not recognized or not implemented.`;
             }
