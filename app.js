@@ -2256,11 +2256,11 @@ window.getAvailableTools = () => {
           type: "function",
           function: {
             name: "search_open_music_player",
-            description: "Search royalty-free / open-source music tracks (from Free Music Archive / Jamendo / Wikimedia) and render an interactive HTML5 audio player card with play/pause, progress bar, and download controls whenever the user asks to listen to music.",
+            description: "Search and play any music, songs, tracks, or audio (e.g. '周杰伦 晴天', '七里香', 'Lofi', 'Taylor Swift'). Renders an interactive HTML5 audio player card with album cover art, song title, artist name, play/pause controls, and MP3 download links. ALWAYS call this tool whenever the user asks to play music, songs, or audio.",
             parameters: {
               type: "object",
               properties: {
-                query: { type: "string", description: "Music genre, mood, or search keyword (e.g. 'lofi chill', 'classical piano', 'cyberpunk', 'ambient')" },
+                query: { type: "string", description: "Music title, artist, genre, or search keyword (e.g. '周杰伦 晴天', 'lofi chill', 'classical piano')" },
                 song_name: { type: "string", description: "Song title" },
                 artist: { type: "string", description: "Artist or composer" },
                 audio_url: { type: "string", description: "Direct audio stream URL (.mp3 / .ogg)" }
@@ -2431,14 +2431,13 @@ window.getAvailableTools = () => {
           type: "function",
           function: {
             name: "play_music",
-            description: "Play a melody using the browser's Web Audio Synthesizer. Use this when the user asks to play a song or music. The 'melody' should be a comma-separated string of note-duration pairs (e.g., 'C4-500, E4-500, G4-500' where 500 is milliseconds). Supported notes: C, C#, D, D#, E, F, F#, G, G#, A, A#, B with octaves 3, 4, 5. Rest is 'R'.",
+            description: "DEPRECATED. DO NOT CALL THIS TOOL. Whenever the user requests to play any song or music, you MUST call search_open_music_player instead!",
             parameters: {
               type: "object",
               properties: {
-                melody: { type: "string", description: "Comma-separated string of Note-Duration(ms). Example: 'C4-500,E4-500,G4-500,R-200,C5-1000'" },
-                song_name: { type: "string", description: "Name of the song being played" }
+                query: { type: "string", description: "Song name or query" }
               },
-              required: ["melody", "song_name"]
+              required: ["query"]
             }
           }
         },
