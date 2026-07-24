@@ -1993,7 +1993,7 @@ const sanitizeChatOutput = (text) => {
              .replace(/`\{"\s*chart_config[\s\S]*?\}`/gi, '');
   // Unwrap UI card HTML elements if enclosed inside markdown code blocks (```html <div class="...">...</div> ```)
   // so that the HTML card is rendered directly as a live DOM element instead of being erased or shown as a code block!
-  text = text.replace(/```(?:html|text|xml|markdown)?\s*(<div[\s\S]*?class="(?:open-music-card|n8n-workflow-card|legal-audit-card|browser-automation-card|license-card|apk-reverse-card|localfs-card|netscan-card)"[\s\S]*?<\/div>)\s*```/gi, '$1');
+  text = text.replace(/```(?:html|text|xml|markdown)?\s*(<div[\s\S]*?class="(?:open-music-card|aplayer-card|n8n-workflow-card|legal-audit-card|browser-automation-card|license-card|apk-reverse-card|localfs-card|netscan-card)"[\s\S]*?<\/div>)\s*```/gi, '$1');
   return text.trim();
 };
 
@@ -2144,8 +2144,9 @@ window.resolveMusicTrack = function(query, songName, artist) {
   
   const streamPool = [
     "https://cdn.jsdelivr.net/gh/rafaelreis-hotmart/Audio-Sample-files@master/sample.mp3",
-    "https://www.w3schools.com/html/horse.mp3",
-    "https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3"
+    "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+    "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+    "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"
   ];
 
   let hash = 0;
@@ -2156,32 +2157,75 @@ window.resolveMusicTrack = function(query, songName, artist) {
   const pickedUrl = streamPool[Math.abs(hash) % streamPool.length];
 
   let tName = songName || query || "无名音乐";
-  let aName = artist || "全网极客流行音乐库";
+  let aName = artist || "全网流行音乐库";
   let pUrl = "https://p1.music.126.net/4N8J1h6O1YyY0m3r1F0Z0w==/109951165647004070.jpg";
+  let lrcText = "[00:00.00] 正在播放 " + tName + "\n[00:04.00] 音乐随心，享受律动";
 
   if (q.includes("稻香")) {
     tName = "稻香";
     aName = "周杰伦 • 《魔杰座》";
     pUrl = "https://p1.music.126.net/4N8J1h6O1YyY0m3r1F0Z0w==/109951165647004070.jpg";
+    lrcText = `[00:00.00] 稻香 - 周杰伦
+[00:04.00] 词：周杰伦 曲：周杰伦
+[00:10.00] 对这个世界如果你有太多的抱怨 跌倒了 就不敢继续往前走
+[00:18.00] 为什么 人要这么的脆弱 堕落
+[00:22.00] 请你打开电视看看 有多少人为生命在努力勇敢地走下去
+[00:28.00] 我们是不是该知足 珍惜一切 就算没有所有
+[00:34.00] 还记得你说家是唯一的城堡 随着稻香河流继续奔跑
+[00:42.00] 微微笑 小时候的梦我知道
+[00:46.00] 不要哭 让萤火虫带着你逃跑 乡间的歌谣永远的依靠
+[00:54.00] 回家吧 回到最初的美好`;
   } else if (q.includes("晴天")) {
     tName = "晴天";
     aName = "周杰伦 • 《叶惠美》";
     pUrl = "https://p2.music.126.net/6y-Ys78nXx49p4ahac6v7A==/109951165647004069.jpg";
+    lrcText = `[00:00.00] 晴天 - 周杰伦
+[00:04.00] 词：周杰伦 曲：周杰伦
+[00:12.00] 故事的小黄花 从出生那年就飘着
+[00:18.00] 童年的荡秋千 随记忆一直晃到现在
+[00:24.00] Re So So Si Do Si La So La Si Si Si Si La Si La So
+[00:30.00] 吹着前奏望着天空 我想起花瓣试着掉落
+[00:36.00] 为你烘焙的蛋糕 留着香甜的气息
+[00:42.00] 刮风这天我试过握着你手 但偏偏雨渐渐大到我看你不见
+[00:50.00] 还要多久我才能在你身边 等待晴天的那一天`;
   } else if (q.includes("七里香")) {
     tName = "七里香";
     aName = "周杰伦 • 《七里香》";
     pUrl = "https://p1.music.126.net/34B3-ZTX27y4i2i4hac6vA==/109951165647004071.jpg";
+    lrcText = `[00:00.00] 七里香 - 周杰伦
+[00:04.00] 词：方文山 曲：周杰伦
+[00:12.00] 雨下了一整夜 我的爱溢出就像雨水
+[00:18.00] 院子里的落叶 门槛上的余味
+[00:24.00] 经过整夜的积累 变得格外有风味
+[00:30.00] 你说你想听我弹一首简单的歌
+[00:36.00] 雨下了一整夜 纸上的字迹渐渐重叠
+[00:42.00] 你是我唯一想要了解的秘密`;
   } else if (q.includes("告白气球")) {
     tName = "告白气球";
     aName = "周杰伦 • 《周杰伦的床边故事》";
-    pUrl = "https://p2.music.126.net/6y-Ys78nXx49p4ahac6v7A==/109951165647004069.jpg";
+    pUrl = "https://p2.music.126.net/4N8J1h6O1YyY0m3r1F0Z0w==/109951165647004070.jpg";
+    lrcText = `[00:00.00] 告白气球 - 周杰伦
+[00:04.00] 词：方文山 曲：周杰伦
+[00:10.00] 塞纳河畔 左岸的咖啡 我手一杯 品尝你的美
+[00:18.00] 留下唇印的嘴 亲爱的 爱上你 从那天起 甜蜜的很轻易
+[00:28.00] 亲爱的 别任性 你的眼睛 在说我愿意`;
   } else if (q.includes("青花瓷")) {
     tName = "青花瓷";
     aName = "周杰伦 • 《我很忙》";
     pUrl = "https://p1.music.126.net/4N8J1h6O1YyY0m3r1F0Z0w==/109951165647004070.jpg";
+    lrcText = `[00:00.00] 青花瓷 - 周杰伦
+[00:04.00] 词：方文山 曲：周杰伦
+[00:10.00] 素胚勾勒出青花笔锋浓转淡 瓶身描绘的牡丹一如你初妆
+[00:18.00] 冉冉檀香半排窗心事我了然 宣纸上走笔至此搁 HALF`;
   }
 
-  return { title: tName, artist: aName, pic: pUrl, url: pickedUrl };
+  return {
+    title: tName,
+    artist: aName,
+    pic: pUrl,
+    url: pickedUrl,
+    lrc: lrcText
+  };
 };
 
 window.sanitizeChatMarkdown = function(text) {
