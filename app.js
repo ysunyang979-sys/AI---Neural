@@ -1991,8 +1991,9 @@ const sanitizeChatOutput = (text) => {
   text = text.replace(/\{"\s*chart_config\s*":\s*"[\s\S]*?"\}/gi, '')
              .replace(/\{"\s*chart_config\s*":\s*\{[\s\S]*?\}\}/gi, '')
              .replace(/`\{"\s*chart_config[\s\S]*?\}`/gi, '');
-  // Strip out raw HTML code blocks containing card UI elements to prevent raw code block boxes from appearing
-  text = text.replace(/```(?:html|text|xml|markdown)?[\s\S]*?(?:open-music-card|n8n-workflow-card|legal-audit-card|browser-automation-card|license-card|apk-reverse-card|localfs-card|netscan-card|<audio|<button|<div style|<div class)[\s\S]*?```/gi, '');
+  // Unwrap UI card HTML elements if enclosed inside markdown code blocks (```html <div class="...">...</div> ```)
+  // so that the HTML card is rendered directly as a live DOM element instead of being erased or shown as a code block!
+  text = text.replace(/```(?:html|text|xml|markdown)?\s*(<div[\s\S]*?class="(?:open-music-card|n8n-workflow-card|legal-audit-card|browser-automation-card|license-card|apk-reverse-card|localfs-card|netscan-card)"[\s\S]*?<\/div>)\s*```/gi, '$1');
   return text.trim();
 };
 
