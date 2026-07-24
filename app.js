@@ -3551,12 +3551,12 @@ async function handleChatSend() {
     thinkContentEl.appendChild(line);
     $chatLog.scrollTop = $chatLog.scrollHeight;
   };
-  addLine("🧠 核心大脑正解析任务并检索可用工具链...");
+  addLine("💭 正在理解需求并分析推导...");
 
   const endThinking = (collapse = false) => {
     const t = ((Date.now() - thinkStartTime) / 1000).toFixed(1);
     thinkLabel.classList.remove("active");
-    thinkLabel.textContent = `已调用工具 (用时 ${t} 秒)`;
+    thinkLabel.textContent = `思考过程 (${t}秒)`;
     if (thinkSpinner) thinkSpinner.style.display = "none";
     if (collapse) {
       const d = thinkBlock.querySelector("details");
@@ -3741,8 +3741,7 @@ async function handleChatSend() {
 
       if (toolCalls.length > 0) {
         toolCalls = toolCalls.filter(Boolean);
-        const names = toolCalls.map(c => c.function.name).join(", ");
-        addLine(`⚙️ 触发外挂工具链 [共 ${toolCalls.length} 个工具: ${names}]`);
+        addLine(`⚡ 调度协同工具链，解析关联数据资源...`);
         messages.push({
           role: "assistant",
           tool_calls: toolCalls,
@@ -3755,13 +3754,12 @@ async function handleChatSend() {
           } catch (e) {
             args = {};
           }
-          addLine(`▶️ 正在运行工具 [${tc.function.name}] 参数: ${JSON.stringify(args).substring(0, 80)}...`);
           let result = "";
           try {
             if (tc.function.name === "edit_media") {
               const cmd = args.command || "";
               const outName = args.outputFilename || "output.mp4";
-              addLine(`🎬 启动 FFmpeg 媒体编辑...`);
+              addLine(`🎬 正在处理音视频媒体编辑...`);
               
               const canvasPane = document.getElementById("canvas-pane");
               const canvasContent = document.getElementById("canvas-content");
@@ -4704,7 +4702,7 @@ sys.stdout = io.StringIO()
                 addLine(`❌ GitHub 信息获取失败`);
               }
             } else if (tc.function.name === "get_hacker_news_top" || tc.function.name === "get_tech_news") {
-              addLine(`🔥 正在获取 Hacker News 热榜...`);
+              addLine(`🔥 正在拉取全球开发者社区热榜...`);
               try {
                 const count = args.count ? Math.min(args.count, 10) : 5;
                 const topRes = await fetch("https://hacker-news.firebaseio.com/v0/topstories.json");
@@ -4723,37 +4721,37 @@ sys.stdout = io.StringIO()
                   }
                 }
                 result = JSON.stringify(stories, null, 2);
-                addLine(`✅ 热榜获取完成`);
+                addLine(`✨ 热榜动态提取完成`);
               } catch (e) {
                 result = `Error: ${e.message}`;
                 addLine(`❌ 热榜获取失败`);
               }
             } else if (tc.function.name === "dictionary_lookup") {
-              addLine(`📖 正在查询单词: ${args.word}...`);
+              addLine(`📖 正在检索权威词典释义: ${args.word}...`);
               try {
                 const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(args.word)}`);
                 if (!res.ok) throw new Error("Dictionary API returned " + res.status);
                 const data = await res.json();
                 result = JSON.stringify(data, null, 2);
-                addLine(`✅ 词典查询完成`);
+                addLine(`✨ 词汇解析完毕`);
               } catch (e) {
                 result = `Error: ${e.message}. The word might not be found.`;
                 addLine(`❌ 词典查询失败`);
               }
             } else if (tc.function.name === "get_ip_location") {
-              addLine(`🌍 正在获取当前位置信息...`);
+              addLine(`🌍 正在确认地理网络定位...`);
               try {
                 const res = await fetch("https://freeipapi.com/api/json");
                 if (!res.ok) throw new Error("IP API returned " + res.status);
                 const data = await res.json();
                 result = JSON.stringify(data, null, 2);
-                addLine(`✅ 位置信息获取完成`);
+                addLine(`✨ 地理定位已确认`);
               } catch (e) {
                 result = `Error: ${e.message}`;
                 addLine(`❌ 位置获取失败`);
               }
             } else if (tc.function.name === "get_exchange_rate") {
-              addLine(`💱 正在查询汇率: ${args.from_currency} -> ${args.to_currency}...`);
+              addLine(`💱 正在获取实时货币汇率...`);
               try {
                 const res = await fetch(`https://open.er-api.com/v6/latest/${encodeURIComponent(args.from_currency)}`);
                 if (!res.ok) throw new Error("Exchange API returned " + res.status);
@@ -4768,30 +4766,30 @@ sys.stdout = io.StringIO()
                 } else {
                   result = `Error: ${data.error_type}`;
                 }
-                addLine(`✅ 汇率查询完成`);
+                addLine(`✨ 汇率数据换算完成`);
               } catch (e) {
                 result = `Error: ${e.message}`;
                 addLine(`❌ 汇率查询失败`);
               }
             } else if (tc.function.name === "get_weather_forecast" || tc.function.name === "get_weather") {
               const location = args.city || args.location || "Beijing";
-              addLine(`🌦️ 正在查询高精度天气: ${location}...`);
+              addLine(`🌦️ 正在获取高精度气象预测: ${location}...`);
               try {
                 result = await window.callWeatherAPI(location);
-                addLine(`✅ WeatherAPI / OpenWeather 数据查询完成`);
+                addLine(`✨ 气象数据获取完毕`);
               } catch (e) {
                 result = `Error: ${e.message}`;
                 addLine(`❌ 天气查询失败`);
               }
             } else if (tc.function.name === "search_web" || tc.function.name === "search_tavily") {
-              addLine(`🔍 正在调用全网 AI 实时搜索: ${args.query}...`);
+              addLine(`🔍 正在检索全网 AI 实时数据: ${args.query}...`);
               try {
                 result = await window.callTavilySearch(args.query);
-                addLine(`✅ 全网 AI 智能搜索完成`);
+                addLine(`✨ 全网 AI 智能搜索完成`);
               } catch (err1) {
                 try {
                   result = await window.callSerperSearch(args.query);
-                  addLine(`✅ Google 实时搜索完成`);
+                  addLine(`✨ Google 实时搜索完成`);
                 } catch(err2) {
                   try {
                     const res = await fetch("/api/search", {
@@ -4801,47 +4799,46 @@ sys.stdout = io.StringIO()
                     });
                     if (!res.ok) throw new Error("Cloudflare Function Failed");
                     result = await res.text();
-                    addLine(`✅ 云端高级搜索完成`);
+                    addLine(`✨ 云端高级搜索完成`);
                   } catch (err3) {
                     const proxyUrl = "https://search.358966.xyz";
                     const res = await fetch(`${proxyUrl}/?q=${encodeURIComponent(args.query)}`);
                     result = await res.text();
-                    addLine(`✅ 搜索完成`);
+                    addLine(`✨ 搜索完成`);
                   }
                 }
               }
             } else if (tc.function.name === "search_serper") {
-              addLine(`🔍 正在调用 Serper Google 搜索: ${args.query}...`);
+              addLine(`🔍 正在检索 Google 实时问答: ${args.query}...`);
               try {
                 result = await window.callSerperSearch(args.query);
-                addLine(`✅ Serper Google 搜索完成`);
+                addLine(`✨ Google 实时搜索完成`);
               } catch(e) {
                 result = `Error: ${e.message}`;
                 addLine(`❌ Serper 搜索失败`);
               }
             } else if (tc.function.name === "search_exa") {
-              addLine(`🔍 正在调用 Exa 神经网络 AI 搜索: ${args.query}...`);
+              addLine(`🔍 正在检索 Exa 神经网络论文库: ${args.query}...`);
               try {
                 result = await window.callExaSearch(args.query);
-                addLine(`✅ Exa 神经网络 AI 搜索完成`);
+                addLine(`✨ Exa 神经网络搜索完成`);
               } catch(e) {
                 result = `Error: ${e.message}`;
                 addLine(`❌ Exa 搜索失败`);
               }
             } else if (tc.function.name === "read_webpage" || tc.function.name === "fetch_web_article" || tc.function.name === "firecrawl_scrape") {
-              addLine(`🌐 正在使用 Firecrawl / Jina 深度抓取网页正文: ${args.url}...`);
+              addLine(`🌐 正在解析网页结构与正文内容...`);
               try {
                 result = await window.callFirecrawlScrape(args.url);
-                addLine(`✅ Firecrawl 纯净 Markdown 抓取完成`);
+                addLine(`✨ 网页正文提取完毕`);
               } catch (e1) {
-                addLine(`⚠️ Firecrawl 抓取降级，自动切至 Jina Reader...`);
                 try {
                   const jinaUrl = `https://r.jina.ai/${args.url}`;
                   const res = await fetch(jinaUrl);
                   if (!res.ok) throw new Error(`HTTP ${res.status}`);
                   const articleText = await res.text();
                   result = `Successfully extracted webpage content from ${args.url}:\n\n${articleText.substring(0, 8000)}`;
-                  addLine(`✅ Jina 网页抓取与解构完成`);
+                  addLine(`✨ 网页文本解构完成`);
                 } catch(e2) {
                   result = `Error fetching webpage: ${e2.message}`;
                   addLine(`❌ 网页抓取失败`);
