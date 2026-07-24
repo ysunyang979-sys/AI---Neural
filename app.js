@@ -2069,6 +2069,11 @@ window.triggerWebAudioLofiSynth = function(cardId) {
     }
 };
 
+window.cleanCardHtml = function(rawHtml) {
+    if (!rawHtml || typeof rawHtml !== 'string') return rawHtml || "";
+    return rawHtml.split('\n').map(line => line.trim()).join('');
+};
+
 window.sanitizeChatMarkdown = function(text) {
     if (!text || typeof text !== 'string') return text || "";
     return text.replace(/\{"\s*chart_config\s*":\s*"[\s\S]*?"\}/gi, '')
@@ -5915,17 +5920,8 @@ ${cleanHtml}
               } catch(e) {}
 
               const cardId = "netscan-" + Math.random().toString(36).substr(2, 9);
-              initialReply += `<br>
-              <div class="netscan-card" id="${cardId}" style="margin: 14px 0; border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 12px; background: #0f172a; padding: 14px 18px; font-family: var(--font-sans); color: #f8fafc;">
-                <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; margin-bottom: 10px;">
-                  <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 13.5px; color: #38bdf8;">
-                    <span>📡</span> <span>网络节点 DNS 与 SSL 安全诊断面板</span>
-                  </div>
-                  <span style="font-size: 11px; background: rgba(56, 189, 248, 0.2); color: #38bdf8; padding: 2px 8px; border-radius: 4px; font-weight: 600;">${escapeChatHTML(domain)}</span>
-                </div>
-                <div style="font-size: 12px; color: #94a3b8; margin-bottom: 6px;"><strong>节点解析数据:</strong></div>
-                <pre style="background: #1e293b; padding: 8px 12px; border-radius: 6px; font-size: 11px; color: #38bdf8; overflow-x: auto; max-height: 120px;">${escapeChatHTML(ipData)}</pre>
-              </div><br>`;
+              const cardHtml = `<div class="netscan-card" id="${cardId}" style="margin: 14px 0; border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 12px; background: #0f172a; padding: 14px 18px; font-family: var(--font-sans); color: #f8fafc;"><div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; margin-bottom: 10px;"><div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 13.5px; color: #38bdf8;"><span>📡</span> <span>网络节点 DNS 与 SSL 安全诊断面板</span></div><span style="font-size: 11px; background: rgba(56, 189, 248, 0.2); color: #38bdf8; padding: 2px 8px; border-radius: 4px; font-weight: 600;">${escapeChatHTML(domain)}</span></div><div style="font-size: 12px; color: #94a3b8; margin-bottom: 6px;"><strong>节点解析数据:</strong></div><pre style="background: #1e293b; padding: 8px 12px; border-radius: 6px; font-size: 11px; color: #38bdf8; overflow-x: auto; max-height: 120px;">${escapeChatHTML(ipData)}</pre></div>`;
+              initialReply += `<br>${cleanCardHtml(cardHtml)}<br>`;
 
               result = `SUCCESS. Network security scan completed for ${domain}:\n${ipData.substring(0, 3000)}`;
             } else if (tc.function.name === "analyze_legal_contract_diff") {
@@ -5937,27 +5933,11 @@ ${cleanHtml}
               const cardId = "legal-" + Math.random().toString(36).substr(2, 9);
               let risksHtml = risks.map(r => {
                 let color = r.level === 'High' ? '#ef4444' : r.level === 'Medium' ? '#f59e0b' : '#38bdf8';
-                return `<div style="margin-bottom: 8px; padding: 8px 12px; background: rgba(30, 41, 59, 0.8); border-left: 3px solid ${color}; border-radius: 4px;">
-                  <div style="display: flex; align-items: center; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
-                    <strong style="color: #f8fafc;">条款: ${escapeChatHTML(r.clause || '条款名')}</strong>
-                    <span style="font-size: 10px; background: ${color}33; color: ${color}; padding: 1px 6px; border-radius: 4px; font-weight: 600;">${escapeChatHTML(r.level || 'Risk')}</span>
-                  </div>
-                  <div style="font-size: 11.5px; color: #cbd5e1;">${escapeChatHTML(r.explanation || '')}</div>
-                </div>`;
+                return `<div style="margin-bottom: 8px; padding: 8px 12px; background: rgba(30, 41, 59, 0.8); border-left: 3px solid ${color}; border-radius: 4px;"><div style="display: flex; align-items: center; justify-content: space-between; font-size: 12px; margin-bottom: 4px;"><strong style="color: #f8fafc;">条款: ${escapeChatHTML(r.clause || '条款名')}</strong><span style="font-size: 10px; background: ${color}33; color: ${color}; padding: 1px 6px; border-radius: 4px; font-weight: 600;">${escapeChatHTML(r.level || 'Risk')}</span></div><div style="font-size: 11.5px; color: #cbd5e1;">${escapeChatHTML(r.explanation || '')}</div></div>`;
               }).join('');
 
-              initialReply += `<br>
-              <div class="legal-audit-card" id="${cardId}" style="margin: 14px 0; border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 12px; background: #0f172a; padding: 14px 18px; font-family: var(--font-sans); color: #f8fafc;">
-                <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; margin-bottom: 10px;">
-                  <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 13.5px; color: #f87171;">
-                    <span>⚖️</span> <span>法律合同风险与阴阳条款对比视窗</span>
-                  </div>
-                  <span style="font-size: 11px; background: rgba(239, 68, 68, 0.2); color: #f87171; padding: 2px 8px; border-radius: 4px; font-weight: 600;">${escapeChatHTML(ctype)}</span>
-                </div>
-                <div style="font-size: 12.5px; color: #e2e8f0; margin-bottom: 8px;"><strong>审计对象:</strong> ${escapeChatHTML(title)}</div>
-                <div style="margin-bottom: 6px;">${risksHtml}</div>
-                <div style="font-size: 11px; color: #94a3b8; text-align: right;">⚠️ 提示：本报告由 Neural Core AI 法律引擎生成，仅供参考</div>
-              </div><br>`;
+              const cardHtml = `<div class="legal-audit-card" id="${cardId}" style="margin: 14px 0; border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 12px; background: #0f172a; padding: 14px 18px; font-family: var(--font-sans); color: #f8fafc;"><div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; margin-bottom: 10px;"><div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 13.5px; color: #f87171;"><span>⚖️</span> <span>法律合同风险与阴阳条款对比视窗</span></div><span style="font-size: 11px; background: rgba(239, 68, 68, 0.2); color: #f87171; padding: 2px 8px; border-radius: 4px; font-weight: 600;">${escapeChatHTML(ctype)}</span></div><div style="font-size: 12.5px; color: #e2e8f0; margin-bottom: 8px;"><strong>审计对象:</strong> ${escapeChatHTML(title)}</div><div style="margin-bottom: 6px;">${risksHtml}</div><div style="font-size: 11px; color: #94a3b8; text-align: right;">⚠️ 提示：本报告由 Neural Core AI 法律引擎生成，仅供参考</div></div>`;
+              initialReply += `<br>${cleanCardHtml(cardHtml)}<br>`;
 
               result = `SUCCESS. Legal contract audit completed for ${title}. Found ${risks.length} risk items.`;
             } else if (tc.function.name === "check_license_compliance") {
@@ -5970,25 +5950,12 @@ ${cleanHtml}
                 let isRisk = d.status === 'CONTAGIOUS_RISK' || d.license.includes('GPL');
                 let badgeColor = isRisk ? '#ef4444' : '#22c55e';
                 let statusMsg = isRisk ? '⚠️ GPL传染风险' : '✅ 商业兼容';
-                return `<div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; background: rgba(30, 41, 59, 0.8); border-radius: 6px; margin-bottom: 4px; font-size: 11.5px;">
-                  <span style="color: #f1f5f9; font-weight: 600;">📦 ${escapeChatHTML(d.name)}</span>
-                  <span style="color: #94a3b8;">[${escapeChatHTML(d.license)}]</span>
-                  <span style="font-size: 10.5px; background: ${badgeColor}22; color: ${badgeColor}; padding: 1px 6px; border-radius: 4px; font-weight: 600;">${statusMsg}</span>
-                </div>`;
+                return `<div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; background: rgba(30, 41, 59, 0.8); border-radius: 6px; margin-bottom: 4px; font-size: 11.5px;"><span style="color: #f1f5f9; font-weight: 600;">📦 ${escapeChatHTML(d.name)}</span><span style="color: #94a3b8;">[${escapeChatHTML(d.license)}]</span><span style="font-size: 10.5px; background: ${badgeColor}22; color: ${badgeColor}; padding: 1px 6px; border-radius: 4px; font-weight: 600;">${statusMsg}</span></div>`;
               }).join('');
 
               const cardId = "lic-" + Math.random().toString(36).substr(2, 9);
-              initialReply += `<br>
-              <div class="license-card" id="${cardId}" style="margin: 14px 0; border: 1px solid rgba(234, 179, 8, 0.4); border-radius: 12px; background: #0f172a; padding: 14px 18px; font-family: var(--font-sans); color: #f8fafc;">
-                <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; margin-bottom: 10px;">
-                  <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 13.5px; color: #facc15;">
-                    <span>📜</span> <span>开源许可证合规与传染风险校验视窗</span>
-                  </div>
-                  <span style="font-size: 11px; background: rgba(234, 179, 8, 0.2); color: #facc15; padding: 2px 8px; border-radius: 4px; font-weight: 600;">${escapeChatHTML(isComm)}</span>
-                </div>
-                <div style="font-size: 12.5px; color: #e2e8f0; margin-bottom: 8px;"><strong>检测工程:</strong> ${escapeChatHTML(projName)}</div>
-                <div style="margin-bottom: 6px;">${depsHtml}</div>
-              </div><br>`;
+              const cardHtml = `<div class="license-card" id="${cardId}" style="margin: 14px 0; border: 1px solid rgba(234, 179, 8, 0.4); border-radius: 12px; background: #0f172a; padding: 14px 18px; font-family: var(--font-sans); color: #f8fafc;"><div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; margin-bottom: 10px;"><div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 13.5px; color: #facc15;"><span>📜</span> <span>开源许可证合规与传染风险校验视窗</span></div><span style="font-size: 11px; background: rgba(234, 179, 8, 0.2); color: #facc15; padding: 2px 8px; border-radius: 4px; font-weight: 600;">${escapeChatHTML(isComm)}</span></div><div style="font-size: 12.5px; color: #e2e8f0; margin-bottom: 8px;"><strong>检测工程:</strong> ${escapeChatHTML(projName)}</div><div style="margin-bottom: 6px;">${depsHtml}</div></div>`;
+              initialReply += `<br>${cleanCardHtml(cardHtml)}<br>`;
 
               result = `SUCCESS. License compliance check completed for ${projName}. Dependencies checked: ${deps.length}`;
             } else if (tc.function.name === "search_open_music_player") {
@@ -6007,34 +5974,8 @@ ${cleanHtml}
               const audioUrl = (args.audio_url && args.audio_url.startsWith("http")) ? args.audio_url : sampleAudios[Math.floor(Math.random() * sampleAudios.length)];
 
               const cardId = "audio-" + Math.random().toString(36).substr(2, 9);
-              initialReply += `<br>
-              <div class="open-music-card" id="${cardId}" style="margin: 14px 0; border: 1px solid rgba(168, 85, 247, 0.5); border-radius: 16px; background: linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(30, 27, 75, 0.98)); padding: 18px 22px; font-family: var(--font-sans); color: #f8fafc; box-shadow: 0 12px 30px -5px rgba(168, 85, 247, 0.3);">
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
-                  <div style="display: flex; align-items: center; gap: 14px;">
-                    <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #a855f7, #6366f1); display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 6px 16px rgba(168, 85, 247, 0.5);">🎵</div>
-                    <div>
-                      <div style="font-weight: 700; font-size: 15px; color: #f8fafc; letter-spacing: -0.2px;">${escapeChatHTML(songName)}</div>
-                      <div style="font-size: 12px; color: #c084fc; margin-top: 2px;">${escapeChatHTML(artist)} • <span style="background: rgba(192, 132, 252, 0.2); padding: 2px 8px; border-radius: 4px; font-size: 10.5px; font-weight: 600;">CC0 开源无版权双引擎音频</span></div>
-                    </div>
-                  </div>
-                  <span style="font-size: 11px; color: #94a3b8; background: rgba(255,255,255,0.06); padding: 4px 10px; border-radius: 6px;">检索词: ${escapeChatHTML(query)}</span>
-                </div>
-                
-                <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255,255,255,0.08); padding: 12px 16px; border-radius: 12px; margin-bottom: 12px;">
-                  <audio id="${cardId}-audio" controls crossorigin="anonymous" preload="auto" style="width: 100%; height: 38px; border-radius: 8px; outline: none;" src="${escapeChatHTML(audioUrl)}"></audio>
-                </div>
-
-                <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px;">
-                  <button id="${cardId}-playbtn" onclick="window.playOpenMusicSynth('${cardId}', '${escapeChatHTML(audioUrl)}')" style="flex: 1; padding: 10px 16px; background: linear-gradient(135deg, #9333ea, #4f46e5); color: white; border: none; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 14px rgba(147, 51, 234, 0.4); display: flex; align-items: center; justify-content: center; gap: 8px;">
-                    ▶️ 开启无阻流式播放 / 端侧合成乐段
-                  </button>
-                  <a href="${escapeChatHTML(audioUrl)}" target="_blank" download style="padding: 10px 14px; background: rgba(255,255,255,0.08); color: #c084fc; border: 1px solid rgba(192, 132, 252, 0.3); border-radius: 10px; font-size: 12px; font-weight: 600; text-decoration: none; white-space: nowrap;">下载 MP3 ⬇</a>
-                </div>
-
-                <div id="${cardId}-status" style="font-size: 11px; color: #94a3b8; text-align: center; margin-top: 4px;">
-                  ✨ 具备 HTML5 在线音轨与 Web Audio 原生合成双引擎保障，任意浏览器 100% 畅听！
-                </div>
-              </div><br>`;
+              const cardHtml = `<div class="open-music-card" id="${cardId}" style="margin: 14px 0; border: 1px solid rgba(168, 85, 247, 0.5); border-radius: 16px; background: linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(30, 27, 75, 0.98)); padding: 18px 22px; font-family: var(--font-sans); color: #f8fafc; box-shadow: 0 12px 30px -5px rgba(168, 85, 247, 0.3);"><div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;"><div style="display: flex; align-items: center; gap: 14px;"><div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #a855f7, #6366f1); display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 6px 16px rgba(168, 85, 247, 0.5);">🎵</div><div><div style="font-weight: 700; font-size: 15px; color: #f8fafc; letter-spacing: -0.2px;">${escapeChatHTML(songName)}</div><div style="font-size: 12px; color: #c084fc; margin-top: 2px;">${escapeChatHTML(artist)} • <span style="background: rgba(192, 132, 252, 0.2); padding: 2px 8px; border-radius: 4px; font-size: 10.5px; font-weight: 600;">CC0 开源无版权双引擎音频</span></div></div></div><span style="font-size: 11px; color: #94a3b8; background: rgba(255,255,255,0.06); padding: 4px 10px; border-radius: 6px;">检索词: ${escapeChatHTML(query)}</span></div><div style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255,255,255,0.08); padding: 12px 16px; border-radius: 12px; margin-bottom: 12px;"><audio id="${cardId}-audio" controls crossorigin="anonymous" preload="auto" style="width: 100%; height: 38px; border-radius: 8px; outline: none;" src="${escapeChatHTML(audioUrl)}"></audio></div><div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px;"><button id="${cardId}-playbtn" onclick="window.playOpenMusicSynth('${cardId}', '${escapeChatHTML(audioUrl)}')" style="flex: 1; padding: 10px 16px; background: linear-gradient(135deg, #9333ea, #4f46e5); color: white; border: none; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 14px rgba(147, 51, 234, 0.4); display: flex; align-items: center; justify-content: center; gap: 8px;">▶️ 开启无阻流式播放 / 端侧合成乐段</button><a href="${escapeChatHTML(audioUrl)}" target="_blank" download style="padding: 10px 14px; background: rgba(255,255,255,0.08); color: #c084fc; border: 1px solid rgba(192, 132, 252, 0.3); border-radius: 10px; font-size: 12px; font-weight: 600; text-decoration: none; white-space: nowrap;">下载 MP3 ⬇</a></div><div id="${cardId}-status" style="font-size: 11px; color: #94a3b8; text-align: center; margin-top: 4px;">✨ 具备 HTML5 在线音轨与 Web Audio 原生合成双引擎保障，任意浏览器 100% 畅听！</div></div>`;
+              initialReply += `<br>${cleanCardHtml(cardHtml)}<br>`;
 
               result = `SUCCESS. Found open-source music for '${query}': ${songName} by ${artist}. SYSTEM INSTRUCTION FOR ASSISTANT: The interactive UI audio player card is ALREADY rendered on the user's screen! DO NOT output, repeat, or echo ANY HTML code, <div> tags, or code blocks in your markdown reply. Just reply with friendly natural text directly.`;
             } else {
