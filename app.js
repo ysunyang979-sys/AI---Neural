@@ -334,7 +334,7 @@ window.fetchCollaborativeAPIWithTools = async function(provider, model, messages
                             let args = {};
                             try { args = JSON.parse(tc.function.arguments); } catch(e){}
                             
-                            if (addLine) addLine(`🔧 [${model.split('/').pop()}] 正在使用工具: ${fnName}...`);
+                            if (addLine) addLine(`💭 正在进行深度推理与协同计算...`);
                             
                             let toolResult = "Tool not found or failed";
                             try {
@@ -3868,7 +3868,6 @@ async function handleChatSend() {
               }
               
               result = `Media edit task initiated. Waiting for user to upload file and process via FFmpeg in the browser UI. Target output: ${outName}`;
-              addLine(`✅ FFmpeg 任务已发送至 Canvas`);
             } else if (tc.function.name === "calculate") {
               const rawExpr = args.expression || "";
               
@@ -3886,7 +3885,7 @@ async function handleChatSend() {
               cleanExpr = cleanExpr.replace(/(\d)([a-zA-Z\(])/g, '$1*$2');
               cleanExpr = cleanExpr.replace(/(\))([a-zA-Z0-9\(])/g, '$1*$2');
 
-              addLine(`🧮 超级计算引擎解析: ${cleanExpr}`);
+              addLine(`🧮 正在解析并计算数学表达式...`);
 
               try {
                 let exactRes = "";
@@ -3923,7 +3922,6 @@ async function handleChatSend() {
                   numericRes = `左值: ${leftVal} | 右值: ${rightVal} | 差值: ${diff}`;
                   result = `${exactRes} (${compareDetail})`;
                 } else if (/[a-zA-Z=]/.test(cleanExpr) && !/Math\./.test(cleanExpr)) {
-                  addLine(`🧠 检测到代数方程/符号运算，启动 SymPy 代数引擎...`);
                   if (!pyodideInstance) {
                     pyodideInstance = await loadPyodide();
                   }
@@ -4001,22 +3999,16 @@ _out
                 const cardId = "math-" + Math.random().toString(36).substr(2, 9);
                 const safeExactRes = escapeChatHTML(exactRes).replace(/"/g, '&quot;');
                 initialReply += `<br><div class="math-calc-card" id="${cardId}"><div class="math-calc-header"><i data-lucide="calculator"></i> 计算</div><div class="math-calc-expr">${katexExprHtml}</div><div class="math-calc-result-box"><div class="math-calc-row"><span class="math-calc-label">精确解 (Exact):</span> <span class="math-calc-val">${katexResHtml}</span></div>${numericRes && numericRes !== exactRes ? `<div class="math-calc-row"><span class="math-calc-label">数值解 (Numeric):</span> <span class="math-calc-val">${escapeChatHTML(numericRes)}</span></div>` : ''}${compareDetail ? `<div class="compare-badge ${compareBool ? 'badge-true' : 'badge-false'}"><i data-lucide="${compareBool ? 'check-circle' : 'x-circle'}"></i> ${escapeChatHTML(compareDetail)}</div>` : ''}</div><div class="math-calc-actions"><button onclick="navigator.clipboard.writeText(\`${safeExactRes}\`); this.innerText='已复制!'; setTimeout(()=>this.innerText='复制结果', 2000);">复制结果</button></div></div><br>`;
-
-                addLine(`✅ 计算完成: ${result}`);
               } catch (e) {
                 result = `Error evaluating expression '${args.expression}': ${e.message}`;
-                addLine(`❌ 计算失败: ${e.message}`);
               }
             } else if (tc.function.name === "execute_python") {
-              addLine(`🐍 初始化 Python 环境...`);
+              addLine(`💻 正在沙盒中运行代码...`);
               try {
                 if (!pyodideInstance) {
                   pyodideInstance = await loadPyodide();
                 }
-                addLine(`🐍 加载依赖中 (如果需要...`);
                 await pyodideInstance.loadPackagesFromImports(args.code);
-
-                addLine(`🐍 执行 Python 代码中..`);
 
                 // Redirect stdout
                 pyodideInstance.runPython(`
@@ -4030,13 +4022,11 @@ sys.stdout = io.StringIO()
                 result = stdout
                   ? stdout.trim()
                   : "Code executed successfully with no output.";
-                addLine(`✅ Python 执行完成`);
               } catch (err) {
                 result = `Python Error: ${err.message}`;
-                addLine(`❌ Python 执行报错`);
               }
             } else if (tc.function.name === "run_code_sandbox") {
-              addLine(`💻 正在云端沙盒执行 ${args.language} 代码...`);
+              addLine(`💻 正在沙盒中编译与运行代码...`);
               try {
                 const res = await fetch("https://emkc.org/api/v2/piston/execute", {
                   method: "POST",
@@ -4050,18 +4040,16 @@ sys.stdout = io.StringIO()
                 const data = await res.json();
                 if (data.run && data.run.output) {
                   result = data.run.output;
-                  addLine(`✅ 代码执行完成`);
                 } else if (data.message) {
                   throw new Error(data.message);
                 } else {
                   result = "No output";
-                  addLine(`✅ 代码执行完成`);
                 }
               } catch (e) {
                 result = `Error: ${e.message}`;
-                addLine(`❌ 代码执行失败`);
-              }} else if (tc.function.name === "generate_mindmap") {
-              addLine(`🧠 正在渲染动态思维导图...`);
+              }
+            } else if (tc.function.name === "generate_mindmap") {
+              addLine(`🧠 正在生成动态思维导图...`);
               
               const iframeSrc = `
 <!DOCTYPE html>
@@ -4664,13 +4652,11 @@ sys.stdout = io.StringIO()
                 const chartUrl = `https://quickchart.io/chart?c=${encodeURIComponent(args.chart_config)}`;
                 initialReply += `<br><br><img src="${chartUrl}" style="max-width:100%; border-radius:8px; cursor:pointer; background: white; padding: 10px;" onclick="window.open(this.src, '_blank')" alt="Generated Chart" /><br><br>`;
                 result = "SYSTEM STATUS: SUCCESS. The chart is ALREADY visible on the user's screen! DO NOT OUTPUT ANY IMAGE TAGS, URLs, OR BASE64. Just start typing your text analysis directly.";
-                addLine(`✅ 图表生成完成`);
               } catch (e) {
                 result = `Error: ${e.message}`;
-                addLine(`❌ 图表生成失败`);
               }
             } else if (tc.function.name === "get_github_repo_info") {
-              addLine(`🐙 正在获取 GitHub 仓库信息: ${args.repo_path}...`);
+              addLine(`🐙 正在获取开源仓库数据...`);
               try {
                 const repoRes = await fetch(`https://api.github.com/repos/${args.repo_path}`);
                 if (!repoRes.ok) throw new Error("GitHub Repo API returned " + repoRes.status);
@@ -4696,13 +4682,11 @@ sys.stdout = io.StringIO()
                     date: c.commit.author.date
                   }))
                 }, null, 2);
-                addLine(`✅ GitHub 信息获取完成`);
               } catch (e) {
                 result = `Error: ${e.message}`;
-                addLine(`❌ GitHub 信息获取失败`);
               }
             } else if (tc.function.name === "get_hacker_news_top" || tc.function.name === "get_tech_news") {
-              addLine(`🔥 正在拉取全球开发者社区热榜...`);
+              addLine(`🔥 正在获取最新科技热榜...`);
               try {
                 const count = args.count ? Math.min(args.count, 10) : 5;
                 const topRes = await fetch("https://hacker-news.firebaseio.com/v0/topstories.json");
@@ -4721,22 +4705,18 @@ sys.stdout = io.StringIO()
                   }
                 }
                 result = JSON.stringify(stories, null, 2);
-                addLine(`✨ 热榜动态提取完成`);
               } catch (e) {
                 result = `Error: ${e.message}`;
-                addLine(`❌ 热榜获取失败`);
               }
             } else if (tc.function.name === "dictionary_lookup") {
-              addLine(`📖 正在检索权威词典释义: ${args.word}...`);
+              addLine(`📖 正在检索权威词典释义...`);
               try {
                 const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(args.word)}`);
                 if (!res.ok) throw new Error("Dictionary API returned " + res.status);
                 const data = await res.json();
                 result = JSON.stringify(data, null, 2);
-                addLine(`✨ 词汇解析完毕`);
               } catch (e) {
                 result = `Error: ${e.message}. The word might not be found.`;
-                addLine(`❌ 词典查询失败`);
               }
             } else if (tc.function.name === "get_ip_location") {
               addLine(`🌍 正在确认地理网络定位...`);
@@ -4745,10 +4725,8 @@ sys.stdout = io.StringIO()
                 if (!res.ok) throw new Error("IP API returned " + res.status);
                 const data = await res.json();
                 result = JSON.stringify(data, null, 2);
-                addLine(`✨ 地理定位已确认`);
               } catch (e) {
                 result = `Error: ${e.message}`;
-                addLine(`❌ 位置获取失败`);
               }
             } else if (tc.function.name === "get_exchange_rate") {
               addLine(`💱 正在获取实时货币汇率...`);
@@ -4766,30 +4744,24 @@ sys.stdout = io.StringIO()
                 } else {
                   result = `Error: ${data.error_type}`;
                 }
-                addLine(`✨ 汇率数据换算完成`);
               } catch (e) {
                 result = `Error: ${e.message}`;
-                addLine(`❌ 汇率查询失败`);
               }
             } else if (tc.function.name === "get_weather_forecast" || tc.function.name === "get_weather") {
               const location = args.city || args.location || "Beijing";
-              addLine(`🌦️ 正在获取高精度气象预测: ${location}...`);
+              addLine(`🌦️ 正在获取实时天气预报...`);
               try {
                 result = await window.callWeatherAPI(location);
-                addLine(`✨ 气象数据获取完毕`);
               } catch (e) {
                 result = `Error: ${e.message}`;
-                addLine(`❌ 天气查询失败`);
               }
             } else if (tc.function.name === "search_web" || tc.function.name === "search_tavily") {
-              addLine(`🔍 正在检索全网 AI 实时数据: ${args.query}...`);
+              addLine(`🔍 正在检索全网最新资讯与数据...`);
               try {
                 result = await window.callTavilySearch(args.query);
-                addLine(`✨ 全网 AI 智能搜索完成`);
               } catch (err1) {
                 try {
                   result = await window.callSerperSearch(args.query);
-                  addLine(`✨ Google 实时搜索完成`);
                 } catch(err2) {
                   try {
                     const res = await fetch("/api/search", {
@@ -4799,38 +4771,31 @@ sys.stdout = io.StringIO()
                     });
                     if (!res.ok) throw new Error("Cloudflare Function Failed");
                     result = await res.text();
-                    addLine(`✨ 云端高级搜索完成`);
                   } catch (err3) {
                     const proxyUrl = "https://search.358966.xyz";
                     const res = await fetch(`${proxyUrl}/?q=${encodeURIComponent(args.query)}`);
                     result = await res.text();
-                    addLine(`✨ 搜索完成`);
                   }
                 }
               }
             } else if (tc.function.name === "search_serper") {
-              addLine(`🔍 正在检索 Google 实时问答: ${args.query}...`);
+              addLine(`🔍 正在检索全网知识问答...`);
               try {
                 result = await window.callSerperSearch(args.query);
-                addLine(`✨ Google 实时搜索完成`);
               } catch(e) {
                 result = `Error: ${e.message}`;
-                addLine(`❌ Serper 搜索失败`);
               }
             } else if (tc.function.name === "search_exa") {
-              addLine(`🔍 正在检索 Exa 神经网络论文库: ${args.query}...`);
+              addLine(`🔍 正在检索全网深度数据与论文...`);
               try {
                 result = await window.callExaSearch(args.query);
-                addLine(`✨ Exa 神经网络搜索完成`);
               } catch(e) {
                 result = `Error: ${e.message}`;
-                addLine(`❌ Exa 搜索失败`);
               }
             } else if (tc.function.name === "read_webpage" || tc.function.name === "fetch_web_article" || tc.function.name === "firecrawl_scrape") {
-              addLine(`🌐 正在解析网页结构与正文内容...`);
+              addLine(`🌐 正在读取并解析网页正文...`);
               try {
                 result = await window.callFirecrawlScrape(args.url);
-                addLine(`✨ 网页正文提取完毕`);
               } catch (e1) {
                 try {
                   const jinaUrl = `https://r.jina.ai/${args.url}`;
@@ -4838,38 +4803,30 @@ sys.stdout = io.StringIO()
                   if (!res.ok) throw new Error(`HTTP ${res.status}`);
                   const articleText = await res.text();
                   result = `Successfully extracted webpage content from ${args.url}:\n\n${articleText.substring(0, 8000)}`;
-                  addLine(`✨ 网页文本解构完成`);
                 } catch(e2) {
                   result = `Error fetching webpage: ${e2.message}`;
-                  addLine(`❌ 网页抓取失败`);
                 }
               }
             } else if (tc.function.name === "search_academic_papers") {
-              addLine(`📚 正在跨库检索学术论文 (arXiv / OpenAlex / Semantic Scholar / CrossRef): ${args.query}...`);
+              addLine(`📚 正在跨库检索学术论文与文献...`);
               try {
                 result = await window.callAcademicSearch(args.query, args.source);
-                addLine(`✅ 学术论文检索完成`);
               } catch(e) {
                 result = `Error: ${e.message}`;
-                addLine(`❌ 学术论文检索失败`);
               }
             } else if (tc.function.name === "search_dev_packages") {
-              addLine(`📦 正在检索开源软件包 (${args.ecosystem || 'pypi'}): ${args.package_name}...`);
+              addLine(`📦 正在查询开源软件包依赖数据...`);
               try {
                 result = await window.callDevPackagesSearch(args.package_name, args.ecosystem);
-                addLine(`✅ 软件包信息检索完成`);
               } catch(e) {
                 result = `Error: ${e.message}`;
-                addLine(`❌ 软件包检索失败`);
               }
             } else if (tc.function.name === "get_tech_community_trends") {
-              addLine(`🔥 正在抓取开发者社区趋势 (Dev.to / Lobsters / GitHub)...`);
+              addLine(`🔥 正在分析开发者社区热门动态...`);
               try {
                 result = await window.callTechCommunityTrends(args.topic);
-                addLine(`✅ 技术趋势抓取完成`);
               } catch(e) {
                 result = `Error: ${e.message}`;
-                addLine(`❌ 技术趋势抓取失败`);
               }
             } else if (tc.function.name === "render_code_diff") {
               addLine(`🔍 生成代码 Diff 差异对比视窗...`);
@@ -4900,18 +4857,16 @@ sys.stdout = io.StringIO()
               const safeNewCode = (args.new_code || "").replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$/g, '\\$');
               initialReply += `<br><div class="code-diff-card" id="${diffId}"><div class="diff-header"><span class="diff-title"><i data-lucide="git-compare"></i> ${escapeChatHTML(title)} <small>(${escapeChatHTML(lang)})</small></span><button class="diff-copy-btn" onclick="navigator.clipboard.writeText(\`${safeNewCode}\`); this.innerText='已复制!'; setTimeout(()=>this.innerText='复制新代码',2000);">复制新代码</button></div><div class="diff-body">${diffRowsHtml}</div></div><br>`;
               result = "SYSTEM STATUS: SUCCESS. Code diff component rendered successfully.";
-              addLine(`✅ Diff 对比视图构建完成`);
             } else if (tc.function.name === "create_flashcard_deck") {
-              addLine(`🎴 生成 3D 翻转记忆闪卡组 (${args.cards ? args.cards.length : 0} 张)...`);
+              addLine(`🎴 正在生成交互式记忆闪卡...`);
               const deckId = "deck-" + Math.random().toString(36).substr(2, 9);
               const cardsData = JSON.stringify(args.cards || []).replace(/"/g, '&quot;');
               const firstCard = (args.cards && args.cards.length > 0) ? args.cards[0] : { front: "无数据", back: "无数据" };
               
               initialReply += `<br><div class="flashcard-deck-card" id="${deckId}" data-cards="${cardsData}" data-idx="0"><div class="deck-title"><i data-lucide="layers"></i> ${escapeChatHTML(args.title || '记忆闪卡')}</div><div class="flashcard-wrapper" onclick="this.classList.toggle('flipped')"><div class="flashcard-inner"><div class="flashcard-front"><div class="card-badge">正面 (点击翻转)</div><div class="card-content front-content">${escapeChatHTML(firstCard.front)}</div></div><div class="flashcard-back"><div class="card-badge">背面 (答案)</div><div class="card-content back-content">${escapeChatHTML(firstCard.back)}</div></div></div></div><div class="deck-controls"><button onclick="window.prevFlashCard('${deckId}')"><i data-lucide="chevron-left"></i> 上一张</button><span class="card-counter">1 / ${args.cards ? args.cards.length : 1}</span><button onclick="window.nextFlashCard('${deckId}')">下一张 <i data-lucide="chevron-right"></i></button></div></div><br>`;
               result = "SYSTEM STATUS: SUCCESS. Flashcard deck created successfully.";
-              addLine(`✅ 3D 闪卡构建完成`);
             } else if (tc.function.name === "latex_step_math") {
-              addLine(`📐 正在构建公式推演步步看 (${args.steps ? args.steps.length : 0} 步)...`);
+              addLine(`📐 正在构建公式分步推导...`);
               let stepsHtml = "";
               (args.steps || []).forEach((st, idx) => {
                 let renderedMath = st.latex;
@@ -4927,13 +4882,12 @@ sys.stdout = io.StringIO()
               
               initialReply += `<br><div class="step-math-card"><div class="step-math-header"><i data-lucide="sigma"></i> ${escapeChatHTML(args.title || '数学公式推导')}</div><div class="step-math-body">${stepsHtml}</div></div><br>`;
               result = "SYSTEM STATUS: SUCCESS. LaTeX step math component created successfully.";
-              addLine(`✅ 数学公式步步看构建完成`);
             } else if (tc.function.name === "math_logic_engine") {
               const mode = args.mode || "montreal_carlo";
               const query = args.query || "";
               const N = args.iterations || 100000;
               const params = args.parameters || {};
-              addLine(`🧪 启动博弈与逻辑硬核计算引擎 [模式: ${mode}, N=${N}]...`);
+              addLine(`🧪 正在进行算法与逻辑推导...`);
               
               let simResultText = "";
               let cardContentHtml = "";
@@ -5066,11 +5020,10 @@ sys.stdout = io.StringIO()
               
               initialReply += `<br>${cardContentHtml}<br>`;
               result = `SUCCESS. ${simResultText}`;
-              addLine(`✅ 逻辑与博弈计算完成`);
             } else if (tc.function.name === "code_linter_ast") {
               const lang = args.language || "javascript";
               const code = args.code || "";
-              addLine(`🔍 启动 AST 静态分析与 Lint 检查引擎 (${lang})...`);
+              addLine(`🔍 正在进行代码静态诊断...`);
               
               const diagnostics = [];
               let openParens = 0, openBraces = 0, openBrackets = 0;
@@ -5097,12 +5050,11 @@ sys.stdout = io.StringIO()
               
               initialReply += `<br><div class="linter-diag-card"><div class="linter-header"><i data-lucide="code-2"></i> 代码 AST 静态校验与诊断引擎 (${escapeChatHTML(lang)})</div><div class="linter-body">${diagRowsHtml}</div></div><br>`;
               result = `SUCCESS. AST Code linting finished. Diagnostics: ${JSON.stringify(diagnostics)}`;
-              addLine(`✅ 代码 AST 诊断完成`);
             } else if (tc.function.name === "tot_reasoning_pipeline") {
               const prob = args.problem || "";
               const branches = args.branches || [];
               const best = args.best_path || "";
-              addLine(`🌳 启动思维树 (ToT) 多路径评估与剪枝管道...`);
+              addLine(`🌳 正在评估多路径决策方案...`);
               
               let branchRowsHtml = branches.map(b => `
                 <div class="tot-branch-item ${b.path_name === best ? 'best-branch' : ''}">
@@ -5118,11 +5070,10 @@ sys.stdout = io.StringIO()
               
               initialReply += `<br><div class="tot-tree-card"><div class="tot-header"><i data-lucide="git-fork"></i> 思维树 (Tree-of-Thoughts) 评估面板</div><div class="tot-problem">${escapeChatHTML(prob)}</div><div class="tot-branches">${branchRowsHtml}</div><div class="tot-winner-badge"><i data-lucide="trophy"></i> 最优决策路径: ${escapeChatHTML(best)}</div></div><br>`;
               result = `SUCCESS. ToT reasoning pipeline finished. Best path: ${best}`;
-              addLine(`✅ 思维树评估完成`);
             } else if (tc.function.name === "task_planner_solver") {
               const goal = args.goal || "";
               const steps = args.steps || [];
-              addLine(`📋 启动 ReAct / Plan-and-Solve 任务链规划器...`);
+              addLine(`📋 正在拆解并规划任务步骤...`);
               
               let stepRowsHtml = steps.map(s => `
                 <div class="plan-step-item">
@@ -5136,7 +5087,6 @@ sys.stdout = io.StringIO()
               
               initialReply += `<br><div class="task-planner-card"><div class="planner-header"><i data-lucide="kanban"></i> Plan-and-Solve 任务链拆解规划</div><div class="planner-goal">目标: ${escapeChatHTML(goal)}</div><div class="planner-steps">${stepRowsHtml}</div></div><br>`;
               result = `SUCCESS. Task planner solver finished. Generated ${steps.length} subtasks.`;
-              addLine(`✅ 任务规划编排完成`);
             } else if (tc.function.name === "render_interactive_map") {
               let origin = (args.origin || "起点").replace(/路线$/g, "").trim();
               let destination = (args.destination || "终点").replace(/路线$/g, "").trim();
@@ -5150,13 +5100,13 @@ sys.stdout = io.StringIO()
 
               let gmapsEmbedUrl = `https://maps.google.com/maps?saddr=${encodeURIComponent(origin)}&daddr=${encodeURIComponent(destination)}&hl=zh-CN&gl=CN&output=embed`;
 
-              addLine(`🗺️ 启动谷歌地图 (Google Maps) 实时交互渲染引擎: [${origin} ➔ ${destination}]...`);
+              addLine(`🗺️ 正在构建地图导航控件...`);
 
               initialReply += `<br>
               <div class="google-map-embed-card" style="margin: 14px 0; border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 14px; overflow: hidden; background: #1e293b; box-shadow: 0 4px 20px rgba(0,0,0,0.25);">
                 <div style="padding: 10px 16px; background: linear-gradient(90deg, rgba(56, 189, 248, 0.15), rgba(99, 102, 241, 0.15)); border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: space-between;">
                   <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 13.5px; color: #f8fafc;">
-                    <span>🗺️</span> <span>谷歌地图 (Google Maps) 路线交互图：${escapeChatHTML(origin)} ➔ ${escapeChatHTML(destination)}</span>
+                    <span>🗺️</span> <span>地图路线交互图：${escapeChatHTML(origin)} ➔ ${escapeChatHTML(destination)}</span>
                   </div>
                   <span style="font-size: 11px; color: #94a3b8; background: rgba(0,0,0,0.3); padding: 3px 8px; border-radius: 4px;">支持在聊天框内缩放/拖拽</span>
                 </div>
@@ -5166,14 +5116,13 @@ sys.stdout = io.StringIO()
                 <div style="padding: 12px 16px; background: rgba(15, 23, 42, 0.8); display: flex; align-items: center; justify-content: space-between; gap: 12px; border-top: 1px solid rgba(255,255,255,0.08);">
                   <div style="font-size: 12px; color: #94a3b8; display: flex; align-items: center; gap: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                     <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #38bdf8; flex-shrink: 0;"></span>
-                    <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">路线数据: <strong style="color: #f1f5f9;">${escapeChatHTML(origin)} ➔ ${escapeChatHTML(destination)}</strong> (${escapeChatHTML(mapName)}官方导航)</span>
+                    <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">路线数据: <strong style="color: #f1f5f9;">${escapeChatHTML(origin)} ➔ ${escapeChatHTML(destination)}</strong></span>
                   </div>
-                  <button class="open-url-btn" data-url="${escapeChatHTML(targetUrl)}" data-name="${escapeChatHTML(mapName)} ${escapeChatHTML(origin)}到${escapeChatHTML(destination)}路线" style="padding: 6px 14px; background: var(--accent, #0284c7); color: white; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; flex-shrink: 0; white-space: nowrap;">🌐 打开 ${mapName} 官方导航 ↗</button>
+                  <button class="open-url-btn" data-url="${escapeChatHTML(targetUrl)}" data-name="${escapeChatHTML(origin)}到${escapeChatHTML(destination)}路线" style="padding: 6px 14px; background: var(--accent, #0284c7); color: white; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; flex-shrink: 0; white-space: nowrap;">🌐 打开地图官方导航 ↗</button>
                 </div>
               </div><br>`;
 
               result = `SUCCESS. Rendered interactive Google Maps embed view for ${origin} to ${destination} directly inside chat window.`;
-              addLine(`✅ 谷歌地图交互控件渲染完成，支持直接在对话框中缩放拖拽`);
             } else if (tc.function.name === "open_browser_url") {
               const officialSites = {
                 "百度地图": "https://map.baidu.com",
@@ -5280,7 +5229,7 @@ sys.stdout = io.StringIO()
               let displayUrl = targetUrl;
               try { displayUrl = decodeURIComponent(targetUrl); } catch(e) {}
 
-              addLine(`🔗 正在为你精准导航并自动打开 [${rawName}] (${displayUrl})...`);
+              addLine(`🔗 正在为你打开目标网页...`);
               
               try {
                 window.open(targetUrl, '_blank');
@@ -5298,9 +5247,8 @@ sys.stdout = io.StringIO()
               </div><br>`;
               
               result = `SUCCESS. Automatically opened 200 OK official URL for ${rawName} (${targetUrl}) in a new browser tab for the user.`;
-              addLine(`✅ 已成功精准打开 ${rawName}`);
             } else if (tc.function.name === "generate_image") {
-              addLine(`🎨 绘制图像: ${args.prompt.substring(0, 15)}...`);
+              addLine(`🎨 正在生成 AI 图像...`);
               let imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(args.prompt)}`;
 
               // Apply aspect ratio
@@ -5330,25 +5278,22 @@ sys.stdout = io.StringIO()
               // Inject HTML img directly into initialReply to preserve it and avoid markdown parser issues
               initialReply += `<br><br><img src="${imageUrl}" style="max-width:300px; border-radius:8px; cursor:pointer;" onclick="window.open(this.src, '_blank')" alt="Generated Image" /><br><br>`;
               result = `Image generated successfully and rendered in the chat via UI. You do not need to output the markdown tag yourself.`;
-              addLine(`✅ 图像生成完毕`);
             } else if (tc.function.name === "get_weather") {
-              addLine(`🌤️ 获取天气: ${args.location}`);
+              addLine(`🌤️ 正在获取实时天气预报...`);
               const res = await fetch(
                 `https://wttr.in/${encodeURIComponent(args.location)}?format=j1`,
               );
               if (res.ok) {
                 const data = await res.json();
                 result = JSON.stringify(data);
-                addLine(`✅ 获取价格成功`);
               } else {
-                throw new Error(`CoinGecko API returned ${res.status}`);
+                throw new Error(`Weather API returned ${res.status}`);
               }
             } else if (tc.function.name === "render_diagram") {
-              addLine(`📊 渲染图表...`);
+              addLine(`📊 正在生成可视化架构图...`);
               result = `Diagram rendered successfully. You MUST output this exact HTML directly to the user:\n\n<pre class="mermaid">\n${args.mermaid_code}\n</pre>`;
-              addLine(`✅ 渲染指令已发送`);
             } else if (tc.function.name === "render_html") {
-              addLine(`🎨 渲染可视化组件...`);
+              addLine(`🎨 正在渲染可视化 UI 组件...`);
               
               let cleanHtml = args.html_code;
               cleanHtml = cleanHtml.replace(/<\/?(html|head|body)[^>]*>/gi, '');
@@ -5367,7 +5312,7 @@ sys.stdout = io.StringIO()
                     <span class="dot dot-red"></span>
                     <span class="dot dot-yellow"></span>
                     <span class="dot dot-green"></span>
-                    <span style="margin-left:4px;">render_html</span>
+                    <span style="margin-left:4px;">UI Component</span>
                     <span class="status-text">✅ Complete</span>
                   </div>
                   <iframe></iframe>`;
@@ -5406,20 +5351,18 @@ ${cleanHtml}
               
               // Don't append to initialReply — the widget is already in the DOM
               result = `HTML/SVG rendered successfully in the UI. You do NOT need to output any code blocks.`;
-              addLine(`✅ 组件渲染完毕`);
               
             } else if (tc.function.name === "search_wikipedia") {
-              addLine(`📖 查阅维基百科: ${args.title}`);
+              addLine(`📖 正在查阅维基百科知识...`);
               const res = await fetch(`https://zh.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(args.title)}`);
               if (res.ok) {
                 const data = await res.json();
                 result = data.extract || "No summary available.";
-                addLine(`✅ 查阅完成`);
               } else {
                 throw new Error(`Wikipedia API returned ${res.status}`);
               }
             } else if (tc.function.name === "get_world_time") {
-              addLine(`🕧 查询时间: ${args.timezone}`);
+              addLine(`🕧 正在获取时区与时间数据...`);
               try {
                 const formatter = new Intl.DateTimeFormat('en-US', {
                   timeZone: args.timezone,
@@ -5427,29 +5370,26 @@ ${cleanHtml}
                   timeStyle: 'long'
                 });
                 result = `Current time in ${args.timezone}: ${formatter.format(new Date())}`;
-                addLine(`✅ 时间查询成功`);
               } catch (e) {
                 throw new Error(`Invalid timezone: ${args.timezone}`);
               }
             } else if (tc.function.name === "get_ip_info") {
-              addLine(`🌍 查询IP/域名信息: ${args.query || '本机'}`);
+              addLine(`🌍 正在查询网络节点 IP 数据...`);
               const res = await fetch(`https://ipapi.co/${args.query ? encodeURIComponent(args.query) + '/' : ''}json/`);
               if (res.ok) {
                 const data = await res.json();
                 result = JSON.stringify(data);
-                addLine(`✅ 信息查询成功`);
               } else {
                 throw new Error(`IP-API returned ${res.status}`);
               }
             } else if (tc.function.name === "generate_qr_code") {
-              addLine(`🏷️ 生成二维码: ${args.data.substring(0, 15)}...`);
+              addLine(`🏷️ 正在生成二维码...`);
               const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(args.data)}`;
               initialReply += `<br><br><img src="${qrUrl}" style="max-width:250px; border-radius:8px; cursor:pointer;" onclick="window.open(this.src, '_blank')" alt="QR Code" /><br><br>`;
               result = `QR Code generated successfully.`;
-              addLine(`✅ 二维码生成完毕`);
             } else if (tc.function.name === "manage_memory") {
               const memAction = args.action || "load";
-              addLine(`🧠 记忆管理: ${memAction}${args.key ? " -> " + args.key : ""}`);
+              addLine(`🧠 正在更新长效记忆...`);
               if (memAction === "save") {
                 localStorage.setItem("ai_memory_" + args.key, args.value);
                 let memKeys = JSON.parse(localStorage.getItem("ai_memory__index") || "[]");
@@ -5473,9 +5413,8 @@ ${cleanHtml}
                 const val = localStorage.getItem("ai_memory_" + (args.key || ""));
                 result = val ? `Memory retrieved: ${args.key} = ${val}` : `No memory found for key: ${args.key}`;
               }
-              addLine(`✅ 记忆已同步`);
             } else if (tc.function.name === "control_ui") {
-              addLine(`🎨 控制界面: ${args.action}`);
+              addLine(`🎨 正在自适应调整界面外观...`);
               if (args.action === "toggle_theme") {
                 const themeBtn = document.getElementById("theme-toggle-btn");
                 if (themeBtn) themeBtn.click();
@@ -5485,7 +5424,7 @@ ${cleanHtml}
               }
             } else if (tc.function.name === "create_web_project") {
               const projectName = args.project_name || "project";
-              addLine(`📦 生成项目: ${projectName}`);
+              addLine(`📦 正在构建代码工程文件...`);
               
               // We must escape single quotes as well because data-* attrs are double quoted, 
               // but we decode them later. Actually encodeURIComponent handles it, but just in case, 
@@ -5523,10 +5462,9 @@ ${cleanHtml}
               
               if (ext === "ZIP") {
                   result = "ERROR: You cannot generate a ZIP file using create_downloadable_file because it only supports plain text output. This will result in a corrupted ZIP. You MUST use the create_web_project tool to bundle multiple files into a zip.";
-                  addLine(`❌ 拦截了旧版的错误指令，正在引导 AI 使用新版 Canvas 3.0 工具...`);
                   return; // Skip rendering the card
               }
-              addLine(`📄 生成文件: ${filenameStr}`);
+              addLine(`📄 正在生成项目文件...`);
               const blob = new Blob([contentStr], { type: "text/plain" });
               const url = URL.createObjectURL(blob);
               
@@ -5556,9 +5494,8 @@ ${cleanHtml}
                 }
               }
               result = `File ${filenameStr} generated and download UI card displayed.`;
-              addLine(`✅ 文件已生成`);
             } else if (tc.function.name === "launch_ar_view") {
-              addLine(`👓 尝试启动 WebXR AR: ${args.model_type}`);
+              addLine(`👓 正在尝试启动 WebXR 控件...`);
               if (navigator.xr && navigator.xr.isSessionSupported) {
                 try {
                   const supported = await navigator.xr.isSessionSupported('immersive-ar');
@@ -5575,7 +5512,7 @@ ${cleanHtml}
                 result = "Error: WebXR API not available (requires HTTPS and compatible hardware).";
               }
             } else if (tc.function.name === "control_other_tabs") {
-              addLine(`🔗 跨标签页控制: ${args.action} -> ${args.url_pattern}`);
+              addLine(`🔗 正在发送跨标签页指令...`);
               try {
                 if (window.chrome && chrome.runtime && chrome.runtime.sendMessage) {
                   chrome.runtime.sendMessage("hypothetical_ext_id", { action: args.action, target: args.url_pattern }, (response) => {
@@ -5592,16 +5529,14 @@ ${cleanHtml}
                 result = `Error controlling tabs: ${e.message}`;
               }
             } else if (tc.function.name === "search_free_apis") {
-              addLine(`🔍 正在检索公开 API 接口及开源资源: ${args.keyword}...`);
+              addLine(`🔍 正在检索公开 API 接口...`);
               try {
                 result = await window.callTavilySearch(`public API ${args.keyword}`);
-                addLine(`✅ 公开 API 检索完成`);
               } catch(e) {
                 result = await window.callTechCommunityTrends(args.keyword);
-                addLine(`✅ 检索完成`);
               }
             } else if (tc.function.name === "fetch_public_api") {
-              addLine(`🌐 正在请求公开 API / 网页链接: ${args.url}...`);
+              addLine(`🌐 正在获取 API 数据...`);
               try {
                 const res = await fetch(args.url);
                 if (res.ok) {
@@ -5610,14 +5545,11 @@ ${cleanHtml}
                 } else {
                   result = await window.callFirecrawlScrape(args.url);
                 }
-                addLine(`✅ API 数据获取完成`);
               } catch(e) {
                 result = await window.callFirecrawlScrape(args.url);
-                addLine(`✅ 数据提取完成`);
               }
             } else {
               result = `Error: Tool \`${tc.function.name}\` is not recognized or not implemented.`;
-              addLine(`⚠️ 未知工具: ${tc.function.name}`);
             }
           } catch (err) {
             result = `Error: ${err.message}`;
