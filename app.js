@@ -4049,19 +4049,21 @@ async function handleChatSend() {
       // ─── Dify Cloud RAG App API Execution Branch ───
       if (model === 'dify-cloud-rag') {
         const difyEndpoint = localStorage.getItem("difyApiEndpoint") || "https://api.dify.ai/v1";
-        const difyApiKey = localStorage.getItem("difyApiKey") || "app-kH6Ld7psiW3PZ6LRaUGDDAWI";
+        const difyApiKey = localStorage.getItem("difyApiKey") || "";
         const lastUserMsg = messages.filter(m => m.role === 'user').pop();
         const queryText = lastUserMsg ? lastUserMsg.content : "Hello";
 
-        addLine("⚡ 正在从 Dify 云端知识库引擎 (app-kH6L...DAWI) 提取检索向量与生成...");
+        addLine("⚡ 正在通过 Dify 云端知识库引擎提取检索向量与生成...");
+
+        const headers = { "Content-Type": "application/json" };
+        if (difyApiKey) {
+          headers["Authorization"] = `Bearer ${difyApiKey}`;
+        }
 
         currentAbortController = new AbortController();
         const difyResponse = await fetch(`${difyEndpoint.replace(/\/+$/, '')}/chat-messages`, {
           method: "POST",
-          headers: {
-            "Authorization": `Bearer ${difyApiKey}`,
-            "Content-Type": "application/json"
-          },
+          headers,
           body: JSON.stringify({
             inputs: {},
             query: queryText,
