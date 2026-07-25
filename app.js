@@ -7603,6 +7603,31 @@ window.PRESET_MCP_SERVERS = {
   piston: { id: 'mcp-preset-piston', name: 'Piston Code Execution MCP', type: 'Stdio Proxy', url: 'https://emkc.org/api/v2/piston/execute', active: true, isPreset: true }
 };
 
+window.FREE_MCP_PRESETS = {
+  wiki: { name: 'Wikipedia Free Knowledge MCP', url: 'https://zh.wikipedia.org/w/api.php?mcp=true', type: 'HTTP / SSE' },
+  hackernews: { name: 'HackerNews Tech Trends MCP', url: 'https://hacker-news.firebaseio.com/v0/mcp', type: 'HTTP / SSE' },
+  weather: { name: 'Open-Meteo Weather MCP', url: 'https://api.open-meteo.com/v1/forecast', type: 'HTTP / SSE' },
+  spacex: { name: 'SpaceX Rocket Launches MCP', url: 'https://api.spacexdata.com/v4/launches/latest', type: 'HTTP / SSE' },
+  currency: { name: 'Global Currency Rates MCP', url: 'https://api.exchangerate-api.com/v4/latest/USD', type: 'HTTP / SSE' },
+  dictionary: { name: 'Free English Dictionary MCP', url: 'https://api.dictionaryapi.dev/api/v2/entries/en', type: 'HTTP / SSE' }
+};
+
+window.autofillFreeMcpServer = function() {
+  const select = document.getElementById('mcp-free-select');
+  const nameEl = document.getElementById('mcp-hub-input-name');
+  const urlEl = document.getElementById('mcp-hub-input-url');
+  const typeEl = document.getElementById('mcp-hub-input-type');
+
+  if (!select || !select.value) return;
+  const key = select.value;
+  const preset = window.FREE_MCP_PRESETS[key];
+  if (preset) {
+    if (nameEl) nameEl.value = preset.name;
+    if (urlEl) urlEl.value = preset.url;
+    if (typeEl) typeEl.value = preset.type;
+  }
+};
+
 window.openMcpModal = function(e) {
   if (e && e.stopPropagation) e.stopPropagation();
   const aboutModal = document.getElementById("ai-about-modal");
