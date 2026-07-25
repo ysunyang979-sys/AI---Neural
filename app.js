@@ -946,18 +946,10 @@ if (searchToggle) {
 // ⚡ Dify Cloud Knowledge Base RAG Toggle Switch
 let difyRagModeEnabled = localStorage.getItem("difyRagModeEnabled") === "true";
 const difyRagToggle = document.getElementById("chat-dify-rag-toggle");
-const modelSelectEl = document.getElementById("chat-model-select");
 
 function updateDifyRagUIState(enabled) {
   if (difyRagToggle) {
     difyRagToggle.classList.toggle("active", enabled);
-  }
-  if (modelSelectEl) {
-    if (enabled) {
-      modelSelectEl.value = "dify-cloud-rag";
-    } else if (modelSelectEl.value === "dify-cloud-rag") {
-      modelSelectEl.value = "mistral-small-latest";
-    }
   }
 }
 
@@ -967,15 +959,6 @@ if (difyRagToggle) {
     difyRagModeEnabled = !difyRagModeEnabled;
     localStorage.setItem("difyRagModeEnabled", difyRagModeEnabled);
     updateDifyRagUIState(difyRagModeEnabled);
-  });
-}
-
-if (modelSelectEl) {
-  modelSelectEl.addEventListener("change", () => {
-    const isDify = modelSelectEl.value === "dify-cloud-rag";
-    difyRagModeEnabled = isDify;
-    localStorage.setItem("difyRagModeEnabled", difyRagModeEnabled);
-    if (difyRagToggle) difyRagToggle.classList.toggle("active", isDify);
   });
 }
 
