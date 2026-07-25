@@ -376,6 +376,7 @@
           <div class="ai-about-tabs">
             <button class="ai-about-tab active" data-tab="features"><i data-lucide="sparkles"></i> 核心功能</button>
             <button class="ai-about-tab" data-tab="models"><i data-lucide="cpu"></i> 模型矩阵</button>
+            <button class="ai-about-tab" data-tab="mcp"><i data-lucide="plug"></i> MCP 协议</button>
             <button class="ai-about-tab" data-tab="architecture"><i data-lucide="layers"></i> 技术架构</button>
             <button class="ai-about-tab" data-tab="shortcuts"><i data-lucide="keyboard"></i> 快捷指南</button>
           </div>
@@ -467,6 +468,34 @@
                     <span>原生的图像分析、图表识别与视觉问答多模态能力。</span>
                   </div>
                 </div>
+              </div>
+            <!-- TAB: MCP 协议扩展 -->
+            <div class="ai-about-tab-content" id="about-tab-mcp" style="display:none;">
+              <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 16px; margin-bottom: 16px;">
+                <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; color: #38bdf8; font-size: 14px; margin-bottom: 12px;">
+                  <span>🔌</span> <span>挂载全新 MCP (Model Context Protocol) 服务</span>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 120px; gap: 10px; margin-bottom: 10px;">
+                  <input type="text" id="mcp-input-name" placeholder="服务名称 (如: Database Proxy / Scraper)" style="background: #1e293b; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 8px 12px; color: #fff; font-size: 12px; outline: none;" />
+                  <select id="mcp-input-type" style="background: #1e293b; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 8px; color: #fff; font-size: 12px; outline: none;">
+                    <option value="HTTP / SSE">HTTP / SSE</option>
+                    <option value="WebSocket">WebSocket</option>
+                    <option value="Stdio Proxy">Stdio Proxy</option>
+                  </select>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                  <input type="text" id="mcp-input-url" placeholder="Endpoint URL (如: http://localhost:8080/mcp)" style="flex: 1; background: #1e293b; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 8px 12px; color: #fff; font-size: 12px; outline: none;" />
+                  <button onclick="window.addMcpServerFromUI()" style="padding: 8px 16px; background: linear-gradient(135deg, #0284c7, #0369a1); color: white; border: none; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap;">+ 挂载服务</button>
+                </div>
+              </div>
+
+              <div style="margin-bottom: 14px;">
+                <div style="font-size: 12px; font-weight: 700; color: #cbd5e1; margin-bottom: 8px;">已挂载的 MCP 服务矩阵:</div>
+                <div id="mcp-server-list"></div>
+              </div>
+
+              <div style="background: rgba(30, 41, 59, 0.5); border-left: 3px solid #38bdf8; padding: 10px 14px; border-radius: 6px; font-size: 11.5px; color: #94a3b8; line-height: 1.6;">
+                <strong>💡 MCP 协议说明:</strong> Model Context Protocol (MCP) 是开放的模型上下文标准。挂载后，系统将自动通过 <code>tools/list</code> 请求解析该服务的 API 工具 Schema 并合并至对话模型中，实现安全可控的远程 JSON-RPC 工具调用。
               </div>
             </div>
 
@@ -577,6 +606,6 @@
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
   <script src="keys.js"></script>
-  <script src="app.js?v=51"></script>
+  <script src="app.js?v=54"></script>
 </body>
 </html>

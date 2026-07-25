@@ -3491,10 +3491,25 @@ window.getAvailableTools = () => {
           }
         );
       }
+  if (window.mcpTools && Array.isArray(window.mcpTools)) {
+    window.mcpTools.forEach(mTool => {
+      tools.push({
+        type: "function",
+        function: {
+          name: mTool.name,
+          description: mTool.description,
+          parameters: mTool.inputSchema
+        }
+      });
+    });
+  }
   return tools;
 };
 window.executeToolCall = async (tcName, args) => {
     try {
+        if (tcName && tcName.startsWith('mcp_')) {
+          return await window.executeMcpToolCall(tcName, args);
+        }
         if (tcName === 'calculate') {
             const evalResult = new Function("return " + args.expression)();
             return String(typeof evalResult === "number" ? parseFloat(evalResult.toFixed(10)) : evalResult);
@@ -7573,4 +7588,125 @@ window.nextFlashCard = function(deckId) {
     deck.querySelector('.card-counter').innerText = `${idx + 1} / ${cards.length}`;
   }, 150);
 };
+
+/* ════════════════════════════════════════════════════════════════════════
+   MCP (Model Context Protocol) 架构与 JSON-RPC 桥接引擎
+   ════════════════════════════════════════════════════════════════════════ */
+window.mcpServers = JSON.parse(localStorage.getItem('mcp_servers') || '[]');
+window.mcpTools = [];
+
+window.addMcpServerFromUI = function() {
+  const nameEl = document.getElementById('mcp-input-name');
+  const typeEl = document.getElementById('mcp-input-type');
+  const urlEl = document.getElementById('mcp-input-url');
+  
+  const name = nameEl ? nameEl.value.trim() : "";
+  const type = typeEl ? typeEl.value : "HTTP / SSE";
+  const url = urlEl ? urlEl.value.trim() : "";
+
+  if (!name || !url) return alert("请填写 MCP 服务名称与有效的 Endpoint URL");
+
+  window.addMcpServer(name, type, url);
+  if (nameEl) nameEl.value = "";
+  if (urlEl) urlEl.value = "";
+};
+
+window.addMcpServer = function(name, type, url) {
+  const server = { id: 'mcp-' + Date.now(), name, type, url, active: true };
+  window.mcpServers.push(server);
+  localStorage.setItem('mcp_servers', JSON.stringify(window.mcpServers));
+  window.renderMcpServerList();
+  window.loadMcpTools();
+  alert(`MCP 服务 [${name}] 已成功挂载！系统已自动通过 JSON-RPC 尝试同步加载 API 工具。`);
+};
+
+window.renderMcpServerList = function() {
+  const container = document.getElementById('mcp-server-list');
+  if (!container) return;
+  if (window.mcpServers.length === 0) {
+    container.innerHTML = `<div style="font-size:12px; color:#94a3b8; text-align:center; padding:12px; background:rgba(30,41,59,0.4); border-radius:8px;">暂未挂载外部 MCP 服务（支持 HTTP / SSE / WebSocket 模式）</div>`;
+    return;
+  }
+  container.innerHTML = window.mcpServers.map(s => `
+    <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:#1e293b; border:1px solid rgba(56,189,248,0.2); border-radius:10px; margin-bottom:8px; font-size:12px;">
+      <div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-weight:700; color:#38bdf8;">🔌 ${escapeChatHTML(s.name)}</span>
+          <span style="font-size:10px; background:rgba(56,189,248,0.2); color:#38bdf8; padding:1px 6px; border-radius:4px; font-weight:600;">${escapeChatHTML(s.type)}</span>
+          <span style="font-size:10px; background:rgba(34,197,94,0.2); color:#4ade80; padding:1px 6px; border-radius:4px; font-weight:600;">ACTIVE</span>
+        </div>
+        <div style="font-size:11px; color:#94a3b8; margin-top:4px;">Endpoint: <code style="color:#e2e8f0;">${escapeChatHTML(s.url)}</code></div>
+      </div>
+      <button onclick="window.removeMcpServer('${s.id}')" style="background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); color:#f87171; padding:4px 10px; border-radius:6px; font-size:11px; cursor:pointer; font-weight:600;">🗑️ 解绑</button>
+    </div>
+  `).join('');
+};
+
+window.removeMcpServer = function(id) {
+  window.mcpServers = window.mcpServers.filter(s => s.id !== id);
+  localStorage.setItem('mcp_servers', JSON.stringify(window.mcpServers));
+  window.renderMcpServerList();
+  window.loadMcpTools();
+};
+
+window.loadMcpTools = async function() {
+  window.mcpTools = [];
+  for (let s of window.mcpServers) {
+    if (!s.active || !s.url) continue;
+    try {
+      const res = await fetch(s.url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jsonrpc: "2.0", id: Date.now(), method: "tools/list", params: {} })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const tools = data?.result?.tools || [];
+        tools.forEach(t => {
+          window.mcpTools.push({
+            name: `mcp_${s.id}_${t.name}`,
+            rawName: t.name,
+            serverName: s.name,
+            serverUrl: s.url,
+            description: `[MCP Tool from ${s.name}] ${t.description || t.name}`,
+            inputSchema: t.inputSchema || { type: "object", properties: {} }
+          });
+        });
+      }
+    } catch(e) {
+      console.warn(`Failed to fetch tools from MCP Server ${s.name}:`, e.message);
+    }
+  }
+};
+
+window.executeMcpToolCall = async function(toolName, args) {
+  const mTool = window.mcpTools.find(t => t.name === toolName);
+  if (!mTool) throw new Error(`MCP Tool ${toolName} not found or server offline.`);
+  
+  const res = await fetch(mTool.serverUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      id: Date.now(),
+      method: "tools/call",
+      params: { name: mTool.rawName, arguments: args }
+    })
+  });
+  if (!res.ok) throw new Error(`MCP Server HTTP ${res.status}: ${res.statusText}`);
+  const data = await res.json();
+  if (data.error) throw new Error(`MCP JSON-RPC Error ${data.error.code}: ${data.error.message}`);
+  return JSON.stringify(data.result || {});
+};
+
+// Initialize MCP Server List on page load
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    window.renderMcpServerList();
+    window.loadMcpTools();
+  });
+} else {
+  window.renderMcpServerList();
+  window.loadMcpTools();
+}
 
