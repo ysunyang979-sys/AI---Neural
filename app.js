@@ -7590,41 +7590,100 @@ window.nextFlashCard = function(deckId) {
 };
 
 /* ════════════════════════════════════════════════════════════════════════
-   MCP (Model Context Protocol) 架构与 JSON-RPC 桥接引擎
+   MCP (Model Context Protocol) 架构与 JSON-RPC 桥接引擎 (Hub Edition)
    ════════════════════════════════════════════════════════════════════════ */
 window.mcpServers = JSON.parse(localStorage.getItem('mcp_servers') || '[]');
 window.mcpTools = [];
 
-window.addMcpServerFromUI = function() {
-  const nameEl = document.getElementById('mcp-input-name');
-  const typeEl = document.getElementById('mcp-input-type');
-  const urlEl = document.getElementById('mcp-input-url');
-  
+// Built-in Presets Definition
+window.PRESET_MCP_SERVERS = {
+  weather: { id: 'mcp-preset-weather', name: 'Open-Meteo Weather MCP', type: 'HTTP / SSE', url: 'https://api.open-meteo.com/v1/forecast', active: true, isPreset: true },
+  search: { id: 'mcp-preset-search', name: 'Tavily Web Search MCP', type: 'HTTP / SSE', url: 'https://api.tavily.com/search', active: true, isPreset: true },
+  sqlite: { id: 'mcp-preset-sqlite', name: 'SQL Memory Database MCP', type: 'HTTP / SSE', url: 'https://sql.alasql.org/mcp', active: true, isPreset: true },
+  piston: { id: 'mcp-preset-piston', name: 'Piston Code Execution MCP', type: 'Stdio Proxy', url: 'https://emkc.org/api/v2/piston/execute', active: true, isPreset: true }
+};
+
+window.openMcpModal = function() {
+  const modal = document.getElementById('mcp-hub-modal');
+  if (modal) {
+    modal.style.display = 'flex';
+    window.renderMcpHubServerList();
+    window.renderMcpHubToolsList();
+  }
+};
+
+window.closeMcpModal = function() {
+  const modal = document.getElementById('mcp-hub-modal');
+  if (modal) modal.style.display = 'none';
+};
+
+window.switchMcpTab = function(tabName) {
+  const tabs = ['mount', 'tools', 'debug'];
+  tabs.forEach(t => {
+    const btn = document.getElementById(`mcp-tab-${t}-btn`);
+    const panel = document.getElementById(`mcp-panel-${t}`);
+    if (btn) {
+      if (t === tabName) {
+        btn.classList.add('active');
+        btn.style.background = 'rgba(56,189,248,0.15)';
+        btn.style.color = '#38bdf8';
+        btn.style.fontWeight = '700';
+      } else {
+        btn.classList.remove('active');
+        btn.style.background = 'transparent';
+        btn.style.color = '#94a3b8';
+        btn.style.fontWeight = '600';
+      }
+    }
+    if (panel) panel.style.display = (t === tabName) ? 'block' : 'none';
+  });
+
+  if (tabName === 'tools') window.renderMcpHubToolsList();
+  if (tabName === 'debug') window.renderMcpDebugDropdown();
+};
+
+window.enablePresetMcp = function(presetKey) {
+  const preset = window.PRESET_MCP_SERVERS[presetKey];
+  if (!preset) return;
+
+  const exists = window.mcpServers.some(s => s.id === preset.id || s.name === preset.name);
+  if (exists) return alert(`MCP 服务 [${preset.name}] 已经激活在管线中！`);
+
+  window.mcpServers.push({ ...preset });
+  localStorage.setItem('mcp_servers', JSON.stringify(window.mcpServers));
+  window.renderMcpHubServerList();
+  window.loadMcpTools();
+  alert(`✨ 已成功开启内置 MCP 服务源: [${preset.name}]！API 工具集已融合。`);
+};
+
+window.addMcpServerFromHub = function() {
+  const nameEl = document.getElementById('mcp-hub-input-name');
+  const typeEl = document.getElementById('mcp-hub-input-type');
+  const urlEl = document.getElementById('mcp-hub-input-url');
+
   const name = nameEl ? nameEl.value.trim() : "";
   const type = typeEl ? typeEl.value : "HTTP / SSE";
   const url = urlEl ? urlEl.value.trim() : "";
 
   if (!name || !url) return alert("请填写 MCP 服务名称与有效的 Endpoint URL");
 
-  window.addMcpServer(name, type, url);
-  if (nameEl) nameEl.value = "";
-  if (urlEl) urlEl.value = "";
-};
-
-window.addMcpServer = function(name, type, url) {
   const server = { id: 'mcp-' + Date.now(), name, type, url, active: true };
   window.mcpServers.push(server);
   localStorage.setItem('mcp_servers', JSON.stringify(window.mcpServers));
-  window.renderMcpServerList();
+  
+  if (nameEl) nameEl.value = "";
+  if (urlEl) urlEl.value = "";
+
+  window.renderMcpHubServerList();
   window.loadMcpTools();
-  alert(`MCP 服务 [${name}] 已成功挂载！系统已自动通过 JSON-RPC 尝试同步加载 API 工具。`);
+  alert(`MCP 远程服务 [${name}] 挂载成功！已发起 JSON-RPC tools/list 解析。`);
 };
 
-window.renderMcpServerList = function() {
-  const container = document.getElementById('mcp-server-list');
+window.renderMcpHubServerList = function() {
+  const container = document.getElementById('mcp-hub-server-list');
   if (!container) return;
   if (window.mcpServers.length === 0) {
-    container.innerHTML = `<div style="font-size:12px; color:#94a3b8; text-align:center; padding:12px; background:rgba(30,41,59,0.4); border-radius:8px;">暂未挂载外部 MCP 服务（支持 HTTP / SSE / WebSocket 模式）</div>`;
+    container.innerHTML = `<div style="font-size:12px; color:#94a3b8; text-align:center; padding:14px; background:rgba(30,41,59,0.4); border-radius:8px; border:1px dashed rgba(255,255,255,0.1);">暂未挂载外部 MCP 服务（点击上方预设即可一键开启测试）</div>`;
     return;
   }
   container.innerHTML = window.mcpServers.map(s => `
@@ -7645,14 +7704,124 @@ window.renderMcpServerList = function() {
 window.removeMcpServer = function(id) {
   window.mcpServers = window.mcpServers.filter(s => s.id !== id);
   localStorage.setItem('mcp_servers', JSON.stringify(window.mcpServers));
-  window.renderMcpServerList();
+  window.renderMcpHubServerList();
   window.loadMcpTools();
+};
+
+window.renderMcpHubToolsList = function() {
+  const container = document.getElementById('mcp-hub-tools-list');
+  const countEl = document.getElementById('mcp-tool-count');
+  if (countEl) countEl.innerText = window.mcpTools.length;
+  if (!container) return;
+
+  if (window.mcpTools.length === 0) {
+    container.innerHTML = `<div style="font-size:12px; color:#94a3b8; text-align:center; padding:14px; background:rgba(30,41,59,0.4); border-radius:8px;">未检测到已解构的 MCP API 工具，请先选择挂载上面的服务源。</div>`;
+    return;
+  }
+
+  container.innerHTML = window.mcpTools.map(t => `
+    <div style="background:#1e293b; border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:12px; margin-bottom:10px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+        <span style="font-family:monospace; font-weight:700; color:#38bdf8; font-size:12.5px;">${escapeChatHTML(t.name)}</span>
+        <span style="font-size:10px; background:rgba(148,163,184,0.15); color:#94a3b8; padding:2px 8px; border-radius:4px;">源自: ${escapeChatHTML(t.serverName)}</span>
+      </div>
+      <div style="font-size:11.5px; color:#cbd5e1; margin-bottom:6px;">${escapeChatHTML(t.description)}</div>
+      <div style="font-size:10.5px; color:#64748b; font-family:monospace; background:rgba(15,23,42,0.6); padding:6px 10px; border-radius:6px;">
+        Schema: ${escapeChatHTML(JSON.stringify(t.inputSchema))}
+      </div>
+    </div>
+  `).join('');
+};
+
+window.renderMcpDebugDropdown = function() {
+  const select = document.getElementById('mcp-debug-tool-select');
+  if (!select) return;
+  if (window.mcpTools.length === 0) {
+    select.innerHTML = `<option value="">暂无可用 MCP 工具</option>`;
+    return;
+  }
+  select.innerHTML = window.mcpTools.map(t => `<option value="${t.name}">${t.name}</option>`).join('');
+};
+
+window.runMcpToolDebug = async function() {
+  const select = document.getElementById('mcp-debug-tool-select');
+  const input = document.getElementById('mcp-debug-args-input');
+  const consoleEl = document.getElementById('mcp-debug-console');
+  if (!select || !select.value) return alert("请先选择要测试的 MCP 工具");
+
+  const toolName = select.value;
+  let args = {};
+  try {
+    if (input && input.value.trim()) args = JSON.parse(input.value.trim());
+  } catch(e) {
+    return alert("参数 JSON 格式非法，请输入合法的 JSON 字符串");
+  }
+
+  if (consoleEl) consoleEl.innerText = `[${new Date().toLocaleTimeString()}] 正在向 MCP 服务发送 JSON-RPC tools/call 请求...\nTool: ${toolName}\nArgs: ${JSON.stringify(args)}`;
+
+  try {
+    const res = await window.executeMcpToolCall(toolName, args);
+    if (consoleEl) consoleEl.innerText += `\n\n✅ [JSON-RPC Response Success]:\n${res}`;
+  } catch(err) {
+    if (consoleEl) consoleEl.innerText += `\n\n❌ [JSON-RPC Error]: ${err.message}`;
+  }
 };
 
 window.loadMcpTools = async function() {
   window.mcpTools = [];
+
+  // Default preset fallback tools for out-of-the-box experience
+  const hasWeather = window.mcpServers.some(s => s.id === 'mcp-preset-weather');
+  if (hasWeather) {
+    window.mcpTools.push({
+      name: 'mcp_weather_get_forecast',
+      rawName: 'get_forecast',
+      serverName: 'Open-Meteo Weather MCP',
+      serverUrl: 'https://api.open-meteo.com/v1/forecast',
+      description: '[MCP Weather Tool] 查询全球指定经纬度城市的天气预报',
+      inputSchema: { type: "object", properties: { latitude: { type: "number" }, longitude: { type: "number" } }, required: ["latitude", "longitude"] }
+    });
+  }
+
+  const hasSearch = window.mcpServers.some(s => s.id === 'mcp-preset-search');
+  if (hasSearch) {
+    window.mcpTools.push({
+      name: 'mcp_search_tavily_query',
+      rawName: 'tavily_search',
+      serverName: 'Tavily Web Search MCP',
+      serverUrl: 'https://api.tavily.com/search',
+      description: '[MCP Search Tool] 结构化全网深度资讯与实时科技动态检索',
+      inputSchema: { type: "object", properties: { query: { type: "string" } }, required: ["query"] }
+    });
+  }
+
+  const hasSqlite = window.mcpServers.some(s => s.id === 'mcp-preset-sqlite');
+  if (hasSqlite) {
+    window.mcpTools.push({
+      name: 'mcp_sqlite_execute_sql',
+      rawName: 'execute_sql',
+      serverName: 'SQL Memory Database MCP',
+      serverUrl: 'https://sql.alasql.org/mcp',
+      description: '[MCP Database Tool] 执行标准关系型 SQL 建表、插入与复杂关联查询',
+      inputSchema: { type: "object", properties: { sql: { type: "string" } }, required: ["sql"] }
+    });
+  }
+
+  const hasPiston = window.mcpServers.some(s => s.id === 'mcp-preset-piston');
+  if (hasPiston) {
+    window.mcpTools.push({
+      name: 'mcp_piston_run_code',
+      rawName: 'run_code',
+      serverName: 'Piston Code Execution MCP',
+      serverUrl: 'https://emkc.org/api/v2/piston/execute',
+      description: '[MCP Code Sandbox Tool] 在远程多语言安全隔离沙盒中运行 Python/C++/Rust 代码',
+      inputSchema: { type: "object", properties: { language: { type: "string" }, code: { type: "string" } }, required: ["language", "code"] }
+    });
+  }
+
+  // Load custom servers via tools/list
   for (let s of window.mcpServers) {
-    if (!s.active || !s.url) continue;
+    if (!s.active || !s.url || s.isPreset) continue;
     try {
       const res = await fetch(s.url, {
         method: 'POST',
@@ -7677,12 +7846,36 @@ window.loadMcpTools = async function() {
       console.warn(`Failed to fetch tools from MCP Server ${s.name}:`, e.message);
     }
   }
+
+  window.renderMcpHubToolsList();
 };
 
 window.executeMcpToolCall = async function(toolName, args) {
   const mTool = window.mcpTools.find(t => t.name === toolName);
   if (!mTool) throw new Error(`MCP Tool ${toolName} not found or server offline.`);
-  
+
+  // Handle Preset Executions gracefully
+  if (mTool.serverName === 'Open-Meteo Weather MCP') {
+    const lat = args.latitude || 39.9042;
+    const lng = args.longitude || 116.4074;
+    const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`);
+    const data = await res.json();
+    return JSON.stringify(data.current_weather || data);
+  }
+
+  if (mTool.serverName === 'Tavily Web Search MCP') {
+    return await window.callTavilySearch(args.query || "latest news");
+  }
+
+  if (mTool.serverName === 'SQL Memory Database MCP') {
+    return await window.executeSqlSandbox(args.sql || "SELECT 1;");
+  }
+
+  if (mTool.serverName === 'Piston Code Execution MCP') {
+    return await window.executePistonSandbox(args.language || 'python', args.code || 'print("Hello MCP")');
+  }
+
+  // Custom MCP JSON-RPC tools/call execution
   const res = await fetch(mTool.serverUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -7699,24 +7892,14 @@ window.executeMcpToolCall = async function(toolName, args) {
   return JSON.stringify(data.result || {});
 };
 
-window.openMcpModal = function() {
-  const modal = document.getElementById('ai-about-modal');
-  if (modal) {
-    modal.style.display = 'flex';
-    const mcpTabBtn = modal.querySelector('.ai-about-tab[data-tab="mcp"]');
-    if (mcpTabBtn) mcpTabBtn.click();
-    window.renderMcpServerList();
-  }
-};
-
 // Initialize MCP Server List on page load
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
-    window.renderMcpServerList();
+    window.renderMcpHubServerList();
     window.loadMcpTools();
   });
 } else {
-  window.renderMcpServerList();
+  window.renderMcpHubServerList();
   window.loadMcpTools();
 }
 
