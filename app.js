@@ -1763,7 +1763,7 @@ function updateSessionListUI() {
   chatSessions.forEach((session) => {
     const el = document.createElement("div");
     el.className = `chat-session-item ${session.id === activeSessionId ? "active" : ""}`;
-    el.innerHTML = `<i data-lucide="message-square"></i> <span>${escapeChatHTML(session.title)}</span><button class="session-delete-btn" title="Delete"><i data-lucide="x" style="width:14px;height:14px"></i></button>`;
+    el.innerHTML = `<i data-lucide="message-square" style="width:16px;height:16px;min-width:16px;min-height:16px;flex-shrink:0;"></i> <span>${escapeChatHTML(session.title)}</span><button class="session-delete-btn" title="Delete"><i data-lucide="x" style="width:14px;height:14px;min-width:14px;min-height:14px;flex-shrink:0;"></i></button>`;
     el.onclick = (e) => {
       if (e.target.closest('.session-delete-btn')) return;
       

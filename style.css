@@ -421,6 +421,17 @@ a:hover { text-decoration: underline; }
     color: var(--text-primary);
     font-weight: 500;
 }
+.chat-session-item i,
+.chat-session-item svg {
+    width: 16px !important;
+    height: 16px !important;
+    min-width: 16px !important;
+    min-height: 16px !important;
+    max-width: 16px !important;
+    max-height: 16px !important;
+    flex-shrink: 0 !important;
+}
+
 .chat-session-item span {
     overflow: hidden;
     text-overflow: ellipsis;
