@@ -3922,7 +3922,7 @@ window.sanitizeMathText = function(query, text) {
           let op = parts[1].trim();
           let right = parts[2].trim();
           let pattern = new RegExp(
-            `(${left.replace(/\./g, '\\.')}\\s*\\${op}\\s*${right.replace(/\./g, '\\.')}\\s*=\\s*)(-?[\\d\\.]+)`,
+            `(${left.replace(/\./g, '\\.')}\\s*\\${op}\\s*${right.replace(/\./g, '\\.')}\\s*(?:=|等于|为|是|的结果是)?\\s*)(-?[\\d\\.]+)`,
             'gi'
           );
           text = text.replace(pattern, (m, prefix, wrongVal) => {
@@ -4086,7 +4086,7 @@ window.sanitizeMathText = function(query, text) {
         const rawEndpoint = localStorage.getItem("difyApiEndpoint") || "https://api.dify.ai/v1";
         const activeDifyKey = localStorage.getItem("difyAppKey") || localStorage.getItem("difyApiKey") || "app-kH6Ld7psiW3PZ6LRaUGDDAWI";
         const lastUserMsg = messages.filter(m => m.role === 'user').pop();
-        const queryText = lastUserMsg ? lastUserMsg.content : "Hello";
+        let queryText = lastUserMsg ? lastUserMsg.content : "Hello";
 
         let requestUrl = rawEndpoint.trim().replace(/\/+$/, '');
         if (!requestUrl.endsWith("/chat-messages")) {
@@ -4095,6 +4095,32 @@ window.sanitizeMathText = function(query, text) {
 
         const isThinkMode = activeDifyKey === "app-RfVcWa2J8Be7VQJdFeykpV4l";
         addLine(isThinkMode ? "🧠 正在调度深度思考知识库引擎..." : "📚 正在检索通用知识库并提炼向量...");
+
+        // 🧮 Auto Pre-Calculate Math Expressions & Render KaTeX Card
+        let cleanQ = queryText.trim().replace(/=$/, '').trim();
+        let mathMatch = cleanQ.match(/^([\d\.]+\s*[\+\-\*\/]\s*[\d\.]+)$/);
+        if (mathMatch) {
+          try {
+            let expr = mathMatch[1];
+            let val = new Function("return " + expr)();
+            if (typeof val === "number" && !isNaN(val)) {
+              let cleanVal = parseFloat(val.toFixed(10));
+              if (!initialReply.includes("math-calc-card")) {
+                let katexExprHtml = escapeChatHTML(expr);
+                let katexResHtml = escapeChatHTML(String(cleanVal));
+                if (window.katex) {
+                  try {
+                    katexExprHtml = katex.renderToString(expr.replace(/\*/g, ' \\cdot '), { displayMode: true, throwOnError: false });
+                    katexResHtml = katex.renderToString(String(cleanVal), { displayMode: false, throwOnError: false });
+                  } catch(e) {}
+                }
+                const cardId = "math-" + Math.random().toString(36).substr(2, 9);
+                initialReply += `<br><div class="math-calc-card" id="${cardId}"><div class="math-calc-header"><i data-lucide="calculator"></i> 高精度计算器</div><div class="math-calc-expr">${katexExprHtml}</div><div class="math-calc-result-box"><div class="math-calc-row"><span class="math-calc-label">精确解 (Exact):</span> <span class="math-calc-val">${katexResHtml}</span></div></div></div><br>`;
+              }
+              queryText += `\n[SYSTEM DIRECTIVE: The exact mathematically verified calculation result for ${expr} is ${cleanVal}. You MUST state that ${expr} = ${cleanVal}. DO NOT output wrong values like -0.22 or -0.31!]`;
+            }
+          } catch(e) {}
+        }
 
         try {
           const headers = { "Content-Type": "application/json" };
@@ -4153,7 +4179,8 @@ window.sanitizeMathText = function(query, text) {
                       firstChunk = false;
                     }
                     replyText += chunkText;
-                    let finalParsed = window.marked ? marked.parse(replyText) : replyText;
+                    let sanitizedText = typeof window.sanitizeMathText === 'function' ? window.sanitizeMathText(cleanQ, replyText) : replyText;
+                    let finalParsed = window.marked ? marked.parse(sanitizedText) : sanitizedText;
                     replyContent.innerHTML = parseInteractiveActionChips(finalParsed) + '<span class="ai-cursor"></span>';
                     renderMath(replyContent);
                     if (window.lucide) lucide.createIcons();
@@ -4172,14 +4199,15 @@ window.sanitizeMathText = function(query, text) {
           const cursor = replyContent.querySelector(".ai-cursor");
           if (cursor) cursor.remove();
 
+          if (typeof window.sanitizeMathText === 'function') {
+            replyText = window.sanitizeMathText(cleanQ, replyText);
+          }
+
           if (!replyText.trim()) {
             replyText = "⚠️ Dify API 已成功链接，但未返回生成文本。请确认 Dify 应用已添加提示词与知识库匹配。";
             let finalParsed = window.marked ? marked.parse(replyText) : replyText;
             replyContent.innerHTML = parseInteractiveActionChips(finalParsed);
           } else {
-            if (typeof window.sanitizeMathText === 'function') {
-              replyText = window.sanitizeMathText(queryText, replyText);
-            }
             let finalParsed = window.marked ? marked.parse(replyText) : replyText;
             replyContent.innerHTML = parseInteractiveActionChips(finalParsed);
             renderMath(replyContent);
