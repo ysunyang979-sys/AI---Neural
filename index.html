@@ -152,6 +152,33 @@
             <div id="rag-doc-list"></div>
           </div>
 
+          <!-- Long-Term Memory Dashboard Section -->
+          <div style="margin-top: 32px; padding-top: 24px; border-top: 1px dashed var(--border-color);">
+            <div style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 18px;">🧠</span>
+                <span>端侧长期记忆卡片库 (Long-Term Memory Engine)</span>
+                <span style="font-size: 11px; background: rgba(168,85,247,0.15); color: #c084fc; border: 1px solid rgba(168,85,247,0.3); padding: 2px 8px; border-radius: 10px; font-weight: 600;">降低 80%~90% Token 消耗</span>
+              </div>
+              <button onclick="window.showAddMemoryPrompt()" style="padding: 4px 12px; background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.3); color: #38bdf8; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer;">+ 手动添加长期记忆卡片</button>
+            </div>
+            <div style="font-size: 11.5px; color: var(--text-secondary); margin-bottom: 14px; line-height: 1.5;">
+              长对话时系统会自动将多轮历史提炼为精简的长期记忆卡片保存在端侧 IndexedDB 中。多轮对话时自动替代庞大的原始历史文本，极速响应并节省海量 Token。
+            </div>
+
+            <!-- Custom Memory Add Form (Hidden by default) -->
+            <div id="memory-add-form" style="display:none; background: var(--bg-secondary); border: 1px solid rgba(56,189,248,0.3); border-radius: 12px; padding: 14px; margin-bottom: 14px;">
+              <div style="font-size: 12px; font-weight: 700; color: #38bdf8; margin-bottom: 8px;">手动添加项目约束 / 用户偏好记忆卡片:</div>
+              <div style="display: grid; grid-template-columns: 160px 1fr 80px; gap: 8px;">
+                <input type="text" id="memory-input-key" placeholder="记忆类别 (如: 偏好/风格/约束)" style="background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 6px; padding: 6px 10px; color: var(--text-primary); font-size: 12px; outline: none;" />
+                <input type="text" id="memory-input-value" placeholder="记忆内容 (如: 制作赛博朋克风格短视频分镜，16:9 画幅，主角 Sunny)" style="background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 6px; padding: 6px 10px; color: var(--text-primary); font-size: 12px; outline: none;" />
+                <button onclick="window.saveCustomMemoryCard()" style="padding: 6px 12px; background: #0284c7; color: white; border: none; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer;">保存</button>
+              </div>
+            </div>
+
+            <div id="memory-card-list"></div>
+          </div>
+
         </div>
       </div>
 
@@ -758,6 +785,6 @@
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
   <script src="keys.js"></script>
-  <script src="app.js?v=65"></script>
+  <script src="app.js?v=66"></script>
 </body>
 </html>

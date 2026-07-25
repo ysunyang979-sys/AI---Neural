@@ -4053,6 +4053,29 @@ async function handleChatSend() {
         console.warn("RAG Context Injection error:", e);
       }
 
+      // Long-Term Memory Context Injection
+      try {
+        if (typeof window.getCompressedMemoryPrompt === 'function') {
+          const memNotice = await window.getCompressedMemoryPrompt();
+          if (memNotice) {
+            if (messages.length > 0 && messages[0].role === 'system') {
+              messages[0].content += memNotice;
+            } else {
+              messages.unshift({ role: 'system', content: memNotice });
+            }
+          }
+        }
+      } catch(e) {
+        console.warn("Memory injection error:", e);
+      }
+
+      // Token Saver Pruning: If history > 6 messages, retain system prompt + last 4 messages to save 80% tokens
+      if (messages.length > 6) {
+        const sysMsg = messages.filter(m => m.role === 'system');
+        const recentMsgs = messages.slice(-4);
+        messages = [...sysMsg, ...recentMsgs];
+      }
+
       let maxTokens = 8192;
       if (currentOutputLength === "short") maxTokens = 250;
       else if (currentOutputLength === "detailed") maxTokens = 8192;
@@ -8248,5 +8271,151 @@ if (document.readyState === 'loading') {
   });
 } else {
   window.initRagDatabase().then(() => window.renderRagDocList());
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   端侧 🧠 长期记忆引擎 (Long-Term Memory Engine - neural_memory_db)
+   ════════════════════════════════════════════════════════════════════════ */
+window.memoryDb = null;
+
+window.initMemoryDatabase = function() {
+  return new Promise((resolve, reject) => {
+    if (window.memoryDb) return resolve(window.memoryDb);
+    const request = indexedDB.open("neural_memory_db", 1);
+    request.onupgradeneeded = (e) => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains("memories")) {
+        db.createObjectStore("memories", { keyPath: "memoryId" });
+      }
+    };
+    request.onsuccess = (e) => {
+      window.memoryDb = e.target.result;
+      resolve(window.memoryDb);
+    };
+    request.onerror = (e) => reject(e);
+  });
+};
+
+window.renderMemoryCardList = async function() {
+  const container = document.getElementById('memory-card-list');
+  if (!container) return;
+
+  try {
+    const db = await window.initMemoryDatabase();
+    const tx = db.transaction(["memories"], "readonly");
+    const store = tx.objectStore("memories");
+    const memories = await new Promise(r => store.getAll().onsuccess = e => r(e.target.result));
+
+    if (memories.length === 0) {
+      container.innerHTML = `<div style="font-size:11.5px; color:var(--text-secondary); text-align:center; padding:16px; background:var(--bg-secondary); border-radius:10px; border:1px solid var(--border-color);">暂未建立长期记忆卡片，多轮对话后系统会自动提炼关键项目记忆，或手动添加</div>`;
+      return;
+    }
+
+    container.innerHTML = memories.map(m => `
+      <div style="background: var(--bg-secondary); border: 1px solid rgba(168,85,247,0.25); border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; font-size: 12px; display: flex; align-items: center; justify-content: space-between;">
+        <div style="flex:1; min-width:0; padding-right:12px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="background: rgba(168,85,247,0.15); color: #c084fc; font-weight: 700; padding: 2px 8px; border-radius: 6px; font-size: 11px;">🧠 ${escapeChatHTML(m.key || '项目事实')}</span>
+            <span style="font-size: 10px; color: var(--text-secondary);">${escapeChatHTML(m.timestamp || '')}</span>
+          </div>
+          <div style="font-weight: 600; color: var(--text-primary); margin-top: 6px; line-height: 1.4; word-break: break-word;">
+            ${escapeChatHTML(m.value)}
+          </div>
+        </div>
+        <button onclick="window.deleteMemoryCard('${m.memoryId}')" style="background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: #f87171; padding: 4px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; flex-shrink:0;">🗑️ 删除</button>
+      </div>
+    `).join('');
+  } catch(e) {
+    console.warn("Failed to render memory cards:", e);
+  }
+};
+
+window.showAddMemoryPrompt = function() {
+  const form = document.getElementById('memory-add-form');
+  if (form) {
+    form.style.display = form.style.display === 'none' ? 'block' : 'none';
+  }
+};
+
+window.saveCustomMemoryCard = async function() {
+  const keyInput = document.getElementById('memory-input-key');
+  const valInput = document.getElementById('memory-input-value');
+  if (!valInput || !valInput.value.trim()) return;
+
+  const key = (keyInput && keyInput.value.trim()) ? keyInput.value.trim() : '用户约束';
+  const value = valInput.value.trim();
+
+  const db = await window.initMemoryDatabase();
+  const tx = db.transaction(["memories"], "readwrite");
+  const store = tx.objectStore("memories");
+  const memoryId = 'mem-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4);
+
+  store.put({ memoryId, key, value, timestamp: new Date().toLocaleString() });
+
+  tx.oncomplete = () => {
+    if (keyInput) keyInput.value = '';
+    if (valInput) valInput.value = '';
+    window.showAddMemoryPrompt();
+    window.renderMemoryCardList();
+  };
+};
+
+window.deleteMemoryCard = async function(memoryId) {
+  const db = await window.initMemoryDatabase();
+  const tx = db.transaction(["memories"], "readwrite");
+  const store = tx.objectStore("memories");
+  store.delete(memoryId);
+  tx.oncomplete = () => window.renderMemoryCardList();
+};
+
+window.getCompressedMemoryPrompt = async function() {
+  try {
+    const db = await window.initMemoryDatabase();
+    const tx = db.transaction(["memories"], "readonly");
+    const store = tx.objectStore("memories");
+    const memories = await new Promise(r => store.getAll().onsuccess = e => r(e.target.result));
+    if (!memories || memories.length === 0) return "";
+
+    const lines = memories.map((m, i) => `- [${m.key}]: ${m.value}`).join('\n');
+    return `\n\n[🧠 端侧长期记忆卡片库 (Long-Term Memory)]:\n必须严格遵循以下关于用户的核心长期设定、偏好与项目约束：\n${lines}`;
+  } catch(e) {
+    return "";
+  }
+};
+
+window.extractAndSaveLongTermMemory = async function(userMsg, aiReply) {
+  if (!userMsg || typeof userMsg !== 'string') return;
+  
+  const patterns = [
+    /(?:制作|开发|编写|设计|生成)(?:一个|一份|关于)?(.*?(?:分镜|剧本|小程序|游戏|系统|模式|网站|应用|文档))/i,
+    /(?:喜欢|偏好|采用|风格)(?:为|是)?([^\n,，。]{2,20})/i,
+    /(?:主角|角色|名称|叫|命名为)(?:是|为)?([^\n,，。]{2,20})/i
+  ];
+
+  for (let p of patterns) {
+    const match = userMsg.match(p);
+    if (match && match[1] && match[1].trim().length > 2) {
+      const value = match[0].trim();
+      const key = "自动捕捉约定";
+      try {
+        const db = await window.initMemoryDatabase();
+        const tx = db.transaction(["memories"], "readwrite");
+        const store = tx.objectStore("memories");
+        const memoryId = 'mem-' + Date.now();
+        store.put({ memoryId, key, value, timestamp: new Date().toLocaleString() });
+        tx.oncomplete = () => window.renderMemoryCardList();
+      } catch(e){}
+      break;
+    }
+  }
+};
+
+// Auto init memory DB on page load
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    window.initMemoryDatabase().then(() => window.renderMemoryCardList());
+  });
+} else {
+  window.initMemoryDatabase().then(() => window.renderMemoryCardList());
 }
 
