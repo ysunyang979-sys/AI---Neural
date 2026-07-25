@@ -943,24 +943,8 @@ if (searchToggle) {
   if (!webSearchEnabled) searchToggle.classList.remove("active");
 }
 
-// ⚡ Dify Cloud Knowledge Base RAG Toggle Switch
-let difyRagModeEnabled = localStorage.getItem("difyRagModeEnabled") === "true";
-const difyRagToggle = document.getElementById("chat-dify-rag-toggle");
-
-function updateDifyRagUIState(enabled) {
-  if (difyRagToggle) {
-    difyRagToggle.classList.toggle("active", enabled);
-  }
-}
-
-if (difyRagToggle) {
-  updateDifyRagUIState(difyRagModeEnabled);
-  difyRagToggle.addEventListener("click", () => {
-    difyRagModeEnabled = !difyRagModeEnabled;
-    localStorage.setItem("difyRagModeEnabled", difyRagModeEnabled);
-    updateDifyRagUIState(difyRagModeEnabled);
-  });
-}
+// ⚡ Dify Cloud Knowledge Base RAG Mode
+let difyRagModeEnabled = true;
 
 // 🎨 Drawing Mode Toggle
 let drawModeEnabled = false;
@@ -7697,45 +7681,61 @@ function initModeSwitcher() {
     const modeBtn = document.getElementById('mode-btn');
     const modeMenu = document.getElementById('mode-menu');
     
-    if (modeBtn && modeMenu && !modeBtn.hasAttribute('data-initialized')) {
-        modeBtn.setAttribute('data-initialized', 'true');
-        modeBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const isHidden = getComputedStyle(modeMenu).display === 'none' || modeMenu.style.display === 'none';
-            modeMenu.style.display = isHidden ? 'flex' : 'none';
-        });
-        
-        document.addEventListener('click', () => {
-            if (modeMenu) modeMenu.style.display = 'none';
-        });
-        
-        modeMenu.querySelectorAll('.mode-item').forEach(item => {
-            item.addEventListener('click', (e) => {
-                const clickedMode = item.getAttribute('data-mode');
-                const difyKey = item.getAttribute('data-key') || "app-kH6Ld7psiW3PZ6LRaUGDDAWI";
-                
-                modeMenu.querySelectorAll('.mode-item').forEach(i => i.classList.remove('active'));
-                item.classList.add('active');
-                window.currentAiMode = clickedMode;
-                
-                difyRagModeEnabled = true;
-                localStorage.setItem("difyRagModeEnabled", "true");
-                localStorage.setItem("difyAppKey", difyKey);
+    if (modeBtn && modeMenu) {
+        // Sync icon & active state from saved difyAppKey
+        const savedKey = localStorage.getItem("difyAppKey") || "app-kH6Ld7psiW3PZ6LRaUGDDAWI";
+        const isThink = savedKey === "app-RfVcWa2J8Be7VQJdFeykpV4l";
+        const activeIcon = isThink ? "brain" : "book-open";
+        const activeMode = isThink ? "dify_think" : "dify_kb";
 
-                if (typeof updateDifyRagUIState === 'function') {
-                  updateDifyRagUIState(true);
-                }
+        const btnIcon = modeBtn.querySelector('i');
+        if (btnIcon) {
+            btnIcon.setAttribute('data-lucide', activeIcon);
+            if (window.lucide) window.lucide.createIcons();
+        }
 
-                modeBtn.style.color = 'var(--accent-color)';
-                
-                let modeBtnIcon = modeBtn.querySelector('i');
-                if(modeBtnIcon) {
-                    modeBtnIcon.setAttribute('data-lucide', clickedMode === 'dify_think' ? 'brain' : 'book-open');
-                    if(window.lucide) window.lucide.createIcons();
-                }
-                modeMenu.style.display = 'none';
+        modeMenu.querySelectorAll('.mode-item').forEach(i => {
+            if (i.getAttribute('data-mode') === activeMode) {
+                i.classList.add('active');
+            } else {
+                i.classList.remove('active');
+            }
+        });
+
+        if (!modeBtn.hasAttribute('data-initialized')) {
+            modeBtn.setAttribute('data-initialized', 'true');
+            modeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isHidden = getComputedStyle(modeMenu).display === 'none' || modeMenu.style.display === 'none';
+                modeMenu.style.display = isHidden ? 'flex' : 'none';
             });
-        });
+            
+            document.addEventListener('click', () => {
+                if (modeMenu) modeMenu.style.display = 'none';
+            });
+            
+            modeMenu.querySelectorAll('.mode-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    const clickedMode = item.getAttribute('data-mode');
+                    const difyKey = item.getAttribute('data-key') || "app-kH6Ld7psiW3PZ6LRaUGDDAWI";
+                    
+                    modeMenu.querySelectorAll('.mode-item').forEach(i => i.classList.remove('active'));
+                    item.classList.add('active');
+                    window.currentAiMode = clickedMode;
+                    
+                    difyRagModeEnabled = true;
+                    localStorage.setItem("difyRagModeEnabled", "true");
+                    localStorage.setItem("difyAppKey", difyKey);
+
+                    let modeBtnIcon = modeBtn.querySelector('i');
+                    if (modeBtnIcon) {
+                        modeBtnIcon.setAttribute('data-lucide', clickedMode === 'dify_think' ? 'brain' : 'book-open');
+                        if (window.lucide) window.lucide.createIcons();
+                    }
+                    modeMenu.style.display = 'none';
+                });
+            });
+        }
     }
 }
 
