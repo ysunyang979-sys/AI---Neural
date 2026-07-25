@@ -7694,17 +7694,11 @@ window.openMcpModal = function(e) {
   const userMenuPopup = document.getElementById("user-menu-popup");
   if (userMenuPopup) userMenuPopup.classList.remove("active");
 
-  const modal = document.getElementById('mcp-hub-modal');
-  if (modal) {
-    modal.style.display = 'flex';
-    window.renderMcpHubServerList();
-    window.renderMcpHubToolsList();
-  }
+  window.switchSidebarMode('mcp');
 };
 
 window.closeMcpModal = function() {
-  const modal = document.getElementById('mcp-hub-modal');
-  if (modal) modal.style.display = 'none';
+  window.switchSidebarMode('chat');
 };
 
 window.switchMcpTab = function(tabName) {
@@ -8001,7 +7995,8 @@ window.ragDb = null;
 window.switchSidebarMode = function(mode) {
   const tabs = document.querySelectorAll('.chat-mode-tab');
   tabs.forEach(tab => {
-    if (tab.getAttribute('data-mode') === mode) {
+    const tabMode = tab.getAttribute('data-mode');
+    if (tabMode === mode || (mode === 'mcp' && tab.innerText.includes('MCP'))) {
       tab.classList.add('active');
     } else {
       tab.classList.remove('active');
@@ -8010,14 +8005,33 @@ window.switchSidebarMode = function(mode) {
 
   const sessionList = document.getElementById('chat-session-list');
   const ragView = document.getElementById('rag-sidebar-view');
+  const chatLog = document.getElementById('chat-log-full');
+  const inputContainer = document.querySelector('.chat-input-container');
+  const mcpWorkspace = document.getElementById('mcp-workspace-view');
 
-  if (mode === 'rag') {
+  if (mode === 'mcp') {
+    if (sessionList) sessionList.style.display = 'block';
+    if (ragView) ragView.style.display = 'none';
+    if (chatLog) chatLog.style.display = 'none';
+    if (inputContainer) inputContainer.style.display = 'none';
+    if (mcpWorkspace) {
+      mcpWorkspace.style.display = 'block';
+      window.renderMcpHubServerList();
+      window.renderMcpHubToolsList();
+    }
+  } else if (mode === 'rag') {
     if (sessionList) sessionList.style.display = 'none';
     if (ragView) ragView.style.display = 'block';
+    if (chatLog) chatLog.style.display = 'flex';
+    if (inputContainer) inputContainer.style.display = 'block';
+    if (mcpWorkspace) mcpWorkspace.style.display = 'none';
     window.renderRagDocList();
   } else {
     if (sessionList) sessionList.style.display = 'block';
     if (ragView) ragView.style.display = 'none';
+    if (chatLog) chatLog.style.display = 'flex';
+    if (inputContainer) inputContainer.style.display = 'block';
+    if (mcpWorkspace) mcpWorkspace.style.display = 'none';
   }
 };
 
