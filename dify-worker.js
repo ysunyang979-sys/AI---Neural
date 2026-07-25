@@ -37,10 +37,18 @@ export default {
     const targetUrl = `https://api.dify.ai/v1${path}${url.search}`;
 
     try {
-      // 优先从 CF 环境变量读取密钥，实现 100% 隐藏
-      const apiKey = env.DIFY_API_KEY || DEFAULT_DIFY_API_KEY;
+      // 优先读取前端传入的 Authorization (包含用户选中的知识库 Key: 学习书籍 app-kH6L / 深度思考 app-RfV)
+      const incomingAuth = request.headers.get("Authorization");
+      let apiKey = env.DIFY_API_KEY || DEFAULT_DIFY_API_KEY;
+      
+      if (incomingAuth && incomingAuth.startsWith("Bearer ") && incomingAuth.trim() !== "Bearer") {
+        const clientKey = incomingAuth.replace("Bearer ", "").trim();
+        if (clientKey) {
+          apiKey = clientKey;
+        }
+      }
 
-      // 复制原有 Headers 并注入服务端 Authorization
+      // 复制原有 Headers 并注入 Authorization
       const reqHeaders = new Headers(request.headers);
       reqHeaders.set("Authorization", `Bearer ${apiKey}`);
       reqHeaders.set("Content-Type", "application/json");

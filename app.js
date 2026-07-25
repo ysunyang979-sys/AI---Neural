@@ -4068,7 +4068,7 @@ async function handleChatSend() {
       // ─── Dify Cloud RAG App API Execution Branch ───
       if (model === 'dify-cloud-rag' || (typeof difyRagModeEnabled !== 'undefined' && difyRagModeEnabled)) {
         const rawEndpoint = localStorage.getItem("difyApiEndpoint") || "https://api.dify.ai/v1";
-        const difyApiKey = localStorage.getItem("difyApiKey") || "";
+        const activeDifyKey = localStorage.getItem("difyAppKey") || localStorage.getItem("difyApiKey") || "app-kH6Ld7psiW3PZ6LRaUGDDAWI";
         const lastUserMsg = messages.filter(m => m.role === 'user').pop();
         const queryText = lastUserMsg ? lastUserMsg.content : "Hello";
 
@@ -4077,12 +4077,13 @@ async function handleChatSend() {
           requestUrl += "/chat-messages";
         }
 
-        addLine("⚡ 正在检索云端知识库并提炼向量...");
+        const isThinkMode = activeDifyKey === "app-RfVcWa2J8Be7VQJdFeykpV4l";
+        addLine(isThinkMode ? "🧠 正在调度深度思考知识库引擎..." : "📚 正在检索通用知识库并提炼向量...");
 
         try {
           const headers = { "Content-Type": "application/json" };
-          if (difyApiKey) {
-            headers["Authorization"] = `Bearer ${difyApiKey}`;
+          if (activeDifyKey) {
+            headers["Authorization"] = `Bearer ${activeDifyKey}`;
           }
 
           currentAbortController = new AbortController();
@@ -7708,81 +7709,31 @@ function initModeSwitcher() {
             if (modeMenu) modeMenu.style.display = 'none';
         });
         
-        window.activeCollaborators = ['single_groq', 'single_deepseek', 'single_glm', 'single_qwen', 'single_mistral', 'single_mistral_code', 'single_pixtral'];
         modeMenu.querySelectorAll('.mode-item').forEach(item => {
             item.addEventListener('click', (e) => {
                 const clickedMode = item.getAttribute('data-mode');
-                
-                if (window.currentAiMode === 'collaborative' && clickedMode.startsWith('single_')) {
-                    if (window.activeCollaborators.includes(clickedMode)) {
-                        window.activeCollaborators = window.activeCollaborators.filter(m => m !== clickedMode);
-                        item.style.opacity = '0.3';
-                        item.classList.remove('active');
-                    } else {
-                        window.activeCollaborators.push(clickedMode);
-                        item.style.opacity = '1';
-                        item.classList.add('active');
-                    }
-                    e.stopPropagation(); 
-                    return;
-                }
+                const difyKey = item.getAttribute('data-key') || "app-kH6Ld7psiW3PZ6LRaUGDDAWI";
                 
                 modeMenu.querySelectorAll('.mode-item').forEach(i => i.classList.remove('active'));
                 item.classList.add('active');
                 window.currentAiMode = clickedMode;
-                modeBtn.style.color = window.currentAiMode === 'normal' ? '' : 'var(--accent-color)';
+                
+                difyRagModeEnabled = true;
+                localStorage.setItem("difyRagModeEnabled", "true");
+                localStorage.setItem("difyAppKey", difyKey);
+
+                if (typeof updateDifyRagUIState === 'function') {
+                  updateDifyRagUIState(true);
+                }
+
+                modeBtn.style.color = 'var(--accent-color)';
                 
                 let modeBtnIcon = modeBtn.querySelector('i');
                 if(modeBtnIcon) {
-                    if (window.currentAiMode === 'normal') {
-                        modeBtnIcon.setAttribute('data-lucide', 'cpu');
-                        modeMenu.querySelectorAll('.mode-item').forEach(i => i.style.opacity = '1');
-                    } else if (window.currentAiMode === 'collaborative') {
-                        modeBtnIcon.setAttribute('data-lucide', 'swords');
-                        modeMenu.querySelectorAll('.mode-item').forEach(i => {
-                            const m = i.getAttribute('data-mode');
-                            if(m.startsWith('single_')) {
-                                i.style.opacity = window.activeCollaborators.includes(m) ? '1' : '0.3';
-                                if (window.activeCollaborators.includes(m)) i.classList.add('active');
-                                else i.classList.remove('active');
-                            }
-                        });
-                    } else {
-                        modeBtnIcon.setAttribute('data-lucide', 
-                            clickedMode === 'single_groq' ? 'rocket' :
-                            clickedMode === 'single_deepseek' ? 'brain' :
-                            clickedMode === 'single_glm' ? 'zap' : 
-                            clickedMode === 'single_qwen' ? 'box' :
-                            clickedMode === 'single_mistral' ? 'cloud' :
-                            clickedMode === 'single_mistral_code' ? 'code' : 'image'
-                        );
-                        modeMenu.querySelectorAll('.mode-item').forEach(i => {
-                            if(i.getAttribute('data-mode').startsWith('single_')) {
-                                i.style.opacity = '1';
-                            }
-                        });
-                    }
+                    modeBtnIcon.setAttribute('data-lucide', clickedMode === 'dify_think' ? 'brain' : 'book-open');
                     if(window.lucide) window.lucide.createIcons();
                 }
-
-                let msg = '已切换模式';
-                if (window.currentAiMode === 'normal') msg = '已切换至常规模式（最强）';
-                else if (window.currentAiMode === 'collaborative') msg = '已开启 群聊模式 ⚔️\n（您可以继续在菜单中点击模型图标进行多选/反选）';
-                else if (window.currentAiMode === 'single_groq') msg = '已切换至:Llama-3.3-70b 🚀';
-                else if (window.currentAiMode === 'single_deepseek') msg = '已切换至: DeepSeek-R1 🧠';
-                else if (window.currentAiMode === 'single_glm') msg = '已切换至: GLM-4-Flash ⚡';
-                else if (window.currentAiMode === 'single_qwen') msg = '已切换至: Qwen-2.5-7B 💠';
-                else if (window.currentAiMode === 'single_mistral') msg = '已切换至: Mistral Large ☁️';
-                else if (window.currentAiMode === 'single_mistral_code') msg = '已切换至: Codestral 💻';
-                else if (window.currentAiMode === 'single_pixtral') msg = '已切换至: Pixtral 🖼️';
-                
-                appendMessage(msg, 'ai', false);
-                
-                if (clickedMode === 'collaborative') {
-                    e.stopPropagation(); // Keep menu open for multi-select
-                } else {
-                    modeMenu.style.display = 'none';
-                }
+                modeMenu.style.display = 'none';
             });
         });
     }

@@ -426,16 +426,8 @@
                       <i data-lucide="cpu"></i>
                   </button>
                   <div id="mode-menu" class="mode-menu" style="display: none; position: absolute; bottom: 100%; left: 0; margin-bottom: 8px; z-index: 1000; flex-direction: row; gap: 4px; white-space: nowrap; background: var(--bg-secondary); border: 1px solid var(--border-light); border-radius: 12px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.15); padding: 6px;">
-                      <div class="mode-item active" data-mode="normal" title="常规模式 (Mistral)"><i data-lucide="globe" style="width:18px; height:18px;"></i></div>
-                      <div class="mode-item" data-mode="collaborative" title="圆桌会议 (全模型群聊)"><i data-lucide="swords" style="width:18px; height:18px;"></i></div>
-                      <div style="width: 1px; height: 20px; background: var(--border-color); margin: 0 4px;"></div>
-                      <div class="mode-item" data-mode="single_groq" title="单用: Groq (Llama 70B)"><i data-lucide="rocket" style="width:18px; height:18px;"></i></div>
-                      <div class="mode-item" data-mode="single_deepseek" title="单用: DeepSeek-R1"><i data-lucide="brain" style="width:18px; height:18px;"></i></div>
-                      <div class="mode-item" data-mode="single_glm" title="单用: GLM-4-Flash"><i data-lucide="zap" style="width:18px; height:18px;"></i></div>
-                      <div class="mode-item" data-mode="single_qwen" title="单用: Qwen-2.5-7B"><i data-lucide="box" style="width:18px; height:18px;"></i></div>
-                      <div class="mode-item" data-mode="single_mistral" title="单用: Mistral Large"><i data-lucide="cloud" style="width:18px; height:18px;"></i></div>
-                      <div class="mode-item" data-mode="single_mistral_code" title="单用: Codestral"><i data-lucide="code" style="width:18px; height:18px;"></i></div>
-                      <div class="mode-item" data-mode="single_pixtral" title="单用: Pixtral"><i data-lucide="image" style="width:18px; height:18px;"></i></div>
+                      <div class="mode-item active" data-mode="dify_kb" data-key="app-kH6Ld7psiW3PZ6LRaUGDDAWI" title="📚 学习/通用知识库 (Dify)"><i data-lucide="book-open" style="width:18px; height:18px;"></i></div>
+                      <div class="mode-item" data-mode="dify_think" data-key="app-RfVcWa2J8Be7VQJdFeykpV4l" title="🧠 深度思考知识库 (Dify)"><i data-lucide="brain" style="width:18px; height:18px;"></i></div>
                   </div>
                 </div>
                 <button class="chat-input-action-btn" id="chat-dify-rag-toggle" title="开关 Dify 知识库 RAG 模式 (开启后AI按 Dify 知识库回答，关闭后常规模式)"><i data-lucide="book-open"></i></button>
@@ -801,6 +793,6 @@
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
   <script src="keys.js"></script>
-  <script src="app.js?v=76"></script>
+  <script src="app.js?v=77"></script>
 </body>
 </html>
