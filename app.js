@@ -943,6 +943,42 @@ if (searchToggle) {
   if (!webSearchEnabled) searchToggle.classList.remove("active");
 }
 
+// ⚡ Dify Cloud Knowledge Base RAG Toggle Switch
+let difyRagModeEnabled = localStorage.getItem("difyRagModeEnabled") === "true";
+const difyRagToggle = document.getElementById("chat-dify-rag-toggle");
+const modelSelectEl = document.getElementById("chat-model-select");
+
+function updateDifyRagUIState(enabled) {
+  if (difyRagToggle) {
+    difyRagToggle.classList.toggle("active", enabled);
+  }
+  if (modelSelectEl) {
+    if (enabled) {
+      modelSelectEl.value = "dify-cloud-rag";
+    } else if (modelSelectEl.value === "dify-cloud-rag") {
+      modelSelectEl.value = "mistral-small-latest";
+    }
+  }
+}
+
+if (difyRagToggle) {
+  updateDifyRagUIState(difyRagModeEnabled);
+  difyRagToggle.addEventListener("click", () => {
+    difyRagModeEnabled = !difyRagModeEnabled;
+    localStorage.setItem("difyRagModeEnabled", difyRagModeEnabled);
+    updateDifyRagUIState(difyRagModeEnabled);
+  });
+}
+
+if (modelSelectEl) {
+  modelSelectEl.addEventListener("change", () => {
+    const isDify = modelSelectEl.value === "dify-cloud-rag";
+    difyRagModeEnabled = isDify;
+    localStorage.setItem("difyRagModeEnabled", difyRagModeEnabled);
+    if (difyRagToggle) difyRagToggle.classList.toggle("active", isDify);
+  });
+}
+
 // 🎨 Drawing Mode Toggle
 let drawModeEnabled = false;
 let drawAspectRatio = "1:1";
@@ -4047,7 +4083,7 @@ async function handleChatSend() {
       }
 
       // ─── Dify Cloud RAG App API Execution Branch ───
-      if (model === 'dify-cloud-rag') {
+      if (model === 'dify-cloud-rag' || (typeof difyRagModeEnabled !== 'undefined' && difyRagModeEnabled)) {
         const rawEndpoint = localStorage.getItem("difyApiEndpoint") || "https://api.dify.ai/v1";
         const difyApiKey = localStorage.getItem("difyApiKey") || "";
         const lastUserMsg = messages.filter(m => m.role === 'user').pop();
