@@ -3521,10 +3521,31 @@ window.getAvailableTools = () => {
       }
     }
   });
+  tools.push({
+    type: "function",
+    function: {
+      name: "search_knowledge_base",
+      description: "Search and retrieve document text chunks from the user's local IndexedDB Knowledge Base (RAG). Use this whenever the user mentions knowledge base, asks to reference knowledge base, or requests document lookup.",
+      parameters: {
+        type: "object",
+        properties: {
+          query: { type: "string", description: "Search query or keywords to retrieve from knowledge base" }
+        },
+        required: ["query"]
+      }
+    }
+  });
   return tools;
 };
 window.executeToolCall = async (tcName, args) => {
     try {
+        if (tcName === 'search_knowledge_base') {
+          const chunks = await window.queryRagContext(args.query || '知识库');
+          if (!chunks || chunks.length === 0) {
+            return "知识库检索提示：当前本地知识库暂无匹配文档切片。如需引用具体信息，请在【📚 知识库】界面上传对应文档。";
+          }
+          return chunks.map((r, i) => `[切片${i+1}] 来自《${r.docName}》:\n${r.text}`).join('\n\n');
+        }
         if (tcName && (tcName.startsWith('mcp_') || tcName === 'call_mcp_tool')) {
           const targetTool = tcName === 'call_mcp_tool' ? (args.tool_name || 'mcp_weather_get_forecast') : tcName;
           const targetArgs = tcName === 'call_mcp_tool' ? (args.arguments || args) : args;
@@ -4041,11 +4062,18 @@ async function handleChatSend() {
           const ragResults = await window.queryRagContext(lastUserMsg.content);
           if (ragResults && ragResults.length > 0) {
             const ragSnippet = ragResults.map((r, i) => `[参${i+1}] 来自《${r.docName}》:\n${r.text}`).join('\n\n');
-            const ragDirective = `\n\n[📚 检索增强知识库 (RAG Context)]:\n优先结合以下从知识库提取的参考文献回答，并在引用处标注 [参1]、[参2] 等出处序号：\n${ragSnippet}`;
+            const ragDirective = `\n\n[📚 检索增强知识库 (RAG Context)]:\n必须优先且直接依据以下从用户端侧知识库成功检索出的文档切片回答问题，并在引用内容旁标注 [参1]、[参2] 等参考文献序号：\n${ragSnippet}`;
             if (messages.length > 0 && messages[0].role === 'system') {
               messages[0].content += ragDirective;
             } else {
               messages.unshift({ role: 'system', content: ragDirective });
+            }
+          } else if (lastUserMsg.content.includes("知识库")) {
+            const noRagNotice = `\n\n[📚 知识库检索提示]: 用户要求参考知识库。当前端侧 IndexedDB 知识库中暂未找到与相关词匹配的切片。请在回答开篇第一句明确提示：“【知识库状态】已为您查验端侧知识库。当前知识库暂无相关匹配文档，请在左侧【📚 知识库】界面上传您的剧本/资料文件；以下为您生成基础分镜：”`;
+            if (messages.length > 0 && messages[0].role === 'system') {
+              messages[0].content += noRagNotice;
+            } else {
+              messages.unshift({ role: 'system', content: noRagNotice });
             }
           }
         }
@@ -8244,20 +8272,45 @@ window.queryRagContext = async function(userQuery) {
     const allChunks = await new Promise(r => chunksStore.getAll().onsuccess = e => r(e.target.result));
     if (!allChunks || allChunks.length === 0) return [];
 
-    const keywords = userQuery.toLowerCase().split(/\s+/).filter(k => k.length > 1);
-    if (keywords.length === 0) return [];
+    const cleanQuery = userQuery.toLowerCase().replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, ' ');
+    const stopwords = ['参考', '知识库', '一个', '编写', '生成', '制作', '帮我', '请问', '关于', '好的', '一下'];
+    
+    // Extract Chinese 2-character bi-grams and words
+    let tokens = cleanQuery.split(/\s+/).filter(k => k.length > 0);
+    const chineseChars = cleanQuery.match(/[\u4e00-\u9fa5]{2,}/g) || [];
+    chineseChars.forEach(str => {
+      for (let i = 0; i < str.length - 1; i++) {
+        const bi = str.substr(i, 2);
+        if (!stopwords.includes(bi)) tokens.push(bi);
+      }
+      tokens.push(str);
+    });
+
+    tokens = Array.from(new Set(tokens)).filter(k => k.length >= 2 && !stopwords.includes(k));
+
+    if (tokens.length === 0) {
+      if (userQuery.includes("知识库")) {
+        return allChunks.slice(0, 4);
+      }
+      return [];
+    }
 
     const scored = allChunks.map(c => {
       let score = 0;
       const lowerText = c.text.toLowerCase();
-      keywords.forEach(kw => {
-        if (lowerText.includes(kw)) score += 1;
+      tokens.forEach(t => {
+        if (lowerText.includes(t)) score += 2;
       });
       return { ...c, score };
     }).filter(c => c.score > 0);
 
     scored.sort((a, b) => b.score - a.score);
-    return scored.slice(0, 3);
+
+    if (scored.length === 0 && userQuery.includes("知识库")) {
+      return allChunks.slice(0, 4);
+    }
+
+    return scored.slice(0, 4);
   } catch(e) {
     console.warn("Error querying RAG context:", e);
     return [];
