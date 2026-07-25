@@ -8006,16 +8006,17 @@ window.switchSidebarMode = function(mode) {
   const sessionList = document.getElementById('chat-session-list');
   const ragView = document.getElementById('rag-sidebar-view');
   const chatLog = document.getElementById('chat-log-full');
-  const inputContainer = document.querySelector('.chat-input-container');
+  const inputWrapper = document.querySelector('.chat-input-wrapper-full');
   const mcpWorkspace = document.getElementById('mcp-workspace-view');
 
   if (mode === 'mcp') {
     if (sessionList) sessionList.style.display = 'block';
     if (ragView) ragView.style.display = 'none';
     if (chatLog) chatLog.style.display = 'none';
-    if (inputContainer) inputContainer.style.display = 'none';
+    if (inputWrapper) inputWrapper.style.display = 'none';
     if (mcpWorkspace) {
       mcpWorkspace.style.display = 'block';
+      mcpWorkspace.style.height = 'calc(100% - 60px)';
       window.renderMcpHubServerList();
       window.renderMcpHubToolsList();
     }
@@ -8023,14 +8024,14 @@ window.switchSidebarMode = function(mode) {
     if (sessionList) sessionList.style.display = 'none';
     if (ragView) ragView.style.display = 'block';
     if (chatLog) chatLog.style.display = 'flex';
-    if (inputContainer) inputContainer.style.display = 'block';
+    if (inputWrapper) inputWrapper.style.display = 'block';
     if (mcpWorkspace) mcpWorkspace.style.display = 'none';
     window.renderRagDocList();
   } else {
     if (sessionList) sessionList.style.display = 'block';
     if (ragView) ragView.style.display = 'none';
     if (chatLog) chatLog.style.display = 'flex';
-    if (inputContainer) inputContainer.style.display = 'block';
+    if (inputWrapper) inputWrapper.style.display = 'block';
     if (mcpWorkspace) mcpWorkspace.style.display = 'none';
   }
 };
