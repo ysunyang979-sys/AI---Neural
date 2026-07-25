@@ -1337,6 +1337,16 @@ pre code.hljs { display: block; padding: 0; background: transparent; color: var(
     color: var(--accent);
     background: var(--accent-subtle);
 }
+#mode-btn.active {
+    background: var(--accent-color, #e0562e) !important;
+    color: #ffffff !important;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 2px 10px rgba(224, 86, 46, 0.4);
+}
+#mode-btn.active i, #mode-btn.active svg {
+    stroke: #ffffff !important;
+    color: #ffffff !important;
+}
 #chat-dify-rag-toggle.active {
     color: #38bdf8 !important;
     background: rgba(56, 189, 248, 0.18) !important;

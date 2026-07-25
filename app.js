@@ -7692,6 +7692,12 @@ function initModeSwitcher() {
             if (window.lucide) window.lucide.createIcons();
         }
 
+        if (activeSelectedMode) {
+            modeBtn.classList.add('active');
+        } else {
+            modeBtn.classList.remove('active');
+        }
+
         modeMenu.querySelectorAll('.mode-item').forEach(i => {
             if (i.getAttribute('data-mode') === activeSelectedMode) {
                 i.classList.add('active');
@@ -7727,6 +7733,8 @@ function initModeSwitcher() {
                     localStorage.setItem("difyRagModeEnabled", "true");
                     localStorage.setItem("difyAppKey", difyKey);
                     localStorage.setItem("difyUserSelectedMode", clickedMode);
+
+                    modeBtn.classList.add('active');
 
                     let modeBtnIcon = modeBtn.querySelector('i');
                     if (modeBtnIcon) {
