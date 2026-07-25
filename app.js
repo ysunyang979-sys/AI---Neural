@@ -7699,6 +7699,16 @@ window.executeMcpToolCall = async function(toolName, args) {
   return JSON.stringify(data.result || {});
 };
 
+window.openMcpModal = function() {
+  const modal = document.getElementById('ai-about-modal');
+  if (modal) {
+    modal.style.display = 'flex';
+    const mcpTabBtn = modal.querySelector('.ai-about-tab[data-tab="mcp"]');
+    if (mcpTabBtn) mcpTabBtn.click();
+    window.renderMcpServerList();
+  }
+};
+
 // Initialize MCP Server List on page load
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {

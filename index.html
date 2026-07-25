@@ -81,6 +81,7 @@
       <div class="chat-sidebar-footer">
         <div class="chat-sidebar-user-wrapper">
           <div class="user-menu-popup" id="user-menu-popup">
+            <button class="user-menu-item" id="user-menu-mcp-btn" onclick="window.openMcpModal()"><i data-lucide="plug"></i> 🔌 MCP 协议服务配置</button>
             <button class="user-menu-item" id="user-menu-settings-btn"><i data-lucide="settings"></i> 设置 (Settings)</button>
             <div class="user-menu-item user-menu-theme">
               <span class="theme-toggle-label">Dark Mode</span>
@@ -226,6 +227,7 @@
                       <div class="mode-item" data-mode="single_pixtral" title="单用: Pixtral"><i data-lucide="image" style="width:18px; height:18px;"></i></div>
                   </div>
                 </div>
+                <button class="chat-input-action-btn" id="mcp-toolbar-btn" onclick="window.openMcpModal()" title="MCP 协议服务配置中心"><i data-lucide="plug"></i></button>
               </div>
               <div style="display:flex; align-items:center; flex-shrink:0;">
                 <select class="chat-model-select" id="chat-model-select">
@@ -606,6 +608,6 @@
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
   <script src="keys.js"></script>
-  <script src="app.js?v=54"></script>
+  <script src="app.js?v=55"></script>
 </body>
 </html>
