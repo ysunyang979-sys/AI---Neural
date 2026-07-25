@@ -28,10 +28,13 @@ export default {
 
     const url = new URL(request.url);
     let path = url.pathname;
-    if (path === "/" || path === "") {
+    if (path.startsWith("/v1")) {
+      path = path.substring(3);
+    }
+    if (path === "" || path === "/") {
       path = "/chat-messages";
     }
-    const targetUrl = `${DIFY_API_BASE}${path}${url.search}`;
+    const targetUrl = `https://api.dify.ai/v1${path}${url.search}`;
 
     try {
       // 优先从 CF 环境变量读取密钥，实现 100% 隐藏

@@ -4048,12 +4048,17 @@ async function handleChatSend() {
 
       // ─── Dify Cloud RAG App API Execution Branch ───
       if (model === 'dify-cloud-rag') {
-        const difyEndpoint = localStorage.getItem("difyApiEndpoint") || "https://api.dify.ai/v1";
+        const rawEndpoint = localStorage.getItem("difyApiEndpoint") || "https://api.dify.ai/v1";
         const difyApiKey = localStorage.getItem("difyApiKey") || "";
         const lastUserMsg = messages.filter(m => m.role === 'user').pop();
         const queryText = lastUserMsg ? lastUserMsg.content : "Hello";
 
-        addLine("⚡ 正在通过 Dify 云端知识库引擎提取检索向量与生成...");
+        let requestUrl = rawEndpoint.trim().replace(/\/+$/, '');
+        if (!requestUrl.endsWith("/chat-messages")) {
+          requestUrl += "/chat-messages";
+        }
+
+        addLine(`⚡ 正在连接 Dify 云端引擎 (${requestUrl})...`);
 
         const headers = { "Content-Type": "application/json" };
         if (difyApiKey) {
@@ -4061,7 +4066,7 @@ async function handleChatSend() {
         }
 
         currentAbortController = new AbortController();
-        const difyResponse = await fetch(`${difyEndpoint.replace(/\/+$/, '')}/chat-messages`, {
+        const difyResponse = await fetch(requestUrl, {
           method: "POST",
           headers,
           body: JSON.stringify({
@@ -4076,7 +4081,8 @@ async function handleChatSend() {
 
         if (!difyResponse.ok) {
           const errText = await difyResponse.text();
-          throw new Error(`Dify API 请求失败 (${difyResponse.status}): ${errText}`);
+          endThinking(true);
+          throw new Error(`Dify API 连接失败 HTTP ${difyResponse.status}: ${errText.slice(0, 200)}`);
         }
 
         const reader = difyResponse.body.getReader();
@@ -4099,19 +4105,20 @@ async function handleChatSend() {
               if (jsonStr === "[DONE]") continue;
               try {
                 const data = JSON.parse(jsonStr);
-                if (data.event === "message" || data.event === "agent_message") {
-                  if (data.answer) {
-                    if (firstChunk) {
-                      endThinking(true);
-                      firstChunk = false;
-                    }
-                    replyText += data.answer;
-                    replyContent.innerHTML = renderMarkdown(replyText) + '<span class="ai-cursor"></span>';
-                    $chatLog.scrollTop = $chatLog.scrollHeight;
+                const chunkText = data.answer || data.text || data.delta || (data.data && data.data.text) || "";
+
+                if (data.conversation_id) {
+                  window.currentDifyConversationId = data.conversation_id;
+                }
+
+                if (chunkText) {
+                  if (firstChunk) {
+                    endThinking(true);
+                    firstChunk = false;
                   }
-                  if (data.conversation_id) {
-                    window.currentDifyConversationId = data.conversation_id;
-                  }
+                  replyText += chunkText;
+                  replyContent.innerHTML = renderMarkdown(replyText) + '<span class="ai-cursor"></span>';
+                  $chatLog.scrollTop = $chatLog.scrollHeight;
                 } else if (data.event === "agent_thought" && data.thought) {
                   addLine(`💡 Dify 逻辑推理: ${data.thought.slice(0, 100)}`);
                 }
@@ -4121,8 +4128,13 @@ async function handleChatSend() {
         }
 
         endThinking(true);
-        const cursor = replyContent.querySelector(".ai-cursor");
-        if (cursor) cursor.remove();
+        if (!replyText.trim()) {
+          replyText = "⚠️ Dify API 已成功链接，但响应返回为空。请检查：\n1. Cloudflare Worker 代理代码是否已更新至最新版；\n2. Dify 应用中是否配置了模型输出；\n3. Dify API Key 是否有效。";
+          replyContent.innerHTML = renderMarkdown(replyText);
+        } else {
+          const cursor = replyContent.querySelector(".ai-cursor");
+          if (cursor) cursor.remove();
+        }
 
         const session = chatSessions.find((s) => s.id === activeSessionId);
         if (session) {
