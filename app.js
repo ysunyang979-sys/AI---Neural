@@ -3503,12 +3503,29 @@ window.getAvailableTools = () => {
       });
     });
   }
+  tools.push({
+    type: "function",
+    function: {
+      name: "call_mcp_tool",
+      description: "Directly execute a remote MCP (Model Context Protocol) tool call via JSON-RPC. Use this whenever the user asks for MCP execution, mentions MCP, or requests remote tool execution.",
+      parameters: {
+        type: "object",
+        properties: {
+          tool_name: { type: "string", description: "The name of the MCP tool to execute (e.g. 'mcp_weather_get_forecast', 'mcp_search_tavily_query', 'mcp_sqlite_execute_sql', 'mcp_piston_run_code')" },
+          arguments: { type: "object", description: "The JSON arguments to pass to the MCP tool" }
+        },
+        required: ["tool_name"]
+      }
+    }
+  });
   return tools;
 };
 window.executeToolCall = async (tcName, args) => {
     try {
-        if (tcName && tcName.startsWith('mcp_')) {
-          return await window.executeMcpToolCall(tcName, args);
+        if (tcName && (tcName.startsWith('mcp_') || tcName === 'call_mcp_tool')) {
+          const targetTool = tcName === 'call_mcp_tool' ? (args.tool_name || 'mcp_weather_get_forecast') : tcName;
+          const targetArgs = tcName === 'call_mcp_tool' ? (args.arguments || args) : args;
+          return await window.executeMcpToolCall(targetTool, targetArgs);
         }
         if (tcName === 'calculate') {
             const evalResult = new Function("return " + args.expression)();
@@ -4001,6 +4018,18 @@ async function handleChatSend() {
         model = "magistral-medium-latest"; // Using the magistral version which might have less strict alignment
       }
       const tools = window.getAvailableTools();
+
+      if (window.mcpTools && window.mcpTools.length > 0) {
+        const mcpNames = window.mcpTools.map(t => `${t.name}: ${t.description}`).join('\n- ');
+        const mcpNotice = `\n\n[SYSTEM DIRECTIVE: ACTIVE MCP PROTOCOL INTEGRATION IS LIVE]\nYou have direct access to active Model Context Protocol (MCP) tools:\n- ${mcpNames}\n\nCRITICAL: Whenever the user mentions "MCP", asks to "调用MCP", "MCP工作", or requests tasks covered by MCP tools, you MUST IMMEDIATELY call one of the active MCP tools (e.g. mcp_weather_get_forecast, mcp_search_tavily_query, mcp_sqlite_execute_sql, mcp_piston_run_code, or call_mcp_tool)! NEVER claim that MCP tools are unavailable!`;
+        if (messages.length > 0 && messages[0].role === 'system') {
+          if (!messages[0].content.includes('ACTIVE MCP PROTOCOL INTEGRATION IS LIVE')) {
+            messages[0].content += mcpNotice;
+          }
+        } else {
+          messages.unshift({ role: 'system', content: mcpNotice });
+        }
+      }
 
       let maxTokens = 8192;
       if (currentOutputLength === "short") maxTokens = 250;
@@ -7592,7 +7621,18 @@ window.nextFlashCard = function(deckId) {
 /* ════════════════════════════════════════════════════════════════════════
    MCP (Model Context Protocol) 架构与 JSON-RPC 桥接引擎 (Hub Edition)
    ════════════════════════════════════════════════════════════════════════ */
-window.mcpServers = JSON.parse(localStorage.getItem('mcp_servers') || '[]');
+// Auto-populate default preset MCP servers if none exist
+if (!localStorage.getItem('mcp_servers') || JSON.parse(localStorage.getItem('mcp_servers') || '[]').length === 0) {
+  window.mcpServers = [
+    { id: 'mcp-preset-weather', name: 'Open-Meteo Weather MCP', type: 'HTTP / SSE', url: 'https://api.open-meteo.com/v1/forecast', active: true, isPreset: true },
+    { id: 'mcp-preset-search', name: 'Tavily Web Search MCP', type: 'HTTP / SSE', url: 'https://api.tavily.com/search', active: true, isPreset: true },
+    { id: 'mcp-preset-sqlite', name: 'SQL Memory Database MCP', type: 'HTTP / SSE', url: 'https://sql.alasql.org/mcp', active: true, isPreset: true },
+    { id: 'mcp-preset-piston', name: 'Piston Code Execution MCP', type: 'Stdio Proxy', url: 'https://emkc.org/api/v2/piston/execute', active: true, isPreset: true }
+  ];
+  localStorage.setItem('mcp_servers', JSON.stringify(window.mcpServers));
+} else {
+  window.mcpServers = JSON.parse(localStorage.getItem('mcp_servers'));
+}
 window.mcpTools = [];
 
 // Built-in Presets Definition
