@@ -4077,91 +4077,101 @@ async function handleChatSend() {
           requestUrl += "/chat-messages";
         }
 
-        addLine(`⚡ 正在连接 Dify 云端引擎 (${requestUrl})...`);
+        addLine("⚡ 正在检索云端知识库并提炼向量...");
 
-        const headers = { "Content-Type": "application/json" };
-        if (difyApiKey) {
-          headers["Authorization"] = `Bearer ${difyApiKey}`;
-        }
+        try {
+          const headers = { "Content-Type": "application/json" };
+          if (difyApiKey) {
+            headers["Authorization"] = `Bearer ${difyApiKey}`;
+          }
 
-        currentAbortController = new AbortController();
-        const difyResponse = await fetch(requestUrl, {
-          method: "POST",
-          headers,
-          body: JSON.stringify({
-            inputs: {},
-            query: queryText,
-            response_mode: "streaming",
-            user: "sunny_user",
-            conversation_id: window.currentDifyConversationId || ""
-          }),
-          signal: currentAbortController.signal
-        });
+          currentAbortController = new AbortController();
+          const difyResponse = await fetch(requestUrl, {
+            method: "POST",
+            headers,
+            body: JSON.stringify({
+              inputs: {},
+              query: queryText,
+              response_mode: "streaming",
+              user: "sunny_user",
+              conversation_id: window.currentDifyConversationId || ""
+            }),
+            signal: currentAbortController.signal
+          });
 
-        if (!difyResponse.ok) {
-          const errText = await difyResponse.text();
-          endThinking(true);
-          throw new Error(`Dify API 连接失败 HTTP ${difyResponse.status}: ${errText.slice(0, 200)}`);
-        }
+          if (!difyResponse.ok) {
+            const errText = await difyResponse.text();
+            throw new Error(`Dify API 连接失败 (HTTP ${difyResponse.status}): ${errText.slice(0, 150)}`);
+          }
 
-        const reader = difyResponse.body.getReader();
-        const decoder = new TextDecoder();
-        let buffer = "";
-        let replyText = initialReply;
+          const reader = difyResponse.body.getReader();
+          const decoder = new TextDecoder();
+          let buffer = "";
+          let replyText = initialReply;
 
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
 
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split("\n");
-          buffer = lines.pop() || "";
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n");
+            buffer = lines.pop() || "";
 
-          for (let line of lines) {
-            line = line.trim();
-            if (line.startsWith("data:")) {
-              const jsonStr = line.replace(/^data:\s*/, "");
-              if (jsonStr === "[DONE]") continue;
-              try {
-                const data = JSON.parse(jsonStr);
-                const chunkText = data.answer || data.text || data.delta || (data.data && data.data.text) || "";
+            for (let line of lines) {
+              line = line.trim();
+              if (line.startsWith("data:")) {
+                const jsonStr = line.replace(/^data:\s*/, "");
+                if (jsonStr === "[DONE]") continue;
+                try {
+                  const data = JSON.parse(jsonStr);
+                  const chunkText = data.answer || data.text || data.delta || (data.data && data.data.text) || "";
 
-                if (data.conversation_id) {
-                  window.currentDifyConversationId = data.conversation_id;
-                }
-
-                if (chunkText) {
-                  if (firstChunk) {
-                    endThinking(true);
-                    firstChunk = false;
+                  if (data.conversation_id) {
+                    window.currentDifyConversationId = data.conversation_id;
                   }
-                  replyText += chunkText;
-                  replyContent.innerHTML = renderMarkdown(replyText) + '<span class="ai-cursor"></span>';
-                  $chatLog.scrollTop = $chatLog.scrollHeight;
-                } else if (data.event === "agent_thought" && data.thought) {
-                  addLine(`💡 Dify 逻辑推理: ${data.thought.slice(0, 100)}`);
-                }
-              } catch(e){}
+
+                  if (chunkText) {
+                    if (firstChunk) {
+                      endThinking(true);
+                      firstChunk = false;
+                    }
+                    replyText += chunkText;
+                    replyContent.innerHTML = renderMarkdown(replyText) + '<span class="ai-cursor"></span>';
+                    $chatLog.scrollTop = $chatLog.scrollHeight;
+                  } else if (data.event === "agent_thought" && data.thought) {
+                    addLine(`💡 Dify 逻辑推理: ${data.thought.slice(0, 100)}`);
+                  }
+                } catch(e){}
+              }
             }
           }
-        }
 
-        endThinking(true);
-        if (!replyText.trim()) {
-          replyText = "⚠️ Dify API 已成功链接，但响应返回为空。请检查：\n1. Cloudflare Worker 代理代码是否已更新至最新版；\n2. Dify 应用中是否配置了模型输出；\n3. Dify API Key 是否有效。";
-          replyContent.innerHTML = renderMarkdown(replyText);
-        } else {
-          const cursor = replyContent.querySelector(".ai-cursor");
-          if (cursor) cursor.remove();
-        }
+          endThinking(true);
+          if (!replyText.trim()) {
+            replyText = "⚠️ Dify API 已成功链接，但未返回生成文本。请确认 Dify 应用已添加提示词与知识库匹配。";
+            replyContent.innerHTML = renderMarkdown(replyText);
+          } else {
+            const cursor = replyContent.querySelector(".ai-cursor");
+            if (cursor) cursor.remove();
+          }
 
-        const session = chatSessions.find((s) => s.id === activeSessionId);
-        if (session) {
-          session.history.push({ role: "user", content: queryText });
-          session.history.push({ role: "assistant", content: replyText });
-          persistSessions();
+          const session = chatSessions.find((s) => s.id === activeSessionId);
+          if (session) {
+            session.history.push({ role: "user", content: queryText });
+            session.history.push({ role: "assistant", content: replyText });
+            persistSessions();
+          }
+          return;
+        } catch (difyErr) {
+          endThinking(true);
+          let errorMsg = difyErr.message || "Dify 连接失败";
+          if (errorMsg.includes("Failed to fetch")) {
+            errorMsg = "网络或 CORS 跨域访问受到限制。请确保自建服务器/域名已开启跨域 CORS 响应头，或在设置中配置 Cloudflare Worker 代理地址。";
+          }
+          replyContent.innerHTML = `<div style="color: #f87171; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); padding: 12px; border-radius: 10px; font-size: 12.5px; margin-top: 8px;">⚠️ 云端知识库连接提示: ${escapeChatHTML(errorMsg)}</div>`;
+          $chatLog.scrollTop = $chatLog.scrollHeight;
+          return;
         }
-        return;
       }
       const tools = window.getAvailableTools();
 
