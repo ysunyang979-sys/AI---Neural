@@ -4086,7 +4086,7 @@ window.sanitizeMathText = function(query, text) {
         const rawEndpoint = localStorage.getItem("difyApiEndpoint") || "https://api.dify.ai/v1";
         const activeDifyKey = localStorage.getItem("difyAppKey") || localStorage.getItem("difyApiKey") || "app-kH6Ld7psiW3PZ6LRaUGDDAWI";
         const lastUserMsg = messages.filter(m => m.role === 'user').pop();
-        let queryText = lastUserMsg ? lastUserMsg.content : "Hello";
+        let rawQueryText = lastUserMsg ? lastUserMsg.content : "Hello";
 
         let requestUrl = rawEndpoint.trim().replace(/\/+$/, '');
         if (!requestUrl.endsWith("/chat-messages")) {
@@ -4096,8 +4096,17 @@ window.sanitizeMathText = function(query, text) {
         const isThinkMode = activeDifyKey === "app-RfVcWa2J8Be7VQJdFeykpV4l";
         addLine(isThinkMode ? "🧠 正在调度深度思考知识库引擎..." : "📚 正在检索通用知识库并提炼向量...");
 
+        // 🕒 Inject Real-Time System Time Context
+        const nowObj = new Date();
+        const nowStr = nowObj.toLocaleString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+        let enrichedQuery = `[SYSTEM CONTEXT: 当前系统真实实时时间为 ${nowStr}]\n\n${rawQueryText}`;
+
+        if (/时间|几点|日期|今天是|星期几|现在几点|当前时间/i.test(rawQueryText)) {
+          addLine(`⏰ 已触发系统真实时间计算: ${nowStr}`);
+        }
+
         // 🧮 Auto Pre-Calculate Math Expressions & Render KaTeX Card
-        let cleanQ = queryText.trim().replace(/=$/, '').trim();
+        let cleanQ = rawQueryText.trim().replace(/=$/, '').trim();
         let mathMatch = cleanQ.match(/^([\d\.]+\s*[\+\-\*\/]\s*[\d\.]+)$/);
         if (mathMatch) {
           try {
@@ -4117,7 +4126,7 @@ window.sanitizeMathText = function(query, text) {
                 const cardId = "math-" + Math.random().toString(36).substr(2, 9);
                 initialReply += `<br><div class="math-calc-card" id="${cardId}"><div class="math-calc-header"><i data-lucide="calculator"></i> 高精度计算器</div><div class="math-calc-expr">${katexExprHtml}</div><div class="math-calc-result-box"><div class="math-calc-row"><span class="math-calc-label">精确解 (Exact):</span> <span class="math-calc-val">${katexResHtml}</span></div></div></div><br>`;
               }
-              queryText += `\n[SYSTEM DIRECTIVE: The exact mathematically verified calculation result for ${expr} is ${cleanVal}. You MUST state that ${expr} = ${cleanVal}. DO NOT output wrong values like -0.22 or -0.31!]`;
+              enrichedQuery += `\n[SYSTEM DIRECTIVE: The exact mathematically verified calculation result for ${expr} is ${cleanVal}. You MUST state that ${expr} = ${cleanVal}. DO NOT output wrong values like -0.22 or -0.31!]`;
             }
           } catch(e) {}
         }
@@ -4134,7 +4143,7 @@ window.sanitizeMathText = function(query, text) {
             headers,
             body: JSON.stringify({
               inputs: {},
-              query: queryText,
+              query: enrichedQuery,
               response_mode: "streaming",
               user: "sunny_user",
               conversation_id: window.currentDifyConversationId || ""
