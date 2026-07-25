@@ -7603,7 +7603,13 @@ window.PRESET_MCP_SERVERS = {
   piston: { id: 'mcp-preset-piston', name: 'Piston Code Execution MCP', type: 'Stdio Proxy', url: 'https://emkc.org/api/v2/piston/execute', active: true, isPreset: true }
 };
 
-window.openMcpModal = function() {
+window.openMcpModal = function(e) {
+  if (e && e.stopPropagation) e.stopPropagation();
+  const aboutModal = document.getElementById("ai-about-modal");
+  if (aboutModal) aboutModal.style.display = "none";
+  const userMenuPopup = document.getElementById("user-menu-popup");
+  if (userMenuPopup) userMenuPopup.classList.remove("active");
+
   const modal = document.getElementById('mcp-hub-modal');
   if (modal) {
     modal.style.display = 'flex';
