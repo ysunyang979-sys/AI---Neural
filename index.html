@@ -441,6 +441,7 @@
               </div>
               <div style="display:flex; align-items:center; flex-shrink:0;">
                 <select class="chat-model-select" id="chat-model-select">
+                  <option value="dify-cloud-rag">⚡ Dify 知识库 AI</option>
                   <option value="ministral-8b-2512">Low</option>
                   <option selected value="mistral-small-latest">High</option>
                   <option value="mistral-large-latest">Max</option>
@@ -519,6 +520,21 @@
             <div class="setting-group">
               <label for="ai-temperature">Creativity: <span id="temp-val-display">0.25</span></label>
               <input id="ai-temperature" max="1" min="0" step="0.05" type="range" value="0.25"/>
+            </div>
+            <!-- Dify Cloud RAG Integration Settings Group -->
+            <div class="setting-group" style="background: var(--bg-secondary); border: 1px solid rgba(56,189,248,0.3); padding: 12px 14px; border-radius: 12px; margin-top: 10px;">
+              <div style="font-size: 12px; font-weight: 700; color: #38bdf8; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
+                <span>⚡ Dify 知识库云端引擎配置 (Dify.ai)</span>
+                <span style="color: #4ade80; font-size: 10px; font-weight: 600;">🟢 已预装激活</span>
+              </div>
+              <div style="margin-bottom: 8px;">
+                <label for="dify-api-endpoint" style="font-size: 11px; color: var(--text-secondary);">Dify API Base Endpoint</label>
+                <input id="dify-api-endpoint" type="text" value="https://api.dify.ai/v1" style="width: 100%; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 6px; padding: 6px 10px; color: var(--text-primary); font-size: 12px;" />
+              </div>
+              <div>
+                <label for="dify-api-key" style="font-size: 11px; color: var(--text-secondary);">Dify App API Key</label>
+                <input id="dify-api-key" type="password" value="app-kH6Ld7psiW3PZ6LRaUGDDAWI" style="width: 100%; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 6px; padding: 6px 10px; color: var(--text-primary); font-size: 12px;" />
+              </div>
             </div>
           </div>
           <div class="ai-settings-footer">
@@ -785,6 +801,6 @@
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
   <script src="keys.js"></script>
-  <script src="app.js?v=68"></script>
+  <script src="app.js?v=69"></script>
 </body>
 </html>

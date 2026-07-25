@@ -1468,6 +1468,10 @@ document.getElementById("save-settings-btn").addEventListener("click", () => {
       currentDebateRounds = parseInt(debateRoundsSelect.value);
       localStorage.setItem("aiDebateRounds", currentDebateRounds);
   }
+  const difyEndpointInput = document.getElementById("dify-api-endpoint");
+  const difyKeyInput = document.getElementById("dify-api-key");
+  if (difyEndpointInput) localStorage.setItem("difyApiEndpoint", difyEndpointInput.value.trim());
+  if (difyKeyInput) localStorage.setItem("difyApiKey", difyKeyInput.value.trim());
   settingsModal.style.display = "none";
 });
 
@@ -4040,6 +4044,91 @@ async function handleChatSend() {
         
       if (currentAttachedImages.length > 0) {
         model = "magistral-medium-latest"; // Using the magistral version which might have less strict alignment
+      }
+
+      // ─── Dify Cloud RAG App API Execution Branch ───
+      if (model === 'dify-cloud-rag') {
+        const difyEndpoint = localStorage.getItem("difyApiEndpoint") || "https://api.dify.ai/v1";
+        const difyApiKey = localStorage.getItem("difyApiKey") || "app-kH6Ld7psiW3PZ6LRaUGDDAWI";
+        const lastUserMsg = messages.filter(m => m.role === 'user').pop();
+        const queryText = lastUserMsg ? lastUserMsg.content : "Hello";
+
+        addLine("⚡ 正在从 Dify 云端知识库引擎 (app-kH6L...DAWI) 提取检索向量与生成...");
+
+        currentAbortController = new AbortController();
+        const difyResponse = await fetch(`${difyEndpoint.replace(/\/+$/, '')}/chat-messages`, {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${difyApiKey}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            inputs: {},
+            query: queryText,
+            response_mode: "streaming",
+            user: "sunny_user",
+            conversation_id: window.currentDifyConversationId || ""
+          }),
+          signal: currentAbortController.signal
+        });
+
+        if (!difyResponse.ok) {
+          const errText = await difyResponse.text();
+          throw new Error(`Dify API 请求失败 (${difyResponse.status}): ${errText}`);
+        }
+
+        const reader = difyResponse.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+        let replyText = initialReply;
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || "";
+
+          for (let line of lines) {
+            line = line.trim();
+            if (line.startsWith("data:")) {
+              const jsonStr = line.replace(/^data:\s*/, "");
+              if (jsonStr === "[DONE]") continue;
+              try {
+                const data = JSON.parse(jsonStr);
+                if (data.event === "message" || data.event === "agent_message") {
+                  if (data.answer) {
+                    if (firstChunk) {
+                      endThinking(true);
+                      firstChunk = false;
+                    }
+                    replyText += data.answer;
+                    replyContent.innerHTML = renderMarkdown(replyText) + '<span class="ai-cursor"></span>';
+                    $chatLog.scrollTop = $chatLog.scrollHeight;
+                  }
+                  if (data.conversation_id) {
+                    window.currentDifyConversationId = data.conversation_id;
+                  }
+                } else if (data.event === "agent_thought" && data.thought) {
+                  addLine(`💡 Dify 逻辑推理: ${data.thought.slice(0, 100)}`);
+                }
+              } catch(e){}
+            }
+          }
+        }
+
+        endThinking(true);
+        const cursor = replyContent.querySelector(".ai-cursor");
+        if (cursor) cursor.remove();
+
+        const session = chatSessions.find((s) => s.id === activeSessionId);
+        if (session) {
+          session.history.push({ role: "user", content: queryText });
+          session.history.push({ role: "assistant", content: replyText });
+          persistSessions();
+        }
+        return;
       }
       const tools = window.getAvailableTools();
 
