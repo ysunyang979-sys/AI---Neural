@@ -3906,6 +3906,38 @@ async function handleChatSend() {
         return;
     }
 
+window.sanitizeMathText = function(query, text) {
+  if (!query || !text) return text;
+  let cleanQ = String(query).trim().replace(/=$/, '').trim();
+  let match = cleanQ.match(/^([\d\.]+\s*[\+\-\*\/]\s*[\d\.]+)$/);
+  if (match) {
+    let expr = match[1];
+    try {
+      let val = new Function("return " + expr)();
+      if (typeof val === "number" && !isNaN(val)) {
+        let cleanVal = parseFloat(val.toFixed(10));
+        let parts = expr.split(/([\+\-\*\/])/);
+        if (parts.length === 3) {
+          let left = parts[0].trim();
+          let op = parts[1].trim();
+          let right = parts[2].trim();
+          let pattern = new RegExp(
+            `(${left.replace(/\./g, '\\.')}\\s*\\${op}\\s*${right.replace(/\./g, '\\.')}\\s*=\\s*)(-?[\\d\\.]+)`,
+            'gi'
+          );
+          text = text.replace(pattern, (m, prefix, wrongVal) => {
+            if (parseFloat(wrongVal) !== cleanVal) {
+              return `${prefix}${cleanVal}`;
+            }
+            return m;
+          });
+        }
+      }
+    } catch (e) {}
+  }
+  return text;
+};
+
   if (
     !text &&
     currentAttachedImages.length === 0 &&
@@ -4145,6 +4177,9 @@ async function handleChatSend() {
             let finalParsed = window.marked ? marked.parse(replyText) : replyText;
             replyContent.innerHTML = parseInteractiveActionChips(finalParsed);
           } else {
+            if (typeof window.sanitizeMathText === 'function') {
+              replyText = window.sanitizeMathText(queryText, replyText);
+            }
             let finalParsed = window.marked ? marked.parse(replyText) : replyText;
             replyContent.innerHTML = parseInteractiveActionChips(finalParsed);
             renderMath(replyContent);
@@ -4633,7 +4668,7 @@ _out
                   let cleanNum = typeof evalResult === "number" ? parseFloat(evalResult.toFixed(10)) : evalResult;
                   exactRes = String(cleanNum);
                   numericRes = String(cleanNum);
-                  result = String(cleanNum);
+                  result = `EXACT_MATHEMATICAL_RESULT: ${cleanExpr} = ${cleanNum}. CRITICAL SYSTEM DIRECTIVE: The exact, verified math calculation result is ${cleanNum}. You MUST output "${cleanExpr} = ${cleanNum}" in your text response. DO NOT calculate manually or hallucinate negative numbers like -0.31!`;
                 }
 
                 // 3. Render Interactive LaTeX Math Canvas Card
@@ -6431,6 +6466,10 @@ ${cleanHtml}
       }
 
       if (firstChunk) endThinking();
+      const lastUserMsg = messages.filter(m => m.role === 'user').pop();
+      if (lastUserMsg && typeof window.sanitizeMathText === 'function') {
+        reply = window.sanitizeMathText(lastUserMsg.content, reply);
+      }
       reply = sanitizeChatOutput(reply);
       let finalParsed = window.marked ? marked.parse(reply) : reply;
       replyContent.innerHTML = parseInteractiveActionChips(finalParsed);
