@@ -7996,7 +7996,7 @@ window.switchSidebarMode = function(mode) {
   const tabs = document.querySelectorAll('.chat-mode-tab');
   tabs.forEach(tab => {
     const tabMode = tab.getAttribute('data-mode');
-    if (tabMode === mode || (mode === 'mcp' && tab.innerText.includes('MCP'))) {
+    if (tabMode === mode || (mode === 'mcp' && tab.innerText.includes('MCP')) || (mode === 'rag' && tab.innerText.includes('知识库'))) {
       tab.classList.add('active');
     } else {
       tab.classList.remove('active');
@@ -8004,16 +8004,17 @@ window.switchSidebarMode = function(mode) {
   });
 
   const sessionList = document.getElementById('chat-session-list');
-  const ragView = document.getElementById('rag-sidebar-view');
   const chatLog = document.getElementById('chat-log-full');
   const inputWrapper = document.querySelector('.chat-input-wrapper-full');
   const mcpWorkspace = document.getElementById('mcp-workspace-view');
+  const ragWorkspace = document.getElementById('rag-workspace-view');
+
+  if (sessionList) sessionList.style.display = 'block';
 
   if (mode === 'mcp') {
-    if (sessionList) sessionList.style.display = 'block';
-    if (ragView) ragView.style.display = 'none';
     if (chatLog) chatLog.style.display = 'none';
     if (inputWrapper) inputWrapper.style.display = 'none';
+    if (ragWorkspace) ragWorkspace.style.display = 'none';
     if (mcpWorkspace) {
       mcpWorkspace.style.display = 'block';
       mcpWorkspace.style.height = 'calc(100% - 60px)';
@@ -8021,18 +8022,19 @@ window.switchSidebarMode = function(mode) {
       window.renderMcpHubToolsList();
     }
   } else if (mode === 'rag') {
-    if (sessionList) sessionList.style.display = 'none';
-    if (ragView) ragView.style.display = 'block';
-    if (chatLog) chatLog.style.display = 'flex';
-    if (inputWrapper) inputWrapper.style.display = 'block';
+    if (chatLog) chatLog.style.display = 'none';
+    if (inputWrapper) inputWrapper.style.display = 'none';
     if (mcpWorkspace) mcpWorkspace.style.display = 'none';
-    window.renderRagDocList();
+    if (ragWorkspace) {
+      ragWorkspace.style.display = 'block';
+      ragWorkspace.style.height = 'calc(100% - 60px)';
+      window.renderRagDocList();
+    }
   } else {
-    if (sessionList) sessionList.style.display = 'block';
-    if (ragView) ragView.style.display = 'none';
     if (chatLog) chatLog.style.display = 'flex';
     if (inputWrapper) inputWrapper.style.display = 'block';
     if (mcpWorkspace) mcpWorkspace.style.display = 'none';
+    if (ragWorkspace) ragWorkspace.style.display = 'none';
   }
 };
 

@@ -78,37 +78,6 @@
 
       <div class="chat-session-list" id="chat-session-list"></div>
 
-      <!-- RAG Knowledge Base View -->
-      <div id="rag-sidebar-view" style="display:none; padding:12px; height: calc(100% - 130px); overflow-y: auto;">
-        
-        <!-- Upload Dropzone -->
-        <div id="rag-dropzone" onclick="document.getElementById('rag-file-input').click()" style="border: 2px dashed rgba(56,189,248,0.4); background: rgba(15,23,42,0.6); border-radius: 12px; padding: 16px; text-align: center; cursor: pointer; transition: all 0.2s ease; margin-bottom: 14px;">
-          <div style="font-size: 24px; margin-bottom: 4px;">📥</div>
-          <div style="font-size: 12px; font-weight: 700; color: #38bdf8;">点击或拖拽上传文档</div>
-          <div style="font-size: 10px; color: #94a3b8; margin-top: 2px;">支持 PDF / MD / TXT / DOCX / Code</div>
-          <input type="file" id="rag-file-input" style="display:none;" multiple accept=".pdf,.md,.txt,.docx,.js,.py,.json,.csv" onchange="window.handleRagFileUpload(event)" />
-        </div>
-
-        <!-- RAG Stats -->
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 14px;">
-          <div style="background: rgba(30,41,59,0.5); border: 1px solid rgba(255,255,255,0.08); padding: 8px 10px; border-radius: 8px; text-align: center;">
-            <div style="font-size: 10px; color: #94a3b8;">已收录文档</div>
-            <div id="rag-stat-docs" style="font-size: 15px; font-weight: 700; color: #38bdf8;">0</div>
-          </div>
-          <div style="background: rgba(30,41,59,0.5); border: 1px solid rgba(255,255,255,0.08); padding: 8px 10px; border-radius: 8px; text-align: center;">
-            <div style="font-size: 10px; color: #94a3b8;">语义切片向量</div>
-            <div id="rag-stat-chunks" style="font-size: 15px; font-weight: 700; color: #4ade80;">0</div>
-          </div>
-        </div>
-
-        <!-- Document List -->
-        <div style="font-size: 11px; font-weight: 700; color: #cbd5e1; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
-          <span>知识库文档列表</span>
-          <span style="font-weight: 400; color: #64748b; font-size: 10px;">IndexedDB 本地存储</span>
-        </div>
-        <div id="rag-doc-list"></div>
-      </div>
-
       <div class="chat-sidebar-footer">
         <div class="chat-sidebar-user-wrapper">
           <div class="user-menu-popup" id="user-menu-popup">
@@ -137,6 +106,52 @@
         <div class="chat-header-controls">
         </div>
       </header>
+
+      <!-- ═══ RAG KNOWLEDGE BASE WORKSPACE MAIN VIEW ═══ -->
+      <div id="rag-workspace-view" style="display:none; width:100%; height:calc(100% - 60px); overflow-y:auto; padding:24px; background:var(--bg-primary);">
+        <div style="max-width: 900px; margin: 0 auto;">
+          
+          <!-- Workspace Header -->
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border-color);">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(56,189,248,0.15); color: #38bdf8; display: flex; align-items: center; justify-content: center; font-size: 22px; border: 1px solid rgba(56,189,248,0.3);">📚</div>
+              <div>
+                <h2 style="margin: 0; font-size: 18px; font-weight: 700; color: var(--text-primary);">端侧隐私 📚 知识库与 RAG 检索增强中心</h2>
+                <div style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">IndexedDB 端侧零上传向量切片与智能语义检索增强系统</div>
+              </div>
+            </div>
+            <div style="display: flex; gap: 12px;">
+              <div style="background: var(--bg-secondary); border: 1px solid var(--border-color); padding: 8px 14px; border-radius: 10px; text-align: center;">
+                <div style="font-size: 10px; color: var(--text-secondary);">已收录文档</div>
+                <div id="rag-stat-docs" style="font-size: 16px; font-weight: 700; color: #38bdf8;">0</div>
+              </div>
+              <div style="background: var(--bg-secondary); border: 1px solid var(--border-color); padding: 8px 14px; border-radius: 10px; text-align: center;">
+                <div style="font-size: 10px; color: var(--text-secondary);">语义切片向量</div>
+                <div id="rag-stat-chunks" style="font-size: 16px; font-weight: 700; color: #4ade80;">0</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Drag & Drop Upload Dropzone -->
+          <div id="rag-dropzone" onclick="document.getElementById('rag-file-input').click()" style="border: 2px dashed rgba(56,189,248,0.4); background: var(--bg-secondary); border-radius: 16px; padding: 32px 24px; text-align: center; cursor: pointer; transition: all 0.2s ease; margin-bottom: 24px;">
+            <div style="font-size: 36px; margin-bottom: 8px;">📥</div>
+            <div style="font-size: 15px; font-weight: 700; color: #38bdf8; margin-bottom: 4px;">点击或拖拽本地文档至此处导入知识库</div>
+            <div style="font-size: 12px; color: var(--text-secondary);">支持 PDF (自动解析文本) / Markdown (.md) / TXT / DOCX / 代码 (.py, .js, .json) / CSV</div>
+            <div style="display: inline-block; margin-top: 12px; padding: 4px 12px; background: rgba(34,197,94,0.15); color: #4ade80; border-radius: 12px; font-size: 11px; font-weight: 600;">🔒 100% 端侧隐私保护 (IndexedDB 存储，数据零上传)</div>
+            <input type="file" id="rag-file-input" style="display:none;" multiple accept=".pdf,.md,.txt,.docx,.js,.py,.json,.csv" onchange="window.handleRagFileUpload(event)" />
+          </div>
+
+          <!-- Document List Area -->
+          <div>
+            <div style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+              <span>📑 已收录知识库文档列表与向量切片</span>
+              <span style="font-size: 11px; color: var(--text-secondary); font-weight: 400;">实时自动注入大模型 System Prompt & 引用溯源</span>
+            </div>
+            <div id="rag-doc-list"></div>
+          </div>
+
+        </div>
+      </div>
 
       <!-- ═══ MCP WORKSPACE MAIN VIEW ═══ -->
       <div id="mcp-workspace-view" style="display:none; width:100%; height:calc(100% - 70px); overflow-y:auto; padding:24px; background:var(--bg-primary);">
@@ -741,6 +756,6 @@
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
   <script src="keys.js"></script>
-  <script src="app.js?v=63"></script>
+  <script src="app.js?v=64"></script>
 </body>
 </html>
