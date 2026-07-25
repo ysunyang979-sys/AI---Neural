@@ -7682,20 +7682,20 @@ function initModeSwitcher() {
     const modeMenu = document.getElementById('mode-menu');
     
     if (modeBtn && modeMenu) {
-        // Sync icon & active state from saved difyAppKey
-        const savedKey = localStorage.getItem("difyAppKey") || "app-kH6Ld7psiW3PZ6LRaUGDDAWI";
-        const isThink = savedKey === "app-RfVcWa2J8Be7VQJdFeykpV4l";
-        const activeIcon = isThink ? "brain" : "book-open";
-        const activeMode = isThink ? "dify_think" : "dify_kb";
-
+        const activeSelectedMode = localStorage.getItem("difyUserSelectedMode");
         const btnIcon = modeBtn.querySelector('i');
         if (btnIcon) {
+            let activeIcon = "cpu";
+            if (activeSelectedMode === "dify_think") activeIcon = "brain";
+            else if (activeSelectedMode === "dify_kb") activeIcon = "book-open";
             btnIcon.setAttribute('data-lucide', activeIcon);
             if (window.lucide) window.lucide.createIcons();
         }
 
         modeMenu.querySelectorAll('.mode-item').forEach(i => {
-            if (i.getAttribute('data-mode') === activeMode) {
+            if (i.getAttribute('data-mode') === activeSelectedMode) {
+                i.classList.add('active');
+            } else if (!activeSelectedMode && i.getAttribute('data-mode') === 'dify_kb') {
                 i.classList.add('active');
             } else {
                 i.classList.remove('active');
@@ -7726,6 +7726,7 @@ function initModeSwitcher() {
                     difyRagModeEnabled = true;
                     localStorage.setItem("difyRagModeEnabled", "true");
                     localStorage.setItem("difyAppKey", difyKey);
+                    localStorage.setItem("difyUserSelectedMode", clickedMode);
 
                     let modeBtnIcon = modeBtn.querySelector('i');
                     if (modeBtnIcon) {
