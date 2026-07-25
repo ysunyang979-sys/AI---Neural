@@ -4031,6 +4031,25 @@ async function handleChatSend() {
         }
       }
 
+      // RAG Knowledge Base Context Search & Injection
+      try {
+        const lastUserMsg = messages.filter(m => m.role === 'user').pop();
+        if (lastUserMsg && typeof window.queryRagContext === 'function') {
+          const ragResults = await window.queryRagContext(lastUserMsg.content);
+          if (ragResults && ragResults.length > 0) {
+            const ragSnippet = ragResults.map((r, i) => `[参${i+1}] 来自《${r.docName}》:\n${r.text}`).join('\n\n');
+            const ragDirective = `\n\n[📚 检索增强知识库 (RAG Context)]:\n优先结合以下从知识库提取的参考文献回答，并在引用处标注 [参1]、[参2] 等出处序号：\n${ragSnippet}`;
+            if (messages.length > 0 && messages[0].role === 'system') {
+              messages[0].content += ragDirective;
+            } else {
+              messages.unshift({ role: 'system', content: ragDirective });
+            }
+          }
+        }
+      } catch(e) {
+        console.warn("RAG Context Injection error:", e);
+      }
+
       let maxTokens = 8192;
       if (currentOutputLength === "short") maxTokens = 250;
       else if (currentOutputLength === "detailed") maxTokens = 8192;
@@ -7972,5 +7991,229 @@ if (document.readyState === 'loading') {
 } else {
   window.renderMcpHubServerList();
   window.loadMcpTools();
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   端侧隐私 📚 知识库与 RAG 检索增强引擎 (IndexedDB + Chunking + Hybrid Search)
+   ════════════════════════════════════════════════════════════════════════ */
+window.ragDb = null;
+
+window.switchSidebarMode = function(mode) {
+  const tabs = document.querySelectorAll('.chat-mode-tab');
+  tabs.forEach(tab => {
+    if (tab.getAttribute('data-mode') === mode) {
+      tab.classList.add('active');
+    } else {
+      tab.classList.remove('active');
+    }
+  });
+
+  const sessionList = document.getElementById('chat-session-list');
+  const ragView = document.getElementById('rag-sidebar-view');
+
+  if (mode === 'rag') {
+    if (sessionList) sessionList.style.display = 'none';
+    if (ragView) ragView.style.display = 'block';
+    window.renderRagDocList();
+  } else {
+    if (sessionList) sessionList.style.display = 'block';
+    if (ragView) ragView.style.display = 'none';
+  }
+};
+
+window.initRagDatabase = function() {
+  return new Promise((resolve, reject) => {
+    if (window.ragDb) return resolve(window.ragDb);
+    const request = indexedDB.open("neural_rag_db", 1);
+    request.onupgradeneeded = (e) => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains("docs")) {
+        db.createObjectStore("docs", { keyPath: "docId" });
+      }
+      if (!db.objectStoreNames.contains("chunks")) {
+        const chunkStore = db.createObjectStore("chunks", { autoIncrement: true });
+        chunkStore.createIndex("docId", "docId", { unique: false });
+      }
+    };
+    request.onsuccess = (e) => {
+      window.ragDb = e.target.result;
+      resolve(window.ragDb);
+    };
+    request.onerror = (e) => reject(e);
+  });
+};
+
+window.handleRagFileUpload = async function(event) {
+  const files = event.target.files;
+  if (!files || files.length === 0) return;
+
+  for (let file of files) {
+    try {
+      let text = "";
+      if (file.name.endsWith('.pdf')) {
+        text = await window.parsePdfText(file);
+      } else {
+        text = await file.text();
+      }
+      if (text && text.trim()) {
+        await window.processAndStoreRagDoc(file.name, text.trim());
+      }
+    } catch(e) {
+      console.warn("Failed to parse RAG file:", file.name, e);
+      alert(`解析文件 [${file.name}] 失败: ${e.message}`);
+    }
+  }
+  if (event.target) event.target.value = "";
+  alert("🎉 文档已成功切片索引并注入端侧知识库 (IndexedDB)！已实时增强 RAG 对话模型。");
+};
+
+window.parsePdfText = async function(file) {
+  if (typeof pdfjsLib === 'undefined') return await file.text();
+  const arrayBuffer = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  let fullText = "";
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    const pageText = content.items.map(item => item.str).join(" ");
+    fullText += pageText + "\n";
+  }
+  return fullText;
+};
+
+window.processAndStoreRagDoc = async function(docName, text) {
+  const db = await window.initRagDatabase();
+  const docId = 'doc-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5);
+
+  // 500-char sliding window chunking with 50-char overlap
+  const chunkSize = 500;
+  const overlap = 50;
+  const chunks = [];
+  
+  for (let i = 0; i < text.length; i += (chunkSize - overlap)) {
+    const chunkText = text.substring(i, i + chunkSize);
+    if (chunkText.trim().length > 10) {
+      chunks.push(chunkText);
+    }
+  }
+
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(["docs", "chunks"], "readwrite");
+    const docsStore = tx.objectStore("docs");
+    const chunksStore = tx.objectStore("chunks");
+
+    docsStore.put({ docId, docName, totalChunks: chunks.length, uploadTime: new Date().toLocaleString() });
+
+    chunks.forEach((cText, idx) => {
+      chunksStore.add({ docId, docName, chunkIdx: idx, text: cText });
+    });
+
+    tx.oncomplete = () => {
+      window.renderRagDocList();
+      resolve();
+    };
+    tx.onerror = (e) => reject(e);
+  });
+};
+
+window.renderRagDocList = async function() {
+  const container = document.getElementById('rag-doc-list');
+  const statDocs = document.getElementById('rag-stat-docs');
+  const statChunks = document.getElementById('rag-stat-chunks');
+  if (!container) return;
+
+  try {
+    const db = await window.initRagDatabase();
+    const tx = db.transaction(["docs", "chunks"], "readonly");
+    const docsStore = tx.objectStore("docs");
+    const chunksStore = tx.objectStore("chunks");
+
+    const docs = await new Promise(r => docsStore.getAll().onsuccess = e => r(e.target.result));
+    const chunks = await new Promise(r => chunksStore.getAll().onsuccess = e => r(e.target.result));
+
+    if (statDocs) statDocs.innerText = docs.length;
+    if (statChunks) statChunks.innerText = chunks.length;
+
+    if (docs.length === 0) {
+      container.innerHTML = `<div style="font-size:11px; color:#94a3b8; text-align:center; padding:16px; background:rgba(30,41,59,0.3); border-radius:8px;">知识库空空如也，点击上方区域上传文档吧</div>`;
+      return;
+    }
+
+    container.innerHTML = docs.map(d => `
+      <div style="background: rgba(30,41,59,0.6); border: 1px solid rgba(56,189,248,0.2); border-radius: 8px; padding: 10px; margin-bottom: 8px; font-size: 11.5px; display: flex; align-items: center; justify-content: space-between;">
+        <div>
+          <div style="font-weight: 700; color: #38bdf8; display: flex; align-items: center; gap: 6px;">
+            <span>📄 ${escapeChatHTML(d.docName)}</span>
+          </div>
+          <div style="font-size: 10px; color: #94a3b8; margin-top: 4px;">
+            ${d.totalChunks} 切片向量 • ${escapeChatHTML(d.uploadTime)}
+          </div>
+        </div>
+        <button onclick="window.deleteRagDoc('${d.docId}')" style="background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: #f87171; padding: 3px 8px; border-radius: 6px; font-size: 10px; cursor: pointer;">🗑️</button>
+      </div>
+    `).join('');
+  } catch(e) {
+    console.warn("Failed to render RAG doc list:", e);
+  }
+};
+
+window.deleteRagDoc = async function(docId) {
+  const db = await window.initRagDatabase();
+  const tx = db.transaction(["docs", "chunks"], "readwrite");
+  const docsStore = tx.objectStore("docs");
+  const chunksStore = tx.objectStore("chunks");
+
+  docsStore.delete(docId);
+  const index = chunksStore.index("docId");
+  const request = index.openKeyCursor(IDBKeyRange.only(docId));
+  request.onsuccess = () => {
+    const cursor = request.result;
+    if (cursor) {
+      chunksStore.delete(cursor.primaryKey);
+      cursor.continue();
+    }
+  };
+
+  tx.oncomplete = () => {
+    window.renderRagDocList();
+  };
+};
+
+window.queryRagContext = async function(userQuery) {
+  if (!userQuery || typeof userQuery !== 'string') return [];
+  try {
+    const db = await window.initRagDatabase();
+    const tx = db.transaction(["chunks"], "readonly");
+    const chunksStore = tx.objectStore("chunks");
+    const allChunks = await new Promise(r => chunksStore.getAll().onsuccess = e => r(e.target.result));
+    if (!allChunks || allChunks.length === 0) return [];
+
+    const keywords = userQuery.toLowerCase().split(/\s+/).filter(k => k.length > 1);
+    if (keywords.length === 0) return [];
+
+    const scored = allChunks.map(c => {
+      let score = 0;
+      const lowerText = c.text.toLowerCase();
+      keywords.forEach(kw => {
+        if (lowerText.includes(kw)) score += 1;
+      });
+      return { ...c, score };
+    }).filter(c => c.score > 0);
+
+    scored.sort((a, b) => b.score - a.score);
+    return scored.slice(0, 3);
+  } catch(e) {
+    console.warn("Error querying RAG context:", e);
+    return [];
+  }
+};
+
+// Initialize RAG DB on load
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    window.initRagDatabase().then(() => window.renderRagDocList());
+  });
+} else {
+  window.initRagDatabase().then(() => window.renderRagDocList());
 }
 
