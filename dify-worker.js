@@ -1,17 +1,11 @@
 /**
- * Cloudflare Worker Proxy for Dify AI Knowledge Base API
+ * Cloudflare Worker Proxy for Dify AI Knowledge Base API (双知识库内置版)
  * 
- * 部署步骤 (Cloudflare Worker 部署教程):
- * 1. 登录 Cloudflare Dashboard -> Workers & Pages -> Create Application -> Create Worker
- * 2. 将本文件代码复制粘贴替换 Worker 编辑器中的代码；
- * 3. 点击 "Save and Deploy" (保存并部署)；
- * 4. (可选安全设置) 在 Worker 设置 -> Variables 中添加环境变量:
- *    Key: DIFY_API_KEY  |  Value: app-kH6Ld7psiW3PZ6LRaUGDDAWI
- * 5. 复制生成的 Worker URL (例如: https://dify-proxy.xxx.workers.dev) 粘贴填入 AI 系统的 Settings 中！
+ * ✨ 1 个 Worker 完美同时服务 2 个 Dify 知识库，绝对不需要再做第二个 Worker！
  */
 
-const DEFAULT_DIFY_API_KEY = "app-kH6Ld7psiW3PZ6LRaUGDDAWI";
-const DIFY_API_BASE = "https://api.dify.ai/v1";
+const KEY_BOOK = "app-kH6Ld7psiW3PZ6LRaUGDDAWI";  // 📖 学习/通用知识库 API Key
+const KEY_BRAIN = "app-RfVcWa2J8Be7VQJdFeykpV4l"; // 🧠 深度思考知识库 API Key
 
 export default {
   async fetch(request, env, ctx) {
@@ -37,15 +31,16 @@ export default {
     const targetUrl = `https://api.dify.ai/v1${path}${url.search}`;
 
     try {
-      // 优先读取前端传入的 Authorization (包含用户选中的知识库 Key: 学习书籍 app-kH6L / 深度思考 app-RfV)
-      const incomingAuth = request.headers.get("Authorization");
-      let apiKey = env.DIFY_API_KEY || DEFAULT_DIFY_API_KEY;
-      
-      if (incomingAuth && incomingAuth.startsWith("Bearer ") && incomingAuth.trim() !== "Bearer") {
-        const clientKey = incomingAuth.replace("Bearer ", "").trim();
-        if (clientKey) {
-          apiKey = clientKey;
-        }
+      // 自动辨识前端发来的 Authorization Header，自动匹配使用 KEY_BOOK 或 KEY_BRAIN
+      const incomingAuth = request.headers.get("Authorization") || "";
+      let apiKey = KEY_BOOK; // 默认使用学习/通用知识库
+
+      if (incomingAuth.includes(KEY_BRAIN) || incomingAuth.includes("RfV")) {
+        apiKey = KEY_BRAIN; // 自动切换为 🧠 深度思考知识库
+      } else if (incomingAuth.includes(KEY_BOOK) || incomingAuth.includes("kH6L")) {
+        apiKey = KEY_BOOK;  // 自动切换为 📖 学习/通用知识库
+      } else if (incomingAuth.startsWith("Bearer ") && incomingAuth.trim() !== "Bearer") {
+        apiKey = incomingAuth.replace("Bearer ", "").trim();
       }
 
       // 复制原有 Headers 并注入 Authorization
