@@ -81,6 +81,8 @@
       <div class="chat-sidebar-footer">
         <div class="chat-sidebar-user-wrapper">
           <div class="user-menu-popup" id="user-menu-popup">
+            <button class="user-menu-item" id="user-menu-rag-btn" onclick="window.switchSidebarMode('rag')"><i data-lucide="book-open"></i> 📚 知识库管理 (RAG)</button>
+            <button class="user-menu-item" id="user-menu-mcp-btn" onclick="window.switchSidebarMode('mcp')"><i data-lucide="plug"></i> 🔌 MCP 协议服务配置</button>
             <button class="user-menu-item" id="user-menu-settings-btn"><i data-lucide="settings"></i> 设置 (Settings)</button>
             <div class="user-menu-item user-menu-theme">
               <span class="theme-toggle-label">Dark Mode</span>
@@ -756,6 +758,6 @@
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
   <script src="keys.js"></script>
-  <script src="app.js?v=64"></script>
+  <script src="app.js?v=65"></script>
 </body>
 </html>

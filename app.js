@@ -1813,6 +1813,9 @@ const renderMath = (el) => {
 };
 
 function refreshChatView() {
+  if (typeof window.switchSidebarMode === 'function') {
+    window.switchSidebarMode('chat');
+  }
   if (!$chatLog) return;
   $chatLog.innerHTML = "";
   const history = getActiveHistory();
@@ -7993,6 +7996,19 @@ if (document.readyState === 'loading') {
 window.ragDb = null;
 
 window.switchSidebarMode = function(mode) {
+  const userMenuPopup = document.getElementById("user-menu-popup");
+  if (userMenuPopup) userMenuPopup.classList.remove("active");
+
+  const titleEl = document.getElementById("chat-current-title");
+  if (titleEl) {
+    if (mode === 'mcp') titleEl.textContent = "MCP 协议服务工作站";
+    else if (mode === 'rag') titleEl.textContent = "端侧隐私知识库 (RAG)";
+    else {
+      const session = typeof chatSessions !== 'undefined' ? chatSessions.find((s) => s.id === activeSessionId) : null;
+      if (session) titleEl.textContent = session.title;
+    }
+  }
+
   const tabs = document.querySelectorAll('.chat-mode-tab');
   tabs.forEach(tab => {
     const tabMode = tab.getAttribute('data-mode');
