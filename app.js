@@ -4131,6 +4131,17 @@ window.sanitizeMathText = function(query, text) {
           } catch(e) {}
         }
 
+        // 🧰 Inject Complete Project Tools System Context for Dify
+        if (typeof window.getAvailableTools === 'function') {
+          try {
+            const availTools = window.getAvailableTools();
+            if (availTools && availTools.length > 0) {
+              const toolNamesStr = availTools.map(t => (t.function ? t.function.name : t.name)).filter(Boolean).join(', ');
+              enrichedQuery += `\n[SYSTEM DIRECTIVE: ACTIVE PROJECT TOOLS ARE AVAILABLE: ${toolNamesStr}. If user asks for calculation, python sandbox, web search, music, mindmap, or browser tasks, generate responses that utilize these client capabilities.]`;
+            }
+          } catch(e) {}
+        }
+
         try {
           const headers = { "Content-Type": "application/json" };
           if (activeDifyKey) {
