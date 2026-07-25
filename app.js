@@ -4124,7 +4124,7 @@ async function handleChatSend() {
                 if (jsonStr === "[DONE]") continue;
                 try {
                   const data = JSON.parse(jsonStr);
-                  const chunkText = data.answer || data.text || data.delta || (data.data && data.data.text) || "";
+                  const chunkText = data.answer || data.text || data.delta || (data.data && (data.data.answer || data.data.text)) || "";
 
                   if (data.conversation_id) {
                     window.currentDifyConversationId = data.conversation_id;
@@ -4136,10 +4136,15 @@ async function handleChatSend() {
                       firstChunk = false;
                     }
                     replyText += chunkText;
-                    replyContent.innerHTML = renderMarkdown(replyText) + '<span class="ai-cursor"></span>';
+                    let finalParsed = window.marked ? marked.parse(replyText) : replyText;
+                    replyContent.innerHTML = parseInteractiveActionChips(finalParsed) + '<span class="ai-cursor"></span>';
+                    renderMath(replyContent);
+                    if (window.lucide) lucide.createIcons();
                     $chatLog.scrollTop = $chatLog.scrollHeight;
+                  } else if (data.event === "node_started" && data.title) {
+                    addLine(`🔍 知识库节点: ${data.title}`);
                   } else if (data.event === "agent_thought" && data.thought) {
-                    addLine(`💡 Dify 逻辑推理: ${data.thought.slice(0, 100)}`);
+                    addLine(`💡 Dify 推理: ${data.thought.slice(0, 100)}`);
                   }
                 } catch(e){}
               }
@@ -4147,20 +4152,25 @@ async function handleChatSend() {
           }
 
           endThinking(true);
+          const cursor = replyContent.querySelector(".ai-cursor");
+          if (cursor) cursor.remove();
+
           if (!replyText.trim()) {
             replyText = "⚠️ Dify API 已成功链接，但未返回生成文本。请确认 Dify 应用已添加提示词与知识库匹配。";
-            replyContent.innerHTML = renderMarkdown(replyText);
+            let finalParsed = window.marked ? marked.parse(replyText) : replyText;
+            replyContent.innerHTML = parseInteractiveActionChips(finalParsed);
           } else {
-            const cursor = replyContent.querySelector(".ai-cursor");
-            if (cursor) cursor.remove();
+            let finalParsed = window.marked ? marked.parse(replyText) : replyText;
+            replyContent.innerHTML = parseInteractiveActionChips(finalParsed);
+            renderMath(replyContent);
+            if (window.lucide) lucide.createIcons();
           }
 
-          const session = chatSessions.find((s) => s.id === activeSessionId);
-          if (session) {
-            session.history.push({ role: "user", content: queryText });
-            session.history.push({ role: "assistant", content: replyText });
-            persistSessions();
-          }
+          pushToActiveHistory({
+            role: "assistant",
+            content: replyText,
+            thinkHtml: thinkBlock.innerHTML,
+          });
           return;
         } catch (difyErr) {
           endThinking(true);
