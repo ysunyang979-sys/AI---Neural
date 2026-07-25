@@ -7729,18 +7729,31 @@ function initModeSwitcher() {
                     item.classList.add('active');
                     window.currentAiMode = clickedMode;
                     
-                    difyRagModeEnabled = true;
-                    localStorage.setItem("difyRagModeEnabled", "true");
-                    localStorage.setItem("difyAppKey", difyKey);
-                    localStorage.setItem("difyUserSelectedMode", clickedMode);
-
-                    modeBtn.classList.add('active');
-
                     let modeBtnIcon = modeBtn.querySelector('i');
-                    if (modeBtnIcon) {
-                        modeBtnIcon.setAttribute('data-lucide', clickedMode === 'dify_think' ? 'brain' : 'book-open');
-                        if (window.lucide) window.lucide.createIcons();
+
+                    if (clickedMode === 'normal') {
+                        // 🚫 Restore default normal mode (unhighlighted, CPU icon)
+                        difyRagModeEnabled = false;
+                        localStorage.setItem("difyRagModeEnabled", "false");
+                        localStorage.removeItem("difyUserSelectedMode");
+                        modeBtn.classList.remove('active');
+                        if (modeBtnIcon) {
+                            modeBtnIcon.setAttribute('data-lucide', 'cpu');
+                        }
+                    } else {
+                        // ⚡ Activate selected Dify Knowledge Base (highlighted, book/brain icon)
+                        difyRagModeEnabled = true;
+                        localStorage.setItem("difyRagModeEnabled", "true");
+                        localStorage.setItem("difyAppKey", difyKey);
+                        localStorage.setItem("difyUserSelectedMode", clickedMode);
+
+                        modeBtn.classList.add('active');
+                        if (modeBtnIcon) {
+                            modeBtnIcon.setAttribute('data-lucide', clickedMode === 'dify_think' ? 'brain' : 'book-open');
+                        }
                     }
+
+                    if (window.lucide) window.lucide.createIcons();
                     modeMenu.style.display = 'none';
                 });
             });
