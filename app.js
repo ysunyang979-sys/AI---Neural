@@ -5341,7 +5341,19 @@ sys.stdout = io.StringIO()
                     const nodes = lines.filter(l => l.includes(':443#') && (l.includes('优选') || l.includes('官方')));
                     if (nodes.length > 0) {
                       const randomNode = nodes[Math.floor(Math.random() * nodes.length)].trim();
-                      document.getElementById('proxy-node-result').innerHTML = '<span style="color: #22c55e;">[可用]</span> ' + randomNode + '<br><br><span style="font-size:12px; color: #64748b;">(数据来源: ysunyang979-sys Github 实时更新)</span>';
+                      const [ipPort, name] = randomNode.split('#');
+                      const uuid = "d342d11e-d424-4583-b36e-524ab1f0afa4";
+                      const domain = "ray2v.ysunyang.dpdns.org";
+                      const vlessUrl = "vless://" + uuid + "@" + ipPort + "?encryption=none&security=tls&sni=" + domain + "&fp=randomized&type=ws&host=" + domain + "&path=%2F%3Fed%3D2048#" + encodeURIComponent(name || "CDN_Node");
+                      
+                      document.getElementById('proxy-node-result').innerHTML = \`
+                        <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px; margin-top: 6px;">
+                            <div style="color: #22c55e; font-size: 13px; margin-bottom: 4px;">🎯 节点提取成功: \${name}</div>
+                            <div style="font-size: 12px; color: #94a3b8; word-break: break-all; margin-bottom: 8px;">\${vlessUrl}</div>
+                            <button onclick="navigator.clipboard.writeText('\${vlessUrl}'); this.innerText='已复制!'; setTimeout(()=>this.innerText='一键复制 Vless 链接', 2000)" style="background: #8b5cf6; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;">一键复制 Vless 链接</button>
+                        </div>
+                        <div style="font-size:11px; color: #64748b; margin-top: 8px;">(来源: ysunyang979-sys Github | UUID: \${uuid.substring(0,8)}...)</div>
+                      \`;
                     } else {
                       document.getElementById('proxy-node-result').innerText = '未找到可用节点数据。';
                     }
