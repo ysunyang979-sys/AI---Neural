@@ -1854,7 +1854,8 @@ const sanitizeChatOutput = (text) => {
              .replace(/`\{"\s*chart_config[\s\S]*?\}`/gi, '');
   // Unwrap UI card HTML elements if enclosed inside markdown code blocks (```html <div class="...">...</div> ```)
   // so that the HTML card is rendered directly as a live DOM element instead of being erased or shown as a code block!
-  text = text.replace(/```(?:html|text|xml|markdown)?\s*(<div[\s\S]*?class="(?:open-music-card|aplayer-card|n8n-workflow-card|legal-audit-card|browser-automation-card|license-card|apk-reverse-card|localfs-card|netscan-card)"[\s\S]*?<\/div>)\s*```/gi, '$1');
+  text = text.replace(/```(?:html|text|xml|markdown)?\s*(<div[\s\S]*?class="(?:interactive-route-map-card|google-map-embed-card|open-music-card|aplayer-card|n8n-workflow-card|legal-audit-card|browser-automation-card|license-card|apk-reverse-card|localfs-card|netscan-card)"[\s\S]*?<\/div>)\s*```/gi, '$1');
+  text = text.replace(/```(?:html|text|xml|markdown)?\s*(<div[\s\S]*?class="interactive-route-map-card[\s\S]*?<\/div>)\s*```/gi, '$1');
   return text.trim();
 };
 
@@ -5957,7 +5958,7 @@ sys.stdout = io.StringIO()
                 </div>
               </div><br>`;
 
-              result = `SUCCESS. Rendered route navigation card for ${origin} to ${destination} with direct Amap web view embed.`;
+              result = `SUCCESS. Route navigation card for ${origin} to ${destination} has ALREADY been rendered visually in the chat UI. CRITICAL DIRECTIVE: DO NOT output any HTML code, CSS, or markdown code blocks in your text response! Simply provide a brief 1-2 sentence plain text summary of the route.`;
             } else if (tc.function.name === "open_browser_url") {
               const officialSites = {
                 "百度地图": "https://map.baidu.com",
