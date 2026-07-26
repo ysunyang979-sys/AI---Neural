@@ -5328,65 +5328,55 @@ sys.stdout = io.StringIO()
               // Or I can just hardcode the logic to fetch from a raw URL.
               
               // Let's use fetch in the handler to get the raw markdown from github!
+              const resultId = "proxy-node-" + Math.random().toString(36).substr(2, 9);
               initialReply += `<div style="background: rgba(139, 92, 246, 0.1); border-left: 4px solid #8b5cf6; padding: 12px; margin: 10px 0; border-radius: 4px; font-family: monospace;">
                 <div style="color: #a78bfa; font-weight: bold; margin-bottom: 8px;">🚀 节点提取器</div>
-                <div id="proxy-node-result">正在从 Github 仓库实时提取优选节点...</div>
+                <div id="${resultId}">正在从 Github 仓库实时提取优选节点...</div>
               </div>`;
               
               const fetchNodeCode = `
-                fetch('https://raw.githubusercontent.com/ysunyang979-sys/blog/main/source/SearchFile/tool/ip.md')
-                  .then(r => r.text())
-                  .then(text => {
-                    const lines = text.split('\\n');
-                    const nodes = lines.filter(l => l.includes(':443#') && (l.includes('优选') || l.includes('官方')));
-                    if (nodes.length > 0) {
-                      const randomNode = nodes[Math.floor(Math.random() * nodes.length)].trim();
-                      const [ipPort, name] = randomNode.split('#');
-                      const uuid = "d342d11e-d424-4583-b36e-524ab1f0afa4";
-                      const domain = "ray2v.ysunyang.dpdns.org";
-                      const vlessUrl = "vless://" + uuid + "@" + ipPort + "?encryption=none&security=tls&sni=" + domain + "&fp=randomized&type=ws&host=" + domain + "&path=%2F%3Fed%3D2048#" + encodeURIComponent(name || "CDN_Node");
-                      
-                      document.getElementById('proxy-node-result').innerHTML = \`
-                        <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px; margin-top: 6px;">
-                            <div style="color: #22c55e; font-size: 13px; margin-bottom: 4px;">🎯 节点提取成功: \${name}</div>
-                            <div style="font-size: 12px; color: #94a3b8; word-break: break-all; margin-bottom: 8px;">\${vlessUrl}</div>
-                            <button onclick="navigator.clipboard.writeText('\${vlessUrl}'); this.innerText='已复制!'; setTimeout(()=>this.innerText='一键复制 Vless 链接', 2000)" style="background: #8b5cf6; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;">一键复制 Vless 链接</button>
-                        </div>
-                        <div style="font-size:11px; color: #64748b; margin-top: 8px;">(来源: ysunyang979-sys Github | UUID: \${uuid.substring(0,8)}...)</div>
-                      \`;
-                    } else {
-                      document.getElementById('proxy-node-result').innerText = '未找到可用节点数据。';
+                const updateNode = () => {
+                    const el = document.getElementById('${resultId}');
+                    if (!el) return false;
+                    
+                    fetch('https://raw.githubusercontent.com/ysunyang979-sys/blog/main/source/SearchFile/tool/ip.md')
+                      .then(r => r.text())
+                      .then(text => {
+                        const lines = text.split('\\n');
+                        const nodes = lines.filter(l => l.includes(':443#') && (l.includes('优选') || l.includes('官方')));
+                        if (nodes.length > 0) {
+                          const randomNode = nodes[Math.floor(Math.random() * nodes.length)].trim();
+                          const [ipPort, name] = randomNode.split('#');
+                          const uuid = "d342d11e-d424-4583-b36e-524ab1f0afa4";
+                          const domain = "ray2v.ysunyang.dpdns.org";
+                          const vlessUrl = "vless://" + uuid + "@" + ipPort + "?encryption=none&security=tls&sni=" + domain + "&fp=randomized&type=ws&host=" + domain + "&path=%2F%3Fed%3D2048#" + encodeURIComponent(name || "CDN_Node");
+                          
+                          el.innerHTML = \`
+                            <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px; margin-top: 6px;">
+                                <div style="color: #22c55e; font-size: 13px; margin-bottom: 4px;">🎯 节点提取成功: \${name} <span style="color:#94a3b8;font-size:11px;">(\${new Date().toLocaleTimeString()})</span></div>
+                                <div style="font-size: 12px; color: #94a3b8; word-break: break-all; margin-bottom: 8px;">\${vlessUrl}</div>
+                                <button onclick="navigator.clipboard.writeText('\${vlessUrl}'); this.innerText='已复制!'; setTimeout(()=>this.innerText='一键复制 Vless 链接', 2000)" style="background: #8b5cf6; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;">一键复制 Vless 链接</button>
+                            </div>
+                            <div style="font-size:11px; color: #64748b; margin-top: 8px;">(来源: ysunyang979-sys Github | UUID: \${uuid.substring(0,8)}... | 15分钟自动刷新)</div>
+                          \`;
+                        } else {
+                          el.innerText = '未找到可用节点数据。';
+                        }
+                      })
+                      .catch(e => {
+                        el.innerText = '提取失败: ' + e.message;
+                      });
+                    return true;
+                };
+
+                // Poll until the element is in the DOM (because of typing effect)
+                const checkExist = setInterval(() => {
+                    if (updateNode()) {
+                        clearInterval(checkExist);
+                        // Start the 15-minute auto refresh timer
+                        setInterval(updateNode, 15 * 60 * 1000);
                     }
-                  })
-                  .catch(e => {
-                    document.getElementById('proxy-node-result').innerText = '提取失败: ' + e.message;
-                  });
-                
-                // Add auto refresh every 15 minutes
-                setInterval(() => {
-                  fetch('https://raw.githubusercontent.com/ysunyang979-sys/blog/main/source/SearchFile/tool/ip.md')
-                  .then(r => r.text())
-                  .then(text => {
-                    const lines = text.split('\\n');
-                    const nodes = lines.filter(l => l.includes(':443#') && (l.includes('优选') || l.includes('官方')));
-                    if (nodes.length > 0) {
-                      const randomNode = nodes[Math.floor(Math.random() * nodes.length)].trim();
-                      const [ipPort, name] = randomNode.split('#');
-                      const uuid = "d342d11e-d424-4583-b36e-524ab1f0afa4";
-                      const domain = "ray2v.ysunyang.dpdns.org";
-                      const vlessUrl = "vless://" + uuid + "@" + ipPort + "?encryption=none&security=tls&sni=" + domain + "&fp=randomized&type=ws&host=" + domain + "&path=%2F%3Fed%3D2048#" + encodeURIComponent(name || "CDN_Node");
-                      
-                      document.getElementById('proxy-node-result').innerHTML = \`
-                        <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px; margin-top: 6px;">
-                            <div style="color: #22c55e; font-size: 13px; margin-bottom: 4px;">🎯 自动刷新节点成功: \${name} (时间: \${new Date().toLocaleTimeString()})</div>
-                            <div style="font-size: 12px; color: #94a3b8; word-break: break-all; margin-bottom: 8px;">\${vlessUrl}</div>
-                            <button onclick="navigator.clipboard.writeText('\${vlessUrl}'); this.innerText='已复制!'; setTimeout(()=>this.innerText='一键复制 Vless 链接', 2000)" style="background: #8b5cf6; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;">一键复制 Vless 链接</button>
-                        </div>
-                        <div style="font-size:11px; color: #64748b; margin-top: 8px;">(来源: ysunyang979-sys Github | UUID: \${uuid.substring(0,8)}...)</div>
-                      \`;
-                    }
-                  }).catch(console.error);
-                }, 15 * 60 * 1000); // 15 minutes in ms
+                }, 500);
               `;
               
               // We also need to tell the LLM that the UI component will handle it asynchronously.
