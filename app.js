@@ -720,33 +720,11 @@ window.getCanvasPreviewHtml = function(code, langInput, titleInput) {
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"><\/script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"><\/script>
   <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"><\/script>
-  <style>
-    body { margin:0; padding: 20px; background: #0d1117; color: #c9d1d9; font-family: system-ui, -apple-system, sans-serif; box-sizing: border-box; }
-    .header-card { display: flex; justify-content: space-between; align-items: center; background: #161b22; padding: 12px 18px; border-radius: 10px; border: 1px solid #30363d; margin-bottom: 16px; }
-    .title-area { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 14px; color: #f0f6fc; }
-    .badge { background: #238636; color: #fff; font-size: 11px; padding: 2px 8px; border-radius: 12px; }
-    .run-btn { background: #238636; color: #fff; border: none; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; gap: 6px; }
-    .run-btn:hover { background: #2ea043; }
-    .term-box { display: none; background: #000; color: #38bdf8; padding: 14px; border-radius: 8px; font-family: 'JetBrains Mono', Consolas, monospace; font-size: 12px; margin-bottom: 16px; border: 1px solid #1e293b; max-height: 220px; overflow-y: auto; white-space: pre-wrap; }
-    pre { margin: 0; padding: 16px; background: #161b22; border: 1px solid #30363d; border-radius: 8px; overflow-x: auto; font-family: 'JetBrains Mono', Consolas, monospace; font-size: 13px; line-height: 1.5; white-space: pre-wrap; word-break: break-all; }
-  </style>
-</head>
-<body>
-  <div class="header-card">
-    <div class="title-area">
-      <span>🐍 Python Script Inspector</span>
-      <span class="badge">${lineCount} lines | ${byteSize} Bytes</span>
-    </div>
-    <button class="run-btn" id="run-py-btn" onclick="runPython()">▶ Run Code (Pyodide)</button>
-  </div>
-  <div id="term-box" class="term-box">⚡ Initializing Python runtime...</div>
-  <pre><code class="language-python" id="code-block">${escapedCode}</code></pre>
   <script>
-    hljs.highlightAll();
     let pyodideReady = false;
     let pyodide = null;
     
-    async function runPython() {
+    window.runPython = async function runPython() {
       const term = document.getElementById('term-box');
       if (term) term.style.display = 'block';
       const btn = document.getElementById('run-py-btn');
@@ -823,14 +801,37 @@ window.getCanvasPreviewHtml = function(code, langInput, titleInput) {
           btn.textContent = '▶ Run Code (Pyodide)';
         }
       }
-    }
-
-    window.runPython = runPython;
+    };
+    var runPython = window.runPython;
+  <\/script>
+  <style>
+    body { margin:0; padding: 20px; background: #0d1117; color: #c9d1d9; font-family: system-ui, -apple-system, sans-serif; box-sizing: border-box; }
+    .header-card { display: flex; justify-content: space-between; align-items: center; background: #161b22; padding: 12px 18px; border-radius: 10px; border: 1px solid #30363d; margin-bottom: 16px; }
+    .title-area { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 14px; color: #f0f6fc; }
+    .badge { background: #238636; color: #fff; font-size: 11px; padding: 2px 8px; border-radius: 12px; }
+    .run-btn { background: #238636; color: #fff; border: none; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; gap: 6px; }
+    .run-btn:hover { background: #2ea043; }
+    .term-box { display: none; background: #000; color: #38bdf8; padding: 14px; border-radius: 8px; font-family: 'JetBrains Mono', Consolas, monospace; font-size: 12px; margin-bottom: 16px; border: 1px solid #1e293b; max-height: 220px; overflow-y: auto; white-space: pre-wrap; }
+    pre { margin: 0; padding: 16px; background: #161b22; border: 1px solid #30363d; border-radius: 8px; overflow-x: auto; font-family: 'JetBrains Mono', Consolas, monospace; font-size: 13px; line-height: 1.5; white-space: pre-wrap; word-break: break-all; }
+  </style>
+</head>
+<body>
+  <div class="header-card">
+    <div class="title-area">
+      <span>🐍 Python Script Inspector</span>
+      <span class="badge">${lineCount} lines | ${byteSize} Bytes</span>
+    </div>
+    <button class="run-btn" id="run-py-btn" onclick="window.runPython && window.runPython()">▶ Run Code (Pyodide)</button>
+  </div>
+  <div id="term-box" class="term-box">⚡ Initializing Python runtime...</div>
+  <pre><code class="language-python" id="code-block">${escapedCode}</code></pre>
+  <script>
+    if (window.hljs) hljs.highlightAll();
     const bindPyBtn = () => {
       const b = document.getElementById('run-py-btn');
-      if (b) {
-        b.onclick = runPython;
-        b.addEventListener('click', runPython);
+      if (b && window.runPython) {
+        b.onclick = window.runPython;
+        b.addEventListener('click', window.runPython);
       }
     };
     if (document.readyState === 'loading') {
@@ -838,7 +839,7 @@ window.getCanvasPreviewHtml = function(code, langInput, titleInput) {
     } else {
       bindPyBtn();
     }
-    setTimeout(bindPyBtn, 100);
+    setTimeout(bindPyBtn, 50);
   <\/script>
 </body>
 </html>`;
