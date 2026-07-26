@@ -8068,12 +8068,16 @@ function initPlusMenu() {
                     e.stopPropagation();
                     const pKey = subItem.getAttribute('data-persona');
                     const itemText = subItem.textContent.trim();
+                    const isAlreadyActive = subItem.classList.contains('active') && pKey !== 'default';
                     
-                    if (pKey === 'default') {
+                    if (pKey === 'default' || isAlreadyActive) {
                         const resetBtn = document.getElementById('personas-reset-btn');
                         if (resetBtn) resetBtn.click();
                         window.activePersonaName = null;
                         localStorage.removeItem("activePersonaName");
+                        subPersonas.querySelectorAll('.plus-sub-item').forEach(i => i.classList.remove('active'));
+                        const defItem = subPersonas.querySelector('.plus-sub-item[data-persona="default"]');
+                        if (defItem) defItem.classList.add('active');
                     } else {
                         const promptText = EXPERT_PERSONAS_PROMPTS[pKey];
                         if (promptText) {
@@ -8086,10 +8090,9 @@ function initPlusMenu() {
                         
                         window.activePersonaName = itemText;
                         localStorage.setItem("activePersonaName", itemText);
+                        subPersonas.querySelectorAll('.plus-sub-item').forEach(i => i.classList.remove('active'));
+                        subItem.classList.add('active');
                     }
-                    
-                    subPersonas.querySelectorAll('.plus-sub-item').forEach(i => i.classList.remove('active'));
-                    subItem.classList.add('active');
                     
                     plusMenu.style.display = 'none';
                     plusBtn.classList.remove('active');
@@ -8098,18 +8101,22 @@ function initPlusMenu() {
             });
         }
 
-        // 5. Output Format Sub-options
+        // 5. Output Format Sub-options (Re-click to Toggle Off & Restore Default)
         const subFormat = document.getElementById('plus-sub-format');
         if (subFormat) {
             subFormat.querySelectorAll('.plus-sub-item').forEach(subItem => {
                 subItem.addEventListener('click', (e) => {
                     e.stopPropagation();
                     const fmt = subItem.getAttribute('data-format');
-                    const targetBtn = document.querySelector(`#chat-format-dropdown .format-option[data-format="${fmt}"]`);
+                    const isAlreadyActive = subItem.classList.contains('active') && fmt !== 'default';
+                    
+                    const targetFmt = isAlreadyActive ? 'default' : fmt;
+                    const targetBtn = document.querySelector(`#chat-format-dropdown .format-option[data-format="${targetFmt}"]`);
                     if (targetBtn) targetBtn.click();
                     
                     subFormat.querySelectorAll('.plus-sub-item').forEach(i => i.classList.remove('active'));
-                    subItem.classList.add('active');
+                    const activeTarget = subFormat.querySelector(`.plus-sub-item[data-format="${targetFmt}"]`);
+                    if (activeTarget) activeTarget.classList.add('active');
                     
                     plusMenu.style.display = 'none';
                     plusBtn.classList.remove('active');
@@ -8118,14 +8125,17 @@ function initPlusMenu() {
             });
         }
 
-        // 6. Dify KB Sub-options
+        // 6. Dify KB Sub-options (Re-click to Toggle Off & Restore Default)
         const subDify = document.getElementById('plus-sub-dify');
         if (subDify) {
             subDify.querySelectorAll('.plus-sub-item').forEach(subItem => {
                 subItem.addEventListener('click', (e) => {
                     e.stopPropagation();
                     const difyMode = subItem.getAttribute('data-dify');
-                    if (difyMode === 'normal') {
+                    const isAlreadyActive = subItem.classList.contains('active') && difyMode !== 'normal';
+                    
+                    const targetMode = isAlreadyActive ? 'normal' : difyMode;
+                    if (targetMode === 'normal') {
                         localStorage.setItem("difyRagModeEnabled", "false");
                         localStorage.removeItem("difyUserSelectedMode");
                         difyRagModeEnabled = false;
@@ -8133,12 +8143,13 @@ function initPlusMenu() {
                     } else {
                         difyRagModeEnabled = true;
                         localStorage.setItem("difyRagModeEnabled", "true");
-                        localStorage.setItem("difyUserSelectedMode", difyMode);
-                        window.currentAiMode = difyMode;
+                        localStorage.setItem("difyUserSelectedMode", targetMode);
+                        window.currentAiMode = targetMode;
                     }
                     
                     subDify.querySelectorAll('.plus-sub-item').forEach(i => i.classList.remove('active'));
-                    subItem.classList.add('active');
+                    const activeTarget = subDify.querySelector(`.plus-sub-item[data-dify="${targetMode}"]`);
+                    if (activeTarget) activeTarget.classList.add('active');
                     
                     plusMenu.style.display = 'none';
                     plusBtn.classList.remove('active');
