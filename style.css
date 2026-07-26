@@ -3658,3 +3658,84 @@ label.chat-input-action-btn,
         display: none !important;
     }
 }
+
+/* ═══════════════════════════════════════
+   PLUS BUTTON FLOATING ACTION PANEL
+   ═══════════════════════════════════════ */
+.chat-plus-menu {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 12px);
+    left: 0;
+    z-index: 999999 !important;
+    background: rgba(22, 27, 34, 0.96);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    border-radius: 16px;
+    padding: 8px;
+    box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.6), 0 0 24px rgba(56, 189, 248, 0.2);
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    animation: plusMenuPop 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes plusMenuPop {
+    from { opacity: 0; transform: translateY(10px) scale(0.94); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.plus-menu-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--text-primary, #f0f6fc);
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+    touch-action: manipulation;
+}
+
+.plus-menu-item:hover,
+.plus-menu-item:active {
+    background: rgba(56, 189, 248, 0.18);
+    border-color: rgba(56, 189, 248, 0.5);
+    color: #38bdf8;
+    transform: translateY(-1px);
+}
+
+.plus-menu-item i {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+}
+
+#chat-plus-toggle-btn {
+    transition: transform 0.25s ease, background 0.2s ease;
+}
+
+#chat-plus-toggle-btn.active {
+    background: rgba(56, 189, 248, 0.2) !important;
+    border-color: #38bdf8 !important;
+    color: #38bdf8 !important;
+    transform: rotate(45deg);
+}
+
+@media (max-width: 768px) {
+    .chat-plus-menu {
+        max-width: 92vw !important;
+        overflow-x: auto !important;
+        scrollbar-width: none !important;
+    }
+    .chat-plus-menu::-webkit-scrollbar {
+        display: none !important;
+    }
+}

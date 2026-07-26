@@ -7838,13 +7838,85 @@ function initModeSwitcher() {
     }
 }
 
+// 🌟 Plus Button Floating Action Panel Handler 🌟
+function initPlusMenu() {
+    const plusBtn = document.getElementById('chat-plus-toggle-btn');
+    const plusMenu = document.getElementById('chat-plus-menu');
+    if (!plusBtn || !plusMenu) return;
+
+    if (!plusBtn.hasAttribute('data-initialized')) {
+        plusBtn.setAttribute('data-initialized', 'true');
+
+        plusBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isHidden = getComputedStyle(plusMenu).display === 'none' || plusMenu.style.display === 'none';
+            plusMenu.style.display = isHidden ? 'flex' : 'none';
+            plusBtn.classList.toggle('active', isHidden);
+        });
+
+        document.addEventListener('click', (e) => {
+            if (plusMenu && !plusMenu.contains(e.target) && !plusBtn.contains(e.target)) {
+                plusMenu.style.display = 'none';
+                plusBtn.classList.remove('active');
+            }
+        });
+
+        // Sub-item click actions
+        const plusSearch = document.getElementById('plus-search-toggle');
+        const chatSearch = document.getElementById('chat-search-toggle');
+        if (plusSearch && chatSearch) {
+            plusSearch.addEventListener('click', () => {
+                chatSearch.click();
+                plusMenu.style.display = 'none';
+            });
+        }
+
+        const plusDraw = document.getElementById('plus-draw-toggle');
+        const chatDraw = document.getElementById('chat-draw-toggle');
+        if (plusDraw && chatDraw) {
+            plusDraw.addEventListener('click', () => {
+                chatDraw.click();
+                plusMenu.style.display = 'none';
+            });
+        }
+
+        const plusCanvas = document.getElementById('plus-canvas-toggle');
+        const chatCanvas = document.getElementById('chat-canvas-toggle');
+        if (plusCanvas && chatCanvas) {
+            plusCanvas.addEventListener('click', () => {
+                chatCanvas.click();
+                plusMenu.style.display = 'none';
+            });
+        }
+
+        const plusPersonas = document.getElementById('plus-personas-toggle');
+        const chatPersonas = document.getElementById('chat-personas-toggle-btn');
+        if (plusPersonas && chatPersonas) {
+            plusPersonas.addEventListener('click', () => {
+                chatPersonas.click();
+                plusMenu.style.display = 'none';
+            });
+        }
+
+        const plusFormat = document.getElementById('plus-format-toggle');
+        const chatFormat = document.getElementById('chat-code-mode-toggle');
+        if (plusFormat && chatFormat) {
+            plusFormat.addEventListener('click', () => {
+                chatFormat.click();
+                plusMenu.style.display = 'none';
+            });
+        }
+    }
+}
+
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initModeSwitcher);
+    document.addEventListener('DOMContentLoaded', () => { initModeSwitcher(); initPlusMenu(); });
 } else {
     initModeSwitcher();
+    initPlusMenu();
 }
-window.addEventListener('load', initModeSwitcher);
-setTimeout(initModeSwitcher, 300);
+window.addEventListener('load', () => { initModeSwitcher(); initPlusMenu(); });
+setTimeout(() => { initModeSwitcher(); initPlusMenu(); }, 300);
 
 // Flashcard interactive controls
 window.prevFlashCard = function(deckId) {
