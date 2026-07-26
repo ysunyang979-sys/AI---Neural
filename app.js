@@ -1870,6 +1870,14 @@ const sanitizeChatOutput = (text) => {
   text = text.replace(/\{"\s*chart_config\s*":\s*"[\s\S]*?"\}/gi, '')
              .replace(/\{"\s*chart_config\s*":\s*\{[\s\S]*?\}\}/gi, '')
              .replace(/`\{"\s*chart_config[\s\S]*?\}`/gi, '');
+             
+  // Nuke completely any hallucinated legacy map UI with Route Dashboard Header
+  if (text.includes("Route Dashboard Header")) {
+      text = text.replace(/```[^\n]*\n[\s\S]*?Route Dashboard Header[\s\S]*?```/gi, "");
+      // Fallback if not in code block
+      text = text.replace(/<div[^>]*>[\s\S]*?Route Dashboard Header[\s\S]*?<\/div>\s*<\/div>\s*<\/div>/gi, "");
+  }
+
   // Unwrap UI card HTML elements if enclosed inside markdown code blocks (```html <div ...>...</div> ```)
   // so that the HTML card is rendered directly as a live DOM element instead of being shown as a code block!
   text = text.replace(/```(?:html|text|xml|markdown)?[\s\S]*?(<div[\s\S]*?<\/div>)[\s\S]*?```/gi, '$1');
@@ -2438,14 +2446,7 @@ window.getAvailableTools = () => {
             parameters: { type: "object", properties: { notes: { type: "array", items: { type: "string" }, description: "音符数组，如 ['C4', 'E4', 'G4', 'C5']" }, speed: { type: "number", description: "每个音符的持续时间(秒)，默认0.25" } }, required: ["notes"] }
           }
         },
-        {
-          type: "function",
-          function: {
-            name: "render_interactive_map",
-            description: "利用Leaflet渲染一个真实的交互式地图，并标注指定位置。当用户查询地理位置、路线规划或想看地图时使用。",
-            parameters: { type: "object", properties: { centerLat: { type: "number" }, centerLng: { type: "number" }, zoom: { type: "number", description: "缩放级别1-18" }, markers: { type: "array", items: { type: "object", properties: { lat: { type: "number" }, lng: { type: "number" }, title: { type: "string" } } }, description: "要在地图上打图钉的位置" } }, required: ["centerLat", "centerLng", "markers"] }
-          }
-        },
+
         {
           type: "function",
           function: {
