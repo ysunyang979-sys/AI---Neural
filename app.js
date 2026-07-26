@@ -748,16 +748,19 @@ window.getCanvasPreviewHtml = function(code, langInput, titleInput) {
     
     async function runPython() {
       const term = document.getElementById('term-box');
-      term.style.display = 'block';
+      if (term) term.style.display = 'block';
       const btn = document.getElementById('run-py-btn');
-      btn.disabled = true;
-      btn.style.opacity = '0.6';
+      if (btn) {
+        btn.disabled = true;
+        btn.style.opacity = '0.6';
+        btn.textContent = '⏳ Running...';
+      }
       
       if (!pyodideReady) {
-        term.textContent = '⏳ Loading Pyodide Python 3.11 engine in browser...\n';
+        if (term) term.textContent = '⏳ Loading Pyodide Python 3.11 engine in browser...\n';
         try {
           if (typeof loadPyodide === 'undefined') {
-            term.textContent += '📦 Injecting Pyodide engine script...\n';
+            if (term) term.textContent += '📦 Injecting Pyodide engine script...\n';
             await new Promise((resolve, reject) => {
               const script = document.createElement('script');
               script.src = 'https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js';
@@ -769,19 +772,22 @@ window.getCanvasPreviewHtml = function(code, langInput, titleInput) {
           pyodide = await loadPyodide({ indexURL: "https://cdn.jsdelivr.net/pyodide/v0.25.0/full/" });
           pyodideReady = true;
         } catch(e) {
-          term.textContent += '❌ Pyodide Load Failed: ' + e.message + '\n';
-          btn.disabled = false;
-          btn.style.opacity = '1';
+          if (term) term.textContent += '❌ Pyodide Load Failed: ' + e.message + '\n';
+          if (btn) {
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            btn.textContent = '▶ Run Code (Pyodide)';
+          }
           return;
         }
       }
       
-      term.textContent += '🚀 Analyzing imports & executing Python script...\n-------------------------------------\n';
+      if (term) term.textContent += '🚀 Analyzing imports & executing Python script...\n-------------------------------------\n';
       try {
         const rawCode = document.getElementById('code-block').textContent;
 
         if (pyodide.loadPackagesFromImports) {
-          term.textContent += '📦 Auto-loading Python packages (e.g. sympy, numpy)...\n';
+          if (term) term.textContent += '📦 Auto-loading Python packages (e.g. sympy, numpy)...\n';
           try {
             await pyodide.loadPackagesFromImports(rawCode);
           } catch(pkgErr) {
@@ -790,10 +796,10 @@ window.getCanvasPreviewHtml = function(code, langInput, titleInput) {
         }
 
         pyodide.setStdout({
-          batched: (str) => { term.textContent += str + '\n'; }
+          batched: (str) => { if (term) term.textContent += str + '\n'; }
         });
         pyodide.setStderr({
-          batched: (str) => { term.textContent += '[Error] ' + str + '\n'; }
+          batched: (str) => { if (term) term.textContent += '[Error] ' + str + '\n'; }
         });
         
         let result = await pyodide.runPythonAsync(rawCode);
@@ -805,16 +811,34 @@ window.getCanvasPreviewHtml = function(code, langInput, titleInput) {
           } catch(e) {
             resStr = String(result);
           }
-          term.textContent += '\n➜ Output / Result:\n' + resStr + '\n';
+          if (term) term.textContent += '\n➜ Output / Result:\n' + resStr + '\n';
         }
-        term.textContent += '\n-------------------------------------\n✅ Execution finished successfully.';
+        if (term) term.textContent += '\n-------------------------------------\n✅ Execution finished successfully.';
       } catch(err) {
-        term.textContent += '\n❌ Execution Error:\n' + err.message + '\n';
+        if (term) term.textContent += '\n❌ Execution Error:\n' + err.message + '\n';
       } finally {
-        btn.disabled = false;
-        btn.style.opacity = '1';
+        if (btn) {
+          btn.disabled = false;
+          btn.style.opacity = '1';
+          btn.textContent = '▶ Run Code (Pyodide)';
+        }
       }
     }
+
+    window.runPython = runPython;
+    const bindPyBtn = () => {
+      const b = document.getElementById('run-py-btn');
+      if (b) {
+        b.onclick = runPython;
+        b.addEventListener('click', runPython);
+      }
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', bindPyBtn);
+    } else {
+      bindPyBtn();
+    }
+    setTimeout(bindPyBtn, 100);
   <\/script>
 </body>
 </html>`;
