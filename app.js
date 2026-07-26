@@ -7898,9 +7898,10 @@ function updateActiveFeaturesBar() {
     }
 
     // 4. Active Persona / Skill
-    const activePersonaBtn = document.querySelector('.personas-presets .preset-btn.active');
-    if (activePersonaBtn) {
-        const pName = activePersonaBtn.textContent.trim();
+    const activePName = window.activePersonaName || localStorage.getItem("activePersonaName");
+    const activePersonaBtn = document.querySelector('.personas-presets .preset-btn.active-preset, .personas-presets .preset-btn-text.active-preset');
+    const pName = activePName || (activePersonaBtn ? activePersonaBtn.textContent.trim() : null);
+    if (pName && pName !== 'Default') {
         const pill = document.createElement('div');
         pill.className = 'active-feature-pill';
         pill.innerHTML = `<i data-lucide="sparkles" style="width:14px;height:14px;"></i><span>${pName}</span><span class="pill-close-icon">✕</span>`;
@@ -7908,6 +7909,8 @@ function updateActiveFeaturesBar() {
             e.stopPropagation();
             const resetBtn = document.getElementById('personas-reset-btn');
             if (resetBtn) resetBtn.click();
+            window.activePersonaName = null;
+            localStorage.removeItem("activePersonaName");
             updateActiveFeaturesBar();
         };
         bar.appendChild(pill);
@@ -8053,9 +8056,33 @@ function initPlusMenu() {
                 subItem.addEventListener('click', (e) => {
                     e.stopPropagation();
                     const pKey = subItem.getAttribute('data-persona');
-                    let targetBtn = document.getElementById(`persona-${pKey}`);
-                    if (pKey === 'default') targetBtn = document.getElementById('personas-reset-btn');
-                    if (targetBtn) targetBtn.click();
+                    const itemText = subItem.textContent.trim();
+                    
+                    if (pKey === 'default') {
+                        const resetBtn = document.getElementById('personas-reset-btn');
+                        if (resetBtn) resetBtn.click();
+                        window.activePersonaName = null;
+                        localStorage.removeItem("activePersonaName");
+                    } else {
+                        // Keyword mapping to find .skill-dropdown-item in index.html
+                        const keywordMap = {
+                            musk: '马斯克', jobs: '乔布斯', naval: '纳瓦尔', feynman: '费曼',
+                            munger: '芒格', trump: '特朗普', pg: '保罗·格雷厄姆', taleb: '塔勒布'
+                        };
+                        const kw = keywordMap[pKey] || itemText;
+                        const skillItems = document.querySelectorAll('.skill-dropdown-item');
+                        let foundSkill = null;
+                        skillItems.forEach(si => {
+                            if (si.textContent.includes(kw)) foundSkill = si;
+                        });
+                        
+                        if (foundSkill) {
+                            foundSkill.click();
+                        }
+                        
+                        window.activePersonaName = itemText;
+                        localStorage.setItem("activePersonaName", itemText);
+                    }
                     
                     subPersonas.querySelectorAll('.plus-sub-item').forEach(i => i.classList.remove('active'));
                     subItem.classList.add('active');
