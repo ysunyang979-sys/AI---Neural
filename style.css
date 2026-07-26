@@ -3665,8 +3665,8 @@ label.chat-input-action-btn,
 .chat-plus-menu {
     display: none;
     position: absolute;
-    bottom: calc(100% + 12px);
-    left: 0;
+    bottom: 54px;
+    left: 14px;
     width: 250px;
     z-index: 999999 !important;
     background: rgba(22, 27, 34, 0.96);
