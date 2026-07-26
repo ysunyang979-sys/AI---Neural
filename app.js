@@ -5158,19 +5158,47 @@ sys.stdout = io.StringIO()
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <style>body { margin: 0; font-family: system-ui, sans-serif; }</style>
+    <style>body { margin: 0; font-family: system-ui, sans-serif; background: #0f172a; color: #f8fafc; }</style>
 </head>
 <body>
     <div id="root"></div>
-    <script type="text/babel">
-        try {
-            ${rawCode.replace(/<\/script>/g, '<\\/script>')}
-            if (typeof lucide !== 'undefined') {
-                setTimeout(() => lucide.createIcons(), 100);
+    <script>
+        // Mock environment for ES module compilation
+        window.exports = {};
+        window.module = { exports: window.exports };
+        window.require = function(name) {
+            if (name === 'react') return window.React;
+            if (name === 'react-dom') return window.ReactDOM;
+            if (name === 'lucide-react') return window.lucide;
+            return {};
+        };
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            const rawCode = ${JSON.stringify(rawCode)};
+            try {
+                // Transform JSX and ES6 imports/exports
+                const transformed = Babel.transform(rawCode, { 
+                    presets: ['env', 'react']
+                }).code;
+                
+                // Execute transformed code
+                const script = document.createElement('script');
+                script.innerHTML = transformed;
+                document.body.appendChild(script);
+                
+                // Auto-render if exported and not mounted
+                setTimeout(() => {
+                    if (window.exports.default && !rawCode.includes('ReactDOM.')) {
+                        const root = ReactDOM.createRoot(document.getElementById('root'));
+                        root.render(React.createElement(window.exports.default));
+                    }
+                    if (typeof lucide !== 'undefined') lucide.createIcons();
+                }, 50);
+                
+            } catch(e) {
+                document.getElementById('root').innerHTML = '<div style="color:#ef4444;padding:20px;font-family:monospace;white-space:pre-wrap;">' + e.message + '</div>';
             }
-        } catch(e) {
-            document.getElementById('root').innerHTML = '<div style="color:red;padding:20px;">' + e.message + '</div>';
-        }
+        });
     </script>
 </body>
 </html>`;
@@ -5180,21 +5208,41 @@ sys.stdout = io.StringIO()
 <html>
 <head>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <style>body { margin: 0; font-family: system-ui, sans-serif; }</style>
+    <style>body { margin: 0; font-family: system-ui, sans-serif; background: #0f172a; color: #f8fafc; }</style>
 </head>
 <body>
     <div id="app"></div>
     <script>
-        try {
-            ${rawCode.replace(/<\/script>/g, '<\\/script>')}
-            if (typeof lucide !== 'undefined') {
-                setTimeout(() => lucide.createIcons(), 100);
+        window.exports = {};
+        window.module = { exports: window.exports };
+        window.require = function(name) {
+            if (name === 'vue') return window.Vue;
+            if (name === 'lucide-vue-next') return window.lucide;
+            return {};
+        };
+        window.addEventListener('DOMContentLoaded', () => {
+            const rawCode = ${JSON.stringify(rawCode)};
+            try {
+                const cleanedCode = rawCode
+                    .replace(/import\\s+.*\\s+from\\s+['"]vue['"]/g, '')
+                    .replace(/export\\s+default/g, 'window.VueApp =');
+                    
+                const script = document.createElement('script');
+                script.innerHTML = cleanedCode;
+                document.body.appendChild(script);
+                
+                setTimeout(() => {
+                    if (window.VueApp && !rawCode.includes('.mount(')) {
+                        Vue.createApp(window.VueApp).mount('#app');
+                    }
+                    if (typeof lucide !== 'undefined') lucide.createIcons();
+                }, 50);
+            } catch(e) {
+                document.getElementById('app').innerHTML = '<div style="color:#ef4444;padding:20px;font-family:monospace;white-space:pre-wrap;">' + e.message + '</div>';
             }
-        } catch(e) {
-            document.getElementById('app').innerHTML = '<div style="color:red;padding:20px;">' + e.message + '</div>';
-        }
+        });
     </script>
 </body>
 </html>`;
