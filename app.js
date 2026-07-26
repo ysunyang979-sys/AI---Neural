@@ -5896,87 +5896,68 @@ sys.stdout = io.StringIO()
               const baiduUrl = `https://map.baidu.com/search/${encodeURIComponent(routeQuery)}`;
               const tencentUrl = `https://map.qq.com/search/${encodeURIComponent(origin + '到' + destination)}`;
 
-              addLine(`🗺️ 正在构建 ${origin} ➔ ${destination} 交互式地图路线...`);
-
-              const iframeDoc = `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <style>
-    html, body, #map { width: 100%; height: 100%; margin: 0; padding: 0; background: #0f172a; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    .leaflet-popup-content-wrapper { background: #1e293b; color: #f8fafc; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.5); box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
-    .leaflet-popup-tip { background: #1e293b; }
-    .leaflet-container { background: #0f172a !important; }
-  </style>
-</head>
-<body>
-  <div id="map"></div>
-  <script>
-    window.onload = function() {
-      try {
-        var orig = [${origCoords[0]}, ${origCoords[1]}];
-        var dest = [${destCoords[0]}, ${destCoords[1]}];
-        var centerLat = (orig[0] + dest[0]) / 2;
-        var centerLng = (orig[1] + dest[1]) / 2;
-
-        var map = L.map('map', { zoomControl: true }).setView([centerLat, centerLng], 7);
-
-        // Amap vector tile layer (fast & high quality in China)
-        L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
-          subdomains: '1234',
-          maxZoom: 18,
-          attribution: '© 高德地图 Amap'
-        }).addTo(map);
-
-        var m1 = L.marker(orig).addTo(map).bindPopup('<div style="font-size:13px; font-weight:600; color:#38bdf8;">📍 起点: ${escapeChatHTML(origin)}</div>').openPopup();
-        var m2 = L.marker(dest).addTo(map).bindPopup('<div style="font-size:13px; font-weight:600; color:#a855f7;">🏁 终点: ${escapeChatHTML(destination)}</div>');
-
-        var polyline = L.polyline([orig, dest], {
-          color: '#38bdf8',
-          weight: 5,
-          opacity: 0.9,
-          dashArray: '8, 8'
-        }).addTo(map);
-
-        map.fitBounds(polyline.getBounds(), { padding: [40, 40] });
-      } catch(e) {
-        console.error("Map initialization failed:", e);
-      }
-    };
-  </script>
-</body>
-</html>`.replace(/"/g, '&quot;');
+              addLine(`🗺️ 正在构建 ${origin} ➔ ${destination} 路线地图卡片...`);
 
               initialReply += `<br>
-              <div class="interactive-route-map-card" style="margin: 14px 0; border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 14px; overflow: hidden; background: #1e293b; box-shadow: 0 6px 24px rgba(0,0,0,0.3);">
-                <div style="padding: 10px 16px; background: linear-gradient(90deg, rgba(56, 189, 248, 0.2), rgba(99, 102, 241, 0.2)); border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: space-between;">
-                  <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px; color: #f8fafc;">
-                    <span>🗺️</span> <span>地图路线规划：<strong style="color:#38bdf8;">${escapeChatHTML(origin)}</strong> ➔ <strong style="color:#a855f7;">${escapeChatHTML(destination)}</strong></span>
+              <div class="interactive-route-map-card" style="margin: 14px 0; border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 14px; overflow: hidden; background: #0f172a; box-shadow: 0 8px 32px rgba(0,0,0,0.4);">
+                <div style="padding: 12px 18px; background: linear-gradient(90deg, rgba(56, 189, 248, 0.25), rgba(99, 102, 241, 0.25)); border-bottom: 1px solid rgba(255,255,255,0.12); display: flex; align-items: center; justify-content: space-between;">
+                  <div style="display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 15px; color: #f8fafc;">
+                    <span>🗺️</span> <span>地图路线规划：<strong style="color:#38bdf8;">${escapeChatHTML(origin)}</strong> ➔ <strong style="color:#c084fc;">${escapeChatHTML(destination)}</strong></span>
                   </div>
-                  <span style="font-size: 11px; color: #94a3b8; background: rgba(0,0,0,0.3); padding: 3px 8px; border-radius: 4px;">支持拖拽/缩放交互</span>
+                  <span style="font-size: 11px; color: #38bdf8; background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.3); padding: 3px 10px; border-radius: 20px;">全网智能导航</span>
                 </div>
-                <div style="width: 100%; height: 350px; background: #0f172a; position: relative;">
-                  <iframe srcdoc="${iframeDoc}" style="width: 100%; height: 100%; border: none; display: block;"></iframe>
+                
+                <div style="padding: 18px; background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);">
+                  <!-- Route Dashboard Header -->
+                  <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; max-width: 540px; margin: 0 auto 16px; padding: 14px; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.3);">
+                    <!-- Origin -->
+                    <div style="text-align: center; flex: 1;">
+                      <div style="width: 42px; height: 42px; margin: 0 auto 6px; border-radius: 50%; background: rgba(56, 189, 248, 0.2); border: 2px solid #38bdf8; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 0 14px rgba(56, 189, 248, 0.4);">📍</div>
+                      <div style="font-size: 15px; font-weight: 700; color: #f8fafc;">${escapeChatHTML(origin)}</div>
+                      <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">起点</div>
+                    </div>
+                    
+                    <!-- Route Line -->
+                    <div style="flex: 2; text-align: center; padding: 0 10px;">
+                      <div style="font-size: 12px; font-weight: 600; color: #38bdf8; margin-bottom: 6px;">路线对齐与实时路况</div>
+                      <div style="height: 3px; background: linear-gradient(90deg, #38bdf8, #a855f7); border-radius: 3px; position: relative; width: 100%;">
+                        <div style="position: absolute; top: -4px; left: 50%; transform: translateX(-50%); width: 10px; height: 10px; border-radius: 50%; background: #a855f7; box-shadow: 0 0 10px #a855f7;"></div>
+                      </div>
+                      <div style="display: flex; justify-content: space-around; font-size: 11px; color: #cbd5e1; margin-top: 8px;">
+                        <span>⚡ 高铁专线</span>
+                        <span>🚗 高速驾车</span>
+                      </div>
+                    </div>
+                    
+                    <!-- Destination -->
+                    <div style="text-align: center; flex: 1;">
+                      <div style="width: 42px; height: 42px; margin: 0 auto 6px; border-radius: 50%; background: rgba(168, 85, 247, 0.2); border: 2px solid #a855f7; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 0 14px rgba(168, 85, 247, 0.4);">🏁</div>
+                      <div style="font-size: 15px; font-weight: 700; color: #f8fafc;">${escapeChatHTML(destination)}</div>
+                      <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">终点</div>
+                    </div>
+                  </div>
+
+                  <!-- High-speed Amap Web View Embed -->
+                  <div style="width: 100%; height: 320px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.12); box-shadow: inset 0 0 20px rgba(0,0,0,0.5);">
+                    <iframe src="https://m.amap.com/search/mapview/keywords=${encodeURIComponent(origin + '到' + destination + '路线')}" style="width: 100%; height: 100%; border: none; background: #1e293b;" loading="lazy"></iframe>
+                  </div>
                 </div>
-                <div style="padding: 12px 16px; background: rgba(15, 23, 42, 0.9); border-top: 1px solid rgba(255,255,255,0.08);">
-                  <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; align-items: center;">
-                    <div style="font-size: 12px; color: #cbd5e1; display: flex; align-items: center; gap: 10px;">
-                      <span>📍 起点: <strong style="color:#38bdf8;">${escapeChatHTML(origin)}</strong></span>
-                      <span>🏁 终点: <strong style="color:#a855f7;">${escapeChatHTML(destination)}</strong></span>
-                    </div>
-                    <div style="display: flex; gap: 6px;">
-                      <button class="open-url-btn" data-url="${escapeChatHTML(amapUrl)}" data-name="高德地图路线" style="padding: 5px 12px; background: #0284c7; color: white; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;">高德导航 ↗</button>
-                      <button class="open-url-btn" data-url="${escapeChatHTML(baiduUrl)}" data-name="百度地图路线" style="padding: 5px 12px; background: #2563eb; color: white; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;">百度导航 ↗</button>
-                      <button class="open-url-btn" data-url="${escapeChatHTML(tencentUrl)}" data-name="腾讯地图路线" style="padding: 5px 12px; background: #059669; color: white; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;">腾讯导航 ↗</button>
-                    </div>
+
+                <!-- Bottom Navigation Actions -->
+                <div style="padding: 12px 18px; background: rgba(15, 23, 42, 0.95); border-top: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+                  <div style="font-size: 12px; color: #94a3b8; display: flex; align-items: center; gap: 6px;">
+                    <span style="width: 6px; height: 6px; border-radius: 50%; background: #38bdf8; display: inline-block;"></span>
+                    <span>打开第三方官方 App 导航:</span>
+                  </div>
+                  <div style="display: flex; gap: 8px;">
+                    <button class="open-url-btn" data-url="${escapeChatHTML(amapUrl)}" data-name="高德地图路线" style="padding: 6px 14px; background: linear-gradient(135deg, #0284c7, #0369a1); color: white; border: none; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;">高德导航 ↗</button>
+                    <button class="open-url-btn" data-url="${escapeChatHTML(baiduUrl)}" data-name="百度地图路线" style="padding: 6px 14px; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border: none; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;">百度导航 ↗</button>
+                    <button class="open-url-btn" data-url="${escapeChatHTML(tencentUrl)}" data-name="腾讯地图路线" style="padding: 6px 14px; background: linear-gradient(135deg, #059669, #047857); color: white; border: none; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;">腾讯导航 ↗</button>
                   </div>
                 </div>
               </div><br>`;
 
-              result = `SUCCESS. Rendered interactive Leaflet route map for ${origin} to ${destination} with direct navigation links.`;
+              result = `SUCCESS. Rendered route navigation card for ${origin} to ${destination} with direct Amap web view embed.`;
             } else if (tc.function.name === "open_browser_url") {
               const officialSites = {
                 "百度地图": "https://map.baidu.com",
