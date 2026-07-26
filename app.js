@@ -766,7 +766,7 @@ window.getCanvasPreviewHtml = function(code, langInput, titleInput) {
               document.head.appendChild(script);
             });
           }
-          pyodide = await loadPyodide();
+          pyodide = await loadPyodide({ indexURL: "https://cdn.jsdelivr.net/pyodide/v0.25.0/full/" });
           pyodideReady = true;
         } catch(e) {
           term.textContent += '❌ Pyodide Load Failed: ' + e.message + '\n';
@@ -798,7 +798,14 @@ window.getCanvasPreviewHtml = function(code, langInput, titleInput) {
         
         let result = await pyodide.runPythonAsync(rawCode);
         if (result !== undefined && result !== null) {
-          term.textContent += '\n➜ Result: ' + String(result) + '\n';
+          let resStr = "";
+          try {
+            resStr = (typeof result === 'object' && result.toString) ? result.toString() : String(result);
+            if (result.destroy) result.destroy();
+          } catch(e) {
+            resStr = String(result);
+          }
+          term.textContent += '\n➜ Output / Result:\n' + resStr + '\n';
         }
         term.textContent += '\n-------------------------------------\n✅ Execution finished successfully.';
       } catch(err) {
@@ -4742,7 +4749,7 @@ window.executeClientIntentTools = function(queryText, replyText, containerEl) {
                   result = `${exactRes} (${compareDetail})`;
                 } else if (/[a-zA-Z=]/.test(cleanExpr) && !/Math\./.test(cleanExpr)) {
                   if (!pyodideInstance) {
-                    pyodideInstance = await loadPyodide();
+                    pyodideInstance = await loadPyodide({ indexURL: "https://cdn.jsdelivr.net/pyodide/v0.25.0/full/" });
                   }
                   await pyodideInstance.loadPackage("sympy");
                   
@@ -4825,7 +4832,7 @@ _out
               addLine(`💻 正在沙盒中运行代码...`);
               try {
                 if (!pyodideInstance) {
-                  pyodideInstance = await loadPyodide();
+                  pyodideInstance = await loadPyodide({ indexURL: "https://cdn.jsdelivr.net/pyodide/v0.25.0/full/" });
                 }
                 await pyodideInstance.loadPackagesFromImports(args.code);
 
