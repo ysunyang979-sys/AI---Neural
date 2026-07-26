@@ -4062,7 +4062,19 @@ window.executeClientIntentTools = function(queryText, replyText, containerEl) {
       // ─── Dify Cloud RAG App API Execution Branch ───
       if (model === 'dify-cloud-rag' || (typeof difyRagModeEnabled !== 'undefined' && difyRagModeEnabled)) {
         const rawEndpoint = localStorage.getItem("difyApiEndpoint") || "https://api.dify.ai/v1";
-        const activeDifyKey = localStorage.getItem("difyAppKey") || localStorage.getItem("difyApiKey") || "app-kH6Ld7psiW3PZ6LRaUGDDAWI";
+        
+        // 🌟 Synchronize with current active mode in UI 🌟
+        const selectedMode = localStorage.getItem("difyUserSelectedMode") || "dify_kb";
+        let activeDifyKey = "app-kH6Ld7psiW3PZ6LRaUGDDAWI"; // General KB (📚 通用知识库)
+        if (selectedMode === "dify_think") {
+          activeDifyKey = "app-RfVcWa2J8Be7VQJdFeykpV4l"; // Deep Thinking KB (🧠 深度思考知识库)
+        } else if (selectedMode === "dify_kb") {
+          activeDifyKey = "app-kH6Ld7psiW3PZ6LRaUGDDAWI"; // General KB
+        } else {
+          activeDifyKey = localStorage.getItem("difyAppKey") || localStorage.getItem("difyApiKey") || "app-kH6Ld7psiW3PZ6LRaUGDDAWI";
+        }
+
+        const isThinkMode = selectedMode === "dify_think";
         const lastUserMsg = messages.filter(m => m.role === 'user').pop();
         let rawQueryText = lastUserMsg ? lastUserMsg.content : "Hello";
 
@@ -4071,7 +4083,6 @@ window.executeClientIntentTools = function(queryText, replyText, containerEl) {
           requestUrl += "/chat-messages";
         }
 
-        const isThinkMode = activeDifyKey === "app-RfVcWa2J8Be7VQJdFeykpV4l";
         addLine(isThinkMode ? "🧠 正在调度深度思考知识库引擎..." : "📚 正在检索通用知识库并提炼向量...");
 
         // 🕒 Inject Real-Time System Time Context
@@ -6595,6 +6606,20 @@ You operate under an advanced Adaptive Thinking (自适应思考) and Structured
      1. FIRST output text: "马上为您打开 百度地图（起始地：衡水，目的地：石家庄）..."
      2. IMMEDIATELY call the 'render_interactive_map' or 'open_browser_url' tool to open the target browser tab.
 `;
+
+  // 🌟 Ensure active persona system prompt & output format are 100% in sync with active UI pills 🌟
+  const activePName = window.activePersonaName || localStorage.getItem("activePersonaName");
+  const savedPrompt = localStorage.getItem("aiSysPrompt");
+  if (activePName && activePName !== 'Default' && savedPrompt) {
+    currentSysPrompt = savedPrompt;
+  } else if (!activePName || activePName === 'Default') {
+    currentSysPrompt = typeof defaultSysPrompt !== 'undefined' ? defaultSysPrompt : "You are Neural Core, an advanced AI assistant.";
+  }
+
+  const activeFormatBtn = document.querySelector('#chat-format-dropdown .format-option.active');
+  if (activeFormatBtn) {
+    currentOutputFormat = activeFormatBtn.getAttribute('data-format') || 'default';
+  }
 
   let dynamicSysPrompt = `${currentSysPrompt}\n\n[SYSTEM INSTRUCTION: The current real-time date and time is strictly ${new Date().toLocaleString()}. Always use this exact time if the user asks for the current time. You MUST automatically and proactively call appropriate tools (e.g. search_wikipedia, search_web, calculate, math_logic_engine, fetch_web_article, open_browser_url, render_code_diff, create_flashcard_deck, latex_step_math, code_linter_ast, tot_reasoning_pipeline, task_planner_solver) in single or multi-tool combinations whenever a task requires it, WITHOUT asking for permission first.]${memoryContext}${BRAIN_COGNITIVE_FRAMEWORK_PROMPT}`;
   if (window._personaJustSwitched) {
