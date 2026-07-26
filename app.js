@@ -8144,7 +8144,8 @@ function initPlusMenu() {
                     e.stopPropagation();
                     const pKey = subItem.getAttribute('data-persona');
                     const itemText = subItem.textContent.trim();
-                    const isAlreadyActive = subItem.classList.contains('active') && pKey !== 'default';
+                    const currentPName = window.activePersonaName || localStorage.getItem("activePersonaName");
+                    const isAlreadyActive = currentPName && pKey !== 'default' && (currentPName.includes(itemText) || itemText.includes(currentPName));
                     
                     if (pKey === 'default' || isAlreadyActive) {
                         const resetBtn = document.getElementById('personas-reset-btn');
