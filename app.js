@@ -6588,7 +6588,14 @@ ${cleanHtml}
             content: result.substring(0, 15000),
           });
         }
-        return await executeChat(messages, initialReply);
+        // Clean raw HTML out of assistant message history sent back to LLM so LLM prompt doesn't contain raw HTML code
+        const cleanMessages = messages.map(m => {
+          if (m.role === 'assistant' && typeof m.content === 'string') {
+            return { ...m, content: m.content.replace(/<div[\s\S]*?<\/div>/gi, '') };
+          }
+          return m;
+        });
+        return await executeChat(cleanMessages, initialReply);
       }
 
       if (firstChunk) endThinking();
@@ -6599,6 +6606,20 @@ ${cleanHtml}
       reply = sanitizeChatOutput(reply);
       let finalParsed = window.marked ? marked.parse(window.preProcessMath ? window.preProcessMath(reply) : reply) : reply;
       replyContent.innerHTML = parseInteractiveActionChips(finalParsed);
+
+      // 🛡️ DOM Safety Net: If any <pre> code box contains UI card HTML, unwrap it immediately!
+      if (replyContent) {
+        replyContent.querySelectorAll("pre").forEach(pre => {
+          const codeEl = pre.querySelector("code");
+          const codeText = codeEl ? codeEl.textContent || "" : pre.textContent || "";
+          if (codeText.includes("Route Dashboard Header") || codeText.includes("interactive-route-map-card") || codeText.includes("m.amap.com") || (codeText.includes("<div") && (codeText.includes("padding: 18px") || codeText.includes("padding: 12px")))) {
+            const tempDiv = document.createElement("div");
+            tempDiv.innerHTML = codeText;
+            pre.replaceWith(tempDiv);
+          }
+        });
+      }
+
       renderMath(replyContent);
       if (window.mermaid) {
         try {
