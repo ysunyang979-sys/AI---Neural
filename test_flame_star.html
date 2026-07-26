@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body { background: #1e2430; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+  .icon-box { width: 300px; height: 300px; }
+</style>
+</head>
+<body>
+<div class="icon-box">
+<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- 火焰光芒渐变 -->
+    <linearGradient id="flameGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#d32f2f"/>
+      <stop offset="50%" stop-color="#f57c00"/>
+      <stop offset="90%" stop-color="#ffb300"/>
+      <stop offset="100%" stop-color="#fff176"/>
+    </linearGradient>
+
+    <!-- 暖红酒香内核渐变 -->
+    <radialGradient id="darkRedCore" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#4a0817"/>
+      <stop offset="50%" stop-color="#32040e"/>
+      <stop offset="85%" stop-color="#200208"/>
+      <stop offset="100%" stop-color="#140105"/>
+    </radialGradient>
+
+    <!-- 金色描边渐变 -->
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffe082"/>
+      <stop offset="50%" stop-color="#ffb300"/>
+      <stop offset="100%" stop-color="#ff8f00"/>
+    </linearGradient>
+
+    <!-- 四色彩虹星星线性渐变 (左上到右下: 红->黄/绿->青/蓝) -->
+    <linearGradient id="rainbowStar" x1="0%" y1="50%" x2="100%" y2="50%">
+      <stop offset="0%" stop-color="#ff2a70"/>
+      <stop offset="35%" stop-color="#ffd600"/>
+      <stop offset="65%" stop-color="#00e676"/>
+      <stop offset="100%" stop-color="#00b0ff"/>
+    </linearGradient>
+
+    <!-- 垂直彩虹渐变用于星芒上下方向 -->
+    <linearGradient id="starRainbowVert" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#aeea00"/>
+      <stop offset="30%" stop-color="#00e676"/>
+      <stop offset="65%" stop-color="#00e5ff"/>
+      <stop offset="85%" stop-color="#d500f9"/>
+      <stop offset="100%" stop-color="#ff1744"/>
+    </linearGradient>
+
+    <!-- 星星发光滤镜 -->
+    <filter id="starGlowFilter" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="2" result="blur1"/>
+      <feGaussianBlur stdDeviation="5" result="blur2"/>
+      <feMerge>
+        <feMergeNode in="blur2"/>
+        <feMergeNode in="blur1"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- 1. 外部 20 舌 S 型波浪火焰 -->
+  <g id="flames">
+    <!-- 模板火焰 path: 从 (50, 36) 到 (50, 2) 的波浪火焰 -->
+    <!-- 循环旋转 20 次，每次 18 度 -->
+    <path d="M47,35 C45,24 43,14 47,4 C49,1 51,1 53,4 C57,14 55,24 53,35 Z" fill="url(#flameGrad)" stroke="#ff6d00" stroke-width="0.3"/>
+    <path d="M47,35 C45,24 43,14 47,4 C49,1 51,1 53,4 C57,14 55,24 53,35 Z" fill="url(#flameGrad)" stroke="#ff6d00" stroke-width="0.3" transform="rotate(18, 50, 50)"/>
+    <path d="M47,35 C45,24 43,14 47,4 C49,1 51,1 53,4 C57,14 55,24 53,35 Z" fill="url(#flameGrad)" stroke="#ff6d00" stroke-width="0.3" transform="rotate(36, 50, 50)"/>
+    <path d="M47,35 C45,24 43,14 47,4 C49,1 51,1 53,4 C57,14 55,24 53,35 Z" fill="url(#flameGrad)" stroke="#ff6d00" stroke-width="0.3" transform="rotate(54, 50, 50)"/>
+    <path d="M47,35 C45,24 43,14 47,4 C49,1 51,1 53,4 C57,14 55,24 53,35 Z" fill="url(#flameGrad)" stroke="#ff6d00" stroke-width="0.3" transform="rotate(72, 50, 50)"/>
+    <path d="M47,35 C45,24 43,14 47,4 C49,1 51,1 53,4 C57,14 55,24 53,35 Z" fill="url(#flameGrad)" stroke="#ff6d00" stroke-width="0.3" transform="rotate(90, 50, 50)"/>
+    <path d="M47,35 C45,24 43,14 47,4 C49,1 51,1 53,4 C57,14 55,24 53,35 Z" fill="url(#flameGrad)" stroke="#ff6d00" stroke-width="0.3" transform="rotate(108, 50, 50)"/>
+    <path d="M47,35 C45,24 43,14 47,4 C49,1 51,1 53,4 C57,14 55,24 53,35 Z" fill="url(#flameGrad)" stroke="#ff6d00" stroke-width="0.3" transform="rotate(126, 50, 50)"/>
+    <path d="M47,35 C45,24 43,14 47,4 C49,1 51,1 53,4 C57,14 55,24 53,35 Z" fill="url(#flameGrad)" stroke="#ff6d00" stroke-width="0.3" transform="rotate(144, 50, 50)"/>
+    <path d="M47,35 C45,24 43,14 47,4 C49,1 51,1 53,4 C57,14 55,24 53,35 Z" fill="url(#flameGrad)" stroke="#ff6d00" stroke-width="0.3" transform="rotate(162, 50, 50)"/>
+    <path d="M47,35 C45,24 43,14 47,4 C49,1 51,1 53,4 C57,14 55,24 53,35 Z" fill="url(#flameGrad)" stroke="#ff6d00" stroke-width="0.3" transform="rotate(180, 50, 50)"/>
+    <path d="M47,35 C45,24 43,14 47,4 C49,1 51,1 53,4 C57,14 55,24 53,35 Z" fill="url(#flameGrad)" stroke="#ff6d00" stroke-width="0.3" transform="rotate(198, 50, 50)"/>
+    <path d="M47,35 C45,24 43,14 47,4 C49,1 51,1 53,4 C57,14 55,24 53,35 Z" fill="url(#flameGrad)" stroke="#ff6d00" stroke-width="0.3" transform="rotate(216, 50, 50)"/>
+    <path d="M47,35 C45,24 43,14 47,4 C49,1 51,1 53,4 C57,14 55,24 53,35 Z" fill="url(#flameGrad)" stroke="#ff6d00" stroke-width="0.3" transform="rotate(234, 50, 50)"/>
+    <path d="M47,35 C45,24 43,14 47,4 C49,1 51,1 53,4 C57,14 55,24 53,35 Z" fill="url(#flameGrad)" stroke="#ff6d00" stroke-width="0.3" transform="rotate(252, 50, 50)"/>
+    <path d="M47,35 C45,24 43,14 47,4 C49,1 51,1 53,4 C57,14 55,24 53,35 Z" fill="url(#flameGrad)" stroke="#ff6d00" stroke-width="0.3" transform="rotate(270, 50, 50)"/>
+    <path d="M47,35 C45,24 43,14 47,4 C49,1 51,1 53,4 C57,14 55,24 53,35 Z" fill="url(#flameGrad)" stroke="#ff6d00" stroke-width="0.3" transform="rotate(288, 50, 50)"/>
+    <path d="M47,35 C45,24 43,14 47,4 C49,1 51,1 53,4 C57,14 55,24 53,35 Z" fill="url(#flameGrad)" stroke="#ff6d00" stroke-width="0.3" transform="rotate(306, 50, 50)"/>
+    <path d="M47,35 C45,24 43,14 47,4 C49,1 51,1 53,4 C57,14 55,24 53,35 Z" fill="url(#flameGrad)" stroke="#ff6d00" stroke-width="0.3" transform="rotate(324, 50, 50)"/>
+    <path d="M47,35 C45,24 43,14 47,4 C49,1 51,1 53,4 C57,14 55,24 53,35 Z" fill="url(#flameGrad)" stroke="#ff6d00" stroke-width="0.3" transform="rotate(342, 50, 50)"/>
+  </g>
+
+  <!-- 2. 金色双层边缘与暗红内核 -->
+  <circle cx="50" cy="50" r="37.5" fill="none" stroke="url(#goldGrad)" stroke-width="1.2"/>
+  <circle cx="50" cy="50" r="36" fill="url(#darkRedCore)" stroke="#ffb300" stroke-width="0.6"/>
+
+  <!-- 3. 内核精致虚线轨道环 -->
+  <circle cx="50" cy="50" r="32.5" fill="none" stroke="#ffca28" stroke-width="0.8" stroke-dasharray="2 1.5" opacity="0.85"/>
+
+  <!-- 4. 金色优雅弧线轨道 (Concentric Gold Arc Curves) -->
+  <g opacity="0.75" stroke="url(#goldGrad)" stroke-width="0.6" fill="none">
+    <path d="M26,38 C34,26 66,26 74,38"/>
+    <path d="M26,62 C34,74 66,74 74,62"/>
+    <path d="M38,26 C26,34 26,66 38,74"/>
+    <path d="M62,26 C74,34 74,66 62,74"/>
+    <!-- 内部双弧线 -->
+    <path d="M30,42 C38,32 62,32 70,42" stroke-width="0.4"/>
+    <path d="M30,58 C38,68 62,68 70,58" stroke-width="0.4"/>
+  </g>
+
+  <!-- 5. 核心 8 角彩虹闪耀星 (8-Point Rainbow Star) -->
+  <g filter="url(#starGlowFilter)">
+    <!-- 八角星 Path -->
+    <!-- 顶点分布: 上(50,22), 右上(61,39), 右(78,50), 右下(61,61), 下(50,78), 左下(39,61), 左(22,50), 左上(39,39) -->
+    <!-- 凹陷连接点半径 ~4px around center (50,50) -->
+    <path d="M50,22 
+             L52.5,46 L62,38 L54,47.5 
+             L78,50 
+             L54,52.5 L62,62 L52.5,54 
+             L50,78 
+             L47.5,54 L38,62 L46,52.5 
+             L22,50 
+             L46,47.5 L38,38 L47.5,46 Z" 
+          fill="url(#starRainbowVert)" stroke="#ffffff" stroke-width="0.4"/>
+
+    <!-- 中心闪亮核心 -->
+    <circle cx="50" cy="50" r="2.5" fill="#ffffff"/>
+  </g>
+</svg>
+</div>
+</body>
+</html>

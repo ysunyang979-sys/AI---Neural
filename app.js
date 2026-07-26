@@ -5351,7 +5351,7 @@ sys.stdout = io.StringIO()
                 case "proxy_nodes":
                   widgetContent = `<div id="geek-res-${widgetId}" style="text-align: center; color: #94a3b8;"><i data-lucide="loader-2" class="spin"></i> 获取最新优选节点中...</div>
                   <script>
-                    fetch('https://raw.githubusercontent.com/ysunyang979-sys/blog/main/source/SearchFile/tool/ip.md')
+                    fetch('./geek_data/ip.md')
                       .then(r=>r.text())
                       .then(text => {
                         const match = text.match(/\\\`\\\`\\\`csharp\\n([\\s\\S]*?)\\n\\\`\\\`\\\`/);
@@ -5372,7 +5372,7 @@ sys.stdout = io.StringIO()
                 case "temp_mail":
                   widgetContent = `<div id="geek-res-${widgetId}" style="color: #e2e8f0; font-size: 14px;"><i data-lucide="loader-2" class="spin"></i> 加载临时邮箱资源中...</div>
                   <script>
-                    fetch('https://raw.githubusercontent.com/ysunyang979-sys/blog/main/source/SearchFile/tool/%E4%B8%B4%E6%97%B6%E9%82%AE%E7%AE%B1.md')
+                    fetch('./geek_data/临时邮箱.md')
                       .then(r=>r.text())
                       .then(text => {
                         document.getElementById('geek-res-${widgetId}').innerHTML = marked.parse(text);
@@ -5382,7 +5382,7 @@ sys.stdout = io.StringIO()
                 case "pc_software":
                   widgetContent = `<div id="geek-res-${widgetId}" style="color: #e2e8f0; font-size: 14px;"><i data-lucide="loader-2" class="spin"></i> 加载电脑软件资源中...</div>
                   <script>
-                    fetch('https://raw.githubusercontent.com/ysunyang979-sys/blog/main/source/SearchFile/tool/%E7%94%B5%E8%84%91%E8%BD%AF%E4%BB%B6.md')
+                    fetch('./geek_data/电脑软件.md')
                       .then(r=>r.text())
                       .then(text => {
                         document.getElementById('geek-res-${widgetId}').innerHTML = marked.parse(text);
@@ -5392,7 +5392,7 @@ sys.stdout = io.StringIO()
                 case "ai_prompts":
                   widgetContent = `<div id="geek-res-${widgetId}" style="color: #e2e8f0; font-size: 14px; max-height: 400px; overflow-y: auto; padding-right: 10px;"><i data-lucide="loader-2" class="spin"></i> 加载AI提示词库中...</div>
                   <script>
-                    fetch('https://raw.githubusercontent.com/ysunyang979-sys/blog/main/source/SearchFile/tool/AI%E5%AE%9E%E7%94%A8%E6%8F%90%E7%A4%BA%E8%AF%8D.md')
+                    fetch('./geek_data/AI实用提示词.md')
                       .then(r=>r.text())
                       .then(text => {
                         document.getElementById('geek-res-${widgetId}').innerHTML = marked.parse(text);
@@ -5402,7 +5402,7 @@ sys.stdout = io.StringIO()
                 case "ai_art_prompts":
                   widgetContent = `<div id="geek-res-${widgetId}" style="color: #e2e8f0; font-size: 14px; max-height: 400px; overflow-y: auto; padding-right: 10px;"><i data-lucide="loader-2" class="spin"></i> 加载AI绘画提示词中...</div>
                   <script>
-                    fetch('https://raw.githubusercontent.com/ysunyang979-sys/blog/main/source/SearchFile/tool/AI%E7%BB%98%E7%94%BB%E6%8F%90%E7%A4%BA%E8%AF%8D.md')
+                    fetch('./geek_data/AI绘画提示词.md')
                       .then(r=>r.text())
                       .then(text => {
                         document.getElementById('geek-res-${widgetId}').innerHTML = marked.parse(text);
@@ -5420,7 +5420,7 @@ sys.stdout = io.StringIO()
                 case "tampermonkey":
                   widgetContent = `<div id="geek-res-${widgetId}" style="color: #e2e8f0; font-size: 14px; max-height: 400px; overflow-y: auto; padding-right: 10px;"><i data-lucide="loader-2" class="spin"></i> 加载油猴脚本中...</div>
                   <script>
-                    fetch('https://raw.githubusercontent.com/ysunyang979-sys/blog/main/source/SearchFile/tool/%E6%8F%90%E7%A4%BA%E8%AF%8D%E7%AE%A1%E7%90%86%E6%B2%B9%E7%8C%B4%E8%84%9A%E6%9C%AC.md')
+                    fetch('./geek_data/提示词管理油猴脚本.md')
                       .then(r=>r.text())
                       .then(text => {
                         document.getElementById('geek-res-${widgetId}').innerHTML = marked.parse(text);
