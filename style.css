@@ -3777,25 +3777,31 @@ label.chat-input-action-btn,
     color: #fff;
 }
 
-/* 🌟 SUB-OPTIONS PANEL FLYOUT 🌟 */
+/* 🌟 SUB-OPTIONS PANEL FLYOUT (100% THEME DYNAMIC) 🌟 */
 .plus-sub-panel {
     display: none;
     position: absolute;
     left: calc(100% + 8px);
     top: -4px;
     width: 200px;
-    background: rgba(22, 27, 34, 0.98);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(56, 189, 248, 0.3);
+    background: var(--bg-secondary, #FFFFFF);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--border-strong, rgba(0, 0, 0, 0.12));
     border-radius: 14px;
     padding: 6px;
-    box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.6), 0 0 20px rgba(56, 189, 248, 0.2);
+    box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.15), 0 2px 10px rgba(0, 0, 0, 0.05);
     flex-direction: column;
     gap: 3px;
     max-height: 280px;
     overflow-y: auto;
     z-index: 1000000 !important;
+}
+
+[data-theme="dark"] .plus-sub-panel {
+    background: var(--bg-secondary, #1A1A1A);
+    border: 1px solid var(--border-strong, rgba(255, 255, 255, 0.12));
+    box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.5);
 }
 
 /* 🌟 Seamless Mouse Bridge between Parent Item and Sub-panel 🌟 */
@@ -3897,7 +3903,7 @@ label.chat-input-action-btn,
 .plus-sub-title {
     font-size: 10.5px;
     font-weight: 700;
-    color: #8b949e;
+    color: var(--text-secondary, #6B6B6B) !important;
     padding: 4px 8px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -3908,16 +3914,20 @@ label.chat-input-action-btn,
     border-radius: 8px;
     font-size: 12.5px;
     font-weight: 500;
-    color: var(--text-primary, #f0f6fc);
+    color: var(--text-primary, #1A1A1A) !important;
     cursor: pointer;
     transition: all 0.15s ease;
     user-select: none;
 }
 
+[data-theme="dark"] .plus-sub-item {
+    color: var(--text-primary, #F5F5F5) !important;
+}
+
 .plus-sub-item:hover,
 .plus-sub-item.active {
-    background: rgba(56, 189, 248, 0.2);
-    color: #38bdf8;
+    background: var(--accent-subtle, rgba(217, 119, 87, 0.12)) !important;
+    color: var(--accent, #D97757) !important;
     font-weight: 600;
 }
 
