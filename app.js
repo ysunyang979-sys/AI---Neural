@@ -8024,19 +8024,7 @@ function initPlusMenu() {
             });
         }
 
-        // 2. Canvas Item
-        const itemCanvas = document.getElementById('plus-item-canvas');
-        const chatCanvas = document.getElementById('chat-canvas-toggle');
-        if (itemCanvas && chatCanvas) {
-            itemCanvas.addEventListener('click', (e) => {
-                e.stopPropagation();
-                chatCanvas.click();
-                plusMenu.style.display = 'none';
-                plusBtn.classList.remove('active');
-            });
-        }
-
-        // 3. AI Draw Sub-options
+        // 2. AI Draw Sub-options
         const subDraw = document.getElementById('plus-sub-draw');
         if (subDraw) {
             subDraw.querySelectorAll('.plus-sub-item').forEach(subItem => {
