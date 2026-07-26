@@ -5188,7 +5188,7 @@ sys.stdout = io.StringIO()
         };
         
         window.addEventListener('DOMContentLoaded', () => {
-            const rawCode = ${JSON.stringify(rawCode).replace(/<\\/script>/ig, '<\\\\/script>')};
+            const rawCode = ${JSON.stringify(rawCode).replace(/<\/script>/ig, '<\\/script>')};
             try {
                 // Transform JSX and ES6 imports/exports
                 const transformed = Babel.transform(rawCode, { 
@@ -5244,7 +5244,7 @@ sys.stdout = io.StringIO()
             return {};
         };
         window.addEventListener('DOMContentLoaded', () => {
-            const rawCode = ${JSON.stringify(rawCode).replace(/<\\/script>/ig, '<\\\\/script>')};
+            const rawCode = ${JSON.stringify(rawCode).replace(/<\/script>/ig, '<\\/script>')};
             try {
                 const cleanedCode = rawCode
                     .replace(/import\\s+.*\\s+from\\s+['"]vue['"]/g, '')
