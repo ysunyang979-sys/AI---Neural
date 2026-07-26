@@ -5154,8 +5154,8 @@ sys.stdout = io.StringIO()
 <html>
 <head>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>body { margin: 0; font-family: system-ui, sans-serif; background: #0f172a; color: #f8fafc; }</style>
@@ -5163,18 +5163,32 @@ sys.stdout = io.StringIO()
 <body>
     <div id="root"></div>
     <script>
+        // Catch runtime errors
+        window.addEventListener('error', (e) => {
+            document.getElementById('root').innerHTML = '<div style="color:#ef4444;padding:20px;font-family:monospace;">Runtime Error: ' + e.message + '</div>';
+        });
+
         // Mock environment for ES module compilation
         window.exports = {};
         window.module = { exports: window.exports };
         window.require = function(name) {
             if (name === 'react') return window.React;
             if (name === 'react-dom') return window.ReactDOM;
-            if (name === 'lucide-react') return window.lucide;
+            if (name === 'lucide-react') {
+                return new Proxy({}, {
+                    get: function(target, prop) {
+                        return function(props) {
+                            const iconName = prop.replace(/([A-Z])/g, '-$1').toLowerCase().replace(/^-/, '');
+                            return window.React.createElement('i', { 'data-lucide': iconName, ...props });
+                        }
+                    }
+                });
+            }
             return {};
         };
         
         window.addEventListener('DOMContentLoaded', () => {
-            const rawCode = ${JSON.stringify(rawCode)};
+            const rawCode = ${JSON.stringify(rawCode).replace(/<\\/script>/ig, '<\\\\/script>')};
             try {
                 // Transform JSX and ES6 imports/exports
                 const transformed = Babel.transform(rawCode, { 
@@ -5192,11 +5206,15 @@ sys.stdout = io.StringIO()
                         const root = ReactDOM.createRoot(document.getElementById('root'));
                         root.render(React.createElement(window.exports.default));
                     }
-                    if (typeof lucide !== 'undefined') lucide.createIcons();
+                    if (typeof lucide !== 'undefined') {
+                        lucide.createIcons();
+                        // Also observe DOM changes to inject icons for dynamic renders
+                        new MutationObserver(() => lucide.createIcons()).observe(document.body, { childList: true, subtree: true });
+                    }
                 }, 50);
                 
             } catch(e) {
-                document.getElementById('root').innerHTML = '<div style="color:#ef4444;padding:20px;font-family:monospace;white-space:pre-wrap;">' + e.message + '</div>';
+                document.getElementById('root').innerHTML = '<div style="color:#ef4444;padding:20px;font-family:monospace;white-space:pre-wrap;">Compile Error:\\n' + e.message + '</div>';
             }
         });
     </script>
@@ -5215,15 +5233,18 @@ sys.stdout = io.StringIO()
 <body>
     <div id="app"></div>
     <script>
+        window.addEventListener('error', (e) => {
+            document.getElementById('app').innerHTML = '<div style="color:#ef4444;padding:20px;font-family:monospace;">Runtime Error: ' + e.message + '</div>';
+        });
+
         window.exports = {};
         window.module = { exports: window.exports };
         window.require = function(name) {
             if (name === 'vue') return window.Vue;
-            if (name === 'lucide-vue-next') return window.lucide;
             return {};
         };
         window.addEventListener('DOMContentLoaded', () => {
-            const rawCode = ${JSON.stringify(rawCode)};
+            const rawCode = ${JSON.stringify(rawCode).replace(/<\\/script>/ig, '<\\\\/script>')};
             try {
                 const cleanedCode = rawCode
                     .replace(/import\\s+.*\\s+from\\s+['"]vue['"]/g, '')
@@ -5237,10 +5258,13 @@ sys.stdout = io.StringIO()
                     if (window.VueApp && !rawCode.includes('.mount(')) {
                         Vue.createApp(window.VueApp).mount('#app');
                     }
-                    if (typeof lucide !== 'undefined') lucide.createIcons();
+                    if (typeof lucide !== 'undefined') {
+                        lucide.createIcons();
+                        new MutationObserver(() => lucide.createIcons()).observe(document.body, { childList: true, subtree: true });
+                    }
                 }, 50);
             } catch(e) {
-                document.getElementById('app').innerHTML = '<div style="color:#ef4444;padding:20px;font-family:monospace;white-space:pre-wrap;">' + e.message + '</div>';
+                document.getElementById('app').innerHTML = '<div style="color:#ef4444;padding:20px;font-family:monospace;white-space:pre-wrap;">Compile Error:\\n' + e.message + '</div>';
             }
         });
     </script>
