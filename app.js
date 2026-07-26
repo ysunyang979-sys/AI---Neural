@@ -3896,61 +3896,24 @@ window.executeClientIntentTools = function(queryText, replyText, containerEl) {
 </html>`.replace(/"/g, '&quot;');
 
       const cardHtml = `
-        <div class="interactive-route-map-card" style="margin: 14px 0; border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 14px; overflow: hidden; background: #0f172a; box-shadow: 0 8px 32px rgba(0,0,0,0.4);">
-          <div style="padding: 12px 18px; background: linear-gradient(90deg, rgba(56, 189, 248, 0.25), rgba(99, 102, 241, 0.25)); border-bottom: 1px solid rgba(255,255,255,0.12); display: flex; align-items: center; justify-content: space-between;">
-            <div style="display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 15px; color: #f8fafc;">
-              <span>🗺️</span> <span>地图路线规划：<strong style="color:#38bdf8;">${escapeChatHTML(origin)}</strong> ➔ <strong style="color:#c084fc;">${escapeChatHTML(destination)}</strong></span>
+        <div class="google-map-embed-card" style="margin: 14px 0; border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 14px; overflow: hidden; background: #1e293b; box-shadow: 0 4px 20px rgba(0,0,0,0.25);">
+          <div style="padding: 10px 16px; background: linear-gradient(90deg, rgba(56, 189, 248, 0.15), rgba(99, 102, 241, 0.15)); border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 13.5px; color: #f8fafc;">
+              <span>🗺️</span> <span>路线地图视图：<strong style="color:#38bdf8;">${escapeChatHTML(origin)}</strong> ➔ <strong style="color:#c084fc;">${escapeChatHTML(destination)}</strong></span>
             </div>
-            <span style="font-size: 11px; color: #38bdf8; background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.3); padding: 3px 10px; border-radius: 20px;">全网智能导航</span>
-          </div>
-          
-          <div style="padding: 18px; background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);">
-            <!-- Route Dashboard Header -->
-            <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; max-width: 540px; margin: 0 auto 16px; padding: 14px; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.3);">
-              <!-- Origin -->
-              <div style="text-align: center; flex: 1;">
-                <div style="width: 42px; height: 42px; margin: 0 auto 6px; border-radius: 50%; background: rgba(56, 189, 248, 0.2); border: 2px solid #38bdf8; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 0 14px rgba(56, 189, 248, 0.4);">📍</div>
-                <div style="font-size: 15px; font-weight: 700; color: #f8fafc;">${escapeChatHTML(origin)}</div>
-                <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">起点</div>
-              </div>
-              
-              <!-- Route Line -->
-              <div style="flex: 2; text-align: center; padding: 0 10px;">
-                <div style="font-size: 12px; font-weight: 600; color: #38bdf8; margin-bottom: 6px;">路线对齐与实时路况</div>
-                <div style="height: 3px; background: linear-gradient(90deg, #38bdf8, #a855f7); border-radius: 3px; position: relative; width: 100%;">
-                  <div style="position: absolute; top: -4px; left: 50%; transform: translateX(-50%); width: 10px; height: 10px; border-radius: 50%; background: #a855f7; box-shadow: 0 0 10px #a855f7;"></div>
-                </div>
-                <div style="display: flex; justify-content: space-around; font-size: 11px; color: #cbd5e1; margin-top: 8px;">
-                  <span>⚡ 高铁专线</span>
-                  <span>🚗 高速驾车</span>
-                </div>
-              </div>
-              
-              <!-- Destination -->
-              <div style="text-align: center; flex: 1;">
-                <div style="width: 42px; height: 42px; margin: 0 auto 6px; border-radius: 50%; background: rgba(168, 85, 247, 0.2); border: 2px solid #a855f7; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 0 14px rgba(168, 85, 247, 0.4);">🏁</div>
-                <div style="font-size: 15px; font-weight: 700; color: #f8fafc;">${escapeChatHTML(destination)}</div>
-                <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">终点</div>
-              </div>
-            </div>
-
-            <!-- High-speed Amap Vector Tile Interactive Leaflet Map -->
-            <div style="width: 100%; height: 350px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.12); box-shadow: inset 0 0 20px rgba(0,0,0,0.5);">
-              <iframe srcdoc="${iframeDoc}" style="width: 100%; height: 100%; border: none; display: block;" loading="lazy"></iframe>
-            </div>
+            <span style="font-size: 11px; color: #94a3b8; background: rgba(0,0,0,0.3); padding: 3px 8px; border-radius: 4px;">支持在聊天框内缩放/拖拽</span>
           </div>
 
-          <!-- Bottom Navigation Actions -->
-          <div style="padding: 12px 18px; background: rgba(15, 23, 42, 0.95); border-top: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
-            <div style="font-size: 12px; color: #94a3b8; display: flex; align-items: center; gap: 6px;">
-              <span style="width: 6px; height: 6px; border-radius: 50%; background: #38bdf8; display: inline-block;"></span>
-              <span>打开第三方官方 App 导航:</span>
+          <div style="width: 100%; height: 380px; position: relative; background: #0f172a;">
+            <iframe srcdoc="${iframeDoc}" style="width: 100%; height: 100%; border: none; display: block;" loading="lazy"></iframe>
+          </div>
+
+          <div style="padding: 12px 16px; background: rgba(15, 23, 42, 0.8); display: flex; align-items: center; justify-content: space-between; gap: 12px; border-top: 1px solid rgba(255,255,255,0.08);">
+            <div style="font-size: 12px; color: #94a3b8; display: flex; align-items: center; gap: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+              <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #38bdf8; flex-shrink: 0;"></span>
+              <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">路线数据: <strong style="color: #f1f5f9;">${escapeChatHTML(origin)} ➔ ${escapeChatHTML(destination)}</strong> (高德地图官方导航)</span>
             </div>
-            <div style="display: flex; gap: 8px;">
-              <button class="open-url-btn" data-url="${escapeChatHTML(amapUrl)}" data-name="高德地图路线" style="padding: 6px 14px; background: linear-gradient(135deg, #0284c7, #0369a1); color: white; border: none; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;">高德导航 ↗</button>
-              <button class="open-url-btn" data-url="${escapeChatHTML(baiduUrl)}" data-name="百度地图路线" style="padding: 6px 14px; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border: none; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;">百度导航 ↗</button>
-              <button class="open-url-btn" data-url="${escapeChatHTML(tencentUrl)}" data-name="腾讯地图路线" style="padding: 6px 14px; background: linear-gradient(135deg, #059669, #047857); color: white; border: none; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;">腾讯导航 ↗</button>
-            </div>
+            <button class="open-url-btn" data-url="${escapeChatHTML(amapUrl)}" data-name="高德地图 ${escapeChatHTML(origin)}到${escapeChatHTML(destination)}路线" style="padding: 6px 14px; background: var(--accent, #0284c7); color: white; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; flex-shrink: 0; white-space: nowrap;">🌐 打开 高德地图 官方 ↗</button>
           </div>
         </div>
       `;
@@ -6024,61 +5987,24 @@ sys.stdout = io.StringIO()
               addLine(`🗺️ 正在构建 ${origin} ➔ ${destination} 路线地图卡片...`);
 
               initialReply += `<br>
-              <div class="interactive-route-map-card" style="margin: 14px 0; border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 14px; overflow: hidden; background: #0f172a; box-shadow: 0 8px 32px rgba(0,0,0,0.4);">
-                <div style="padding: 12px 18px; background: linear-gradient(90deg, rgba(56, 189, 248, 0.25), rgba(99, 102, 241, 0.25)); border-bottom: 1px solid rgba(255,255,255,0.12); display: flex; align-items: center; justify-content: space-between;">
-                  <div style="display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 15px; color: #f8fafc;">
-                    <span>🗺️</span> <span>地图路线规划：<strong style="color:#38bdf8;">${escapeChatHTML(origin)}</strong> ➔ <strong style="color:#c084fc;">${escapeChatHTML(destination)}</strong></span>
+              <div class="google-map-embed-card" style="margin: 14px 0; border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 14px; overflow: hidden; background: #1e293b; box-shadow: 0 4px 20px rgba(0,0,0,0.25);">
+                <div style="padding: 10px 16px; background: linear-gradient(90deg, rgba(56, 189, 248, 0.15), rgba(99, 102, 241, 0.15)); border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: space-between;">
+                  <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 13.5px; color: #f8fafc;">
+                    <span>🗺️</span> <span>路线地图视图：<strong style="color:#38bdf8;">${escapeChatHTML(origin)}</strong> ➔ <strong style="color:#c084fc;">${escapeChatHTML(destination)}</strong></span>
                   </div>
-                  <span style="font-size: 11px; color: #38bdf8; background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.3); padding: 3px 10px; border-radius: 20px;">全网智能导航</span>
-                </div>
-                
-                <div style="padding: 18px; background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);">
-                  <!-- Route Dashboard Header -->
-                  <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; max-width: 540px; margin: 0 auto 16px; padding: 14px; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.3);">
-                    <!-- Origin -->
-                    <div style="text-align: center; flex: 1;">
-                      <div style="width: 42px; height: 42px; margin: 0 auto 6px; border-radius: 50%; background: rgba(56, 189, 248, 0.2); border: 2px solid #38bdf8; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 0 14px rgba(56, 189, 248, 0.4);">📍</div>
-                      <div style="font-size: 15px; font-weight: 700; color: #f8fafc;">${escapeChatHTML(origin)}</div>
-                      <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">起点</div>
-                    </div>
-                    
-                    <!-- Route Line -->
-                    <div style="flex: 2; text-align: center; padding: 0 10px;">
-                      <div style="font-size: 12px; font-weight: 600; color: #38bdf8; margin-bottom: 6px;">路线对齐与实时路况</div>
-                      <div style="height: 3px; background: linear-gradient(90deg, #38bdf8, #a855f7); border-radius: 3px; position: relative; width: 100%;">
-                        <div style="position: absolute; top: -4px; left: 50%; transform: translateX(-50%); width: 10px; height: 10px; border-radius: 50%; background: #a855f7; box-shadow: 0 0 10px #a855f7;"></div>
-                      </div>
-                      <div style="display: flex; justify-content: space-around; font-size: 11px; color: #cbd5e1; margin-top: 8px;">
-                        <span>⚡ 高铁专线</span>
-                        <span>🚗 高速驾车</span>
-                      </div>
-                    </div>
-                    
-                    <!-- Destination -->
-                    <div style="text-align: center; flex: 1;">
-                      <div style="width: 42px; height: 42px; margin: 0 auto 6px; border-radius: 50%; background: rgba(168, 85, 247, 0.2); border: 2px solid #a855f7; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 0 14px rgba(168, 85, 247, 0.4);">🏁</div>
-                      <div style="font-size: 15px; font-weight: 700; color: #f8fafc;">${escapeChatHTML(destination)}</div>
-                      <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">终点</div>
-                    </div>
-                  </div>
-
-                  <!-- High-speed Amap Vector Tile Interactive Leaflet Map -->
-                  <div style="width: 100%; height: 350px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.12); box-shadow: inset 0 0 20px rgba(0,0,0,0.5);">
-                    <iframe srcdoc="${iframeDoc}" style="width: 100%; height: 100%; border: none; display: block;" loading="lazy"></iframe>
-                  </div>
+                  <span style="font-size: 11px; color: #94a3b8; background: rgba(0,0,0,0.3); padding: 3px 8px; border-radius: 4px;">支持在聊天框内缩放/拖拽</span>
                 </div>
 
-                <!-- Bottom Navigation Actions -->
-                <div style="padding: 12px 18px; background: rgba(15, 23, 42, 0.95); border-top: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
-                  <div style="font-size: 12px; color: #94a3b8; display: flex; align-items: center; gap: 6px;">
-                    <span style="width: 6px; height: 6px; border-radius: 50%; background: #38bdf8; display: inline-block;"></span>
-                    <span>打开第三方官方 App 导航:</span>
+                <div style="width: 100%; height: 380px; position: relative; background: #0f172a;">
+                  <iframe srcdoc="${iframeDoc}" style="width: 100%; height: 100%; border: none; display: block;" loading="lazy"></iframe>
+                </div>
+
+                <div style="padding: 12px 16px; background: rgba(15, 23, 42, 0.8); display: flex; align-items: center; justify-content: space-between; gap: 12px; border-top: 1px solid rgba(255,255,255,0.08);">
+                  <div style="font-size: 12px; color: #94a3b8; display: flex; align-items: center; gap: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #38bdf8; flex-shrink: 0;"></span>
+                    <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">路线数据: <strong style="color: #f1f5f9;">${escapeChatHTML(origin)} ➔ ${escapeChatHTML(destination)}</strong> (高德地图官方导航)</span>
                   </div>
-                  <div style="display: flex; gap: 8px;">
-                    <button class="open-url-btn" data-url="${escapeChatHTML(amapUrl)}" data-name="高德地图路线" style="padding: 6px 14px; background: linear-gradient(135deg, #0284c7, #0369a1); color: white; border: none; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;">高德导航 ↗</button>
-                    <button class="open-url-btn" data-url="${escapeChatHTML(baiduUrl)}" data-name="百度地图路线" style="padding: 6px 14px; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border: none; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;">百度导航 ↗</button>
-                    <button class="open-url-btn" data-url="${escapeChatHTML(tencentUrl)}" data-name="腾讯地图路线" style="padding: 6px 14px; background: linear-gradient(135deg, #059669, #047857); color: white; border: none; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;">腾讯导航 ↗</button>
-                  </div>
+                  <button class="open-url-btn" data-url="${escapeChatHTML(amapUrl)}" data-name="高德地图 ${escapeChatHTML(origin)}到${escapeChatHTML(destination)}路线" style="padding: 6px 14px; background: var(--accent, #0284c7); color: white; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; flex-shrink: 0; white-space: nowrap;">🌐 打开 高德地图 官方 ↗</button>
                 </div>
               </div><br>`;
 
