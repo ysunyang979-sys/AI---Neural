@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "Neural AI Context Connector",
+  "version": "1.0",
+  "description": "Bridges local AI assistant with browser tabs for DOM reading and automation.",
+  "permissions": [
+    "tabs",
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "all_frames": true,
+      "js": ["content-target.js"]
+    },
+    {
+      "matches": ["file:///*", "http://localhost/*", "http://127.0.0.1/*"],
+      "js": ["content-ai.js"],
+      "all_frames": false
+    }
+  ]
+}

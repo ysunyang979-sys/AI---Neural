@@ -29,6 +29,35 @@ window.collabApis = {
     }
 };
 
+// === CHROME EXTENSION CONTEXT CONNECTOR BRIDGE ===
+window.AI_BROWSER_BRIDGE = {
+    callbacks: {},
+    execute: function(payload) {
+        return new Promise((resolve, reject) => {
+            const id = Math.random().toString(36).substr(2, 9);
+            this.callbacks[id] = resolve;
+            window.postMessage({ type: "FROM_AI_APP", id, payload }, "*");
+            setTimeout(() => {
+                if (this.callbacks[id]) {
+                    delete this.callbacks[id];
+                    reject(new Error("Bridge Timeout: Is the Chrome Extension installed and 'Allow access to file URLs' enabled?"));
+                }
+            }, 5000);
+        });
+    }
+};
+window.addEventListener("message", (e) => {
+    if (e.data && e.data.type === "FROM_CONTENT_SCRIPT") {
+        if (window.AI_BROWSER_BRIDGE.callbacks[e.data.id]) {
+            window.AI_BROWSER_BRIDGE.callbacks[e.data.id](e.data.response);
+            delete window.AI_BROWSER_BRIDGE.callbacks[e.data.id];
+        }
+    } else if (e.data && e.data.type === "BRIDGE_READY") {
+        console.log("⚡ Context Connector Extension detected and ready.");
+        window.AI_BROWSER_BRIDGE_READY = true;
+    }
+});
+
 // === ENHANCED MULTI-API ENGINE CONFIGURATION ===
 window.AI_ENHANCED_CONFIG = {
   tavilyKeys: _localKeys.tavily || ['dummy'],
@@ -2471,6 +2500,23 @@ window.getAvailableTools = () => {
                 install_command: { type: "string", description: "Command to run immediately (e.g., 'npm install && npm run dev')" }
               },
               required: ["files", "install_command"]
+            }
+          }
+        },
+        {
+          type: "function",
+          function: {
+            name: "control_browser_context",
+            description: "CRITICAL: Control the user's real browser using the Context Connector Chrome Extension. You can list all open tabs, read the DOM of any tab, click elements, or input text in other tabs. Use this to summarize articles on other tabs, interact with web apps, or read documentation without leaving the AI UI.",
+            parameters: {
+              type: "object",
+              properties: {
+                action: { type: "string", description: "The action to perform: 'list_tabs', 'read_dom', 'click', 'input'" },
+                tabId: { type: "number", description: "The target tab ID. Optional if action is 'list_tabs'." },
+                selector: { type: "string", description: "The CSS selector of the element to interact with (for 'click' or 'input')" },
+                text: { type: "string", description: "The text to type (for 'input' action)" }
+              },
+              required: ["action"]
             }
           }
         },
@@ -5066,6 +5112,22 @@ sys.stdout = io.StringIO()
     </button>
 </div><br>`;
               result = "SYSTEM STATUS: SUCCESS. WebContainer OS files prepared. Instruct the user to click the launch button.";
+                        } else if (tc.function.name === "control_browser_context") {
+              addLine(`🔗 Calling Chrome Extension Context Connector [${args.action}]...`);
+              if (!window.AI_BROWSER_BRIDGE_READY) {
+                  const errorMsg = "ERROR: Chrome Extension not detected. Please make sure you have installed the Context Connector extension and checked 'Allow access to file URLs' in chrome://extensions.";
+                  addLine(`<span style="color: #ef4444;">${errorMsg}</span>`);
+                  result = "SYSTEM STATUS: ERROR. Extension missing.";
+              } else {
+                  try {
+                      const res = await window.AI_BROWSER_BRIDGE.execute(args);
+                      result = typeof res === 'string' ? res : JSON.stringify(res);
+                      addLine(`<span style="color: #4ade80;">Context Connector execution successful.</span>`);
+                  } catch (e) {
+                      result = "SYSTEM STATUS: ERROR. " + (e.message || e);
+                      addLine(`<span style="color: #ef4444;">${escapeChatHTML(result)}</span>`);
+                  }
+              }
                         } else if (tc.function.name === "create_p2p_portal") {
               addLine(`🌐 启动 WebRTC P2P 极速穿透隧道...`);
               const portalId = "portal-" + Math.random().toString(36).substr(2, 9);
