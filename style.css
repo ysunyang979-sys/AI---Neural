@@ -3564,7 +3564,7 @@ kbd {
 @media (max-width: 768px) {
     .chat-input-actions {
         display: flex !important;
-        flex-wrap: wrap !important;
+        flex-wrap: nowrap !important;
         gap: 6px !important;
         overflow: visible !important;
     }
@@ -3580,4 +3580,41 @@ kbd {
     #chat-draw-dropdown {
         left: 0 !important;
     }
+}
+
+
+/* ═══════════════════════════════════════
+   PREMIUM INPUT BAR & KATEX MATH FORMULA CARDS
+   ═══════════════════════════════════════ */
+
+/* Single-row input action buttons (No two-line breaking!) */
+.chat-input-actions {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    gap: 4px !important;
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+    scrollbar-width: none !important;
+    -webkit-overflow-scrolling: touch !important;
+}
+
+.chat-input-actions::-webkit-scrollbar {
+    display: none !important;
+}
+
+/* Beautiful KaTeX Display Math Formulas */
+.katex-display {
+    margin: 12px 0 !important;
+    padding: 12px 18px !important;
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid rgba(56, 189, 248, 0.25) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15) !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+}
+
+.katex {
+    font-size: 1.06em !important;
 }

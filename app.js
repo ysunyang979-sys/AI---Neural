@@ -590,7 +590,7 @@ window.getCanvasPreviewHtml = function(code, langInput, titleInput) {
     let parsedHtml = code;
     if (window.marked && typeof window.marked.parse === 'function') {
       try {
-        parsedHtml = window.marked.parse(code);
+        parsedHtml = window.marked.parse(window.preProcessMath ? window.preProcessMath(code) : code);
       } catch(e) { console.error('Marked parse failed', e); }
     }
     return `<!DOCTYPE html>
@@ -2208,7 +2208,7 @@ window.appendMessage = function(content, role, parseMarkdown = false) {
     const div = document.createElement("div");
     div.className = "ai-msg " + (role === 'user' ? 'user' : 'bot');
     const cleanContent = sanitizeChatMarkdown(content);
-    const displayHtml = parseMarkdown && window.marked ? marked.parse(cleanContent) : cleanContent;
+    const displayHtml = parseMarkdown && window.marked ? marked.parse(window.preProcessMath ? window.preProcessMath(cleanContent) : cleanContent) : cleanContent;
     
     if (role === 'user') {
         div.innerHTML = `<div>${displayHtml}</div>`;
@@ -3527,7 +3527,7 @@ window.generateWebLLMResponseWithTools = async (messages, stageEl, customLoading
     const toolPrompt = "\n\n【系统指令】你可以使用以下工具来查证事实：\n1. name: calculate, arguments: { expression: string } (用于数学计算)\n2. name: search_wikipedia, arguments: { title: string } (用于查百科)\n如果你需要调用工具，请直接输出以下XML格式（并且不要输出其他内容）：\n<tool_call>{\"name\":\"calculate\",\"arguments\":{\"expression\":\"1+1\"}}</tool_call>";
     messages[messages.length - 1].content += toolPrompt;
 
-    const renderMD = (txt) => window.marked ? marked.parse(txt) : txt.replace(/\n/g, '<br>');
+    const renderMD = (txt) => window.marked ? marked.parse(window.preProcessMath ? window.preProcessMath(txt) : txt) : txt.replace(/\n/g, '<br>');
 
     for (let iter = 0; iter < 3; iter++) {
         const chunks = await window.globalMlcEngine.chat.completions.create({
@@ -3607,7 +3607,7 @@ async function handleChatSend() {
             try {
                 let messages = [{role:"user", content:text}];
                 let reply = await window.fetchCollaborativeAPI(provider, modelId, messages, el);
-                el.innerHTML = window.marked ? marked.parse(reply) : reply.replace(/\n/g, '<br>');
+                el.innerHTML = window.marked ? marked.parse(window.preProcessMath ? window.preProcessMath(reply) : reply) : reply.replace(/\n/g, '<br>');
                 if (window.renderMath) renderMath(el);
                 if (window.hljs) el.querySelectorAll('pre code').forEach(c => hljs.highlightElement(c));
             } catch(e) {
@@ -3729,7 +3729,7 @@ async function handleChatSend() {
                 
                 const contentEl = msgEl.querySelector('.content');
                 if (isFinal) {
-                    contentEl.innerHTML = iframe.contentWindow.marked ? iframe.contentWindow.marked.parse(htmlContent) : htmlContent;
+                    contentEl.innerHTML = iframe.contentWindow.marked ? iframe.contentWindow.marked.parse(window.preProcessMath ? window.preProcessMath(htmlContent) : htmlContent) : htmlContent;
                 } else {
                     contentEl.innerHTML = '<span class="loading">' + htmlContent.replace(/\n/g, '<br>') + '</span>';
                 }
@@ -4023,7 +4023,7 @@ window.executeClientIntentTools = function(queryText, replyText, containerEl) {
 
   // Prepare message content
   let messageContent = text;
-  let displayHtml = window.marked ? marked.parse(text) : text;
+  let displayHtml = window.marked ? marked.parse(window.preProcessMath ? window.preProcessMath(text) : text) : text;
 
   let pdfContext = "";
   if (currentAttachedPDFs.length > 0) {
@@ -4259,7 +4259,7 @@ window.executeClientIntentTools = function(queryText, replyText, containerEl) {
                     }
                     replyText += chunkText;
                     let sanitizedText = typeof window.sanitizeMathText === 'function' ? window.sanitizeMathText(cleanQ, replyText) : replyText;
-                    let finalParsed = window.marked ? marked.parse(sanitizedText) : sanitizedText;
+                    let finalParsed = window.marked ? marked.parse(window.preProcessMath ? window.preProcessMath(sanitizedText) : sanitizedText) : sanitizedText;
                     replyContent.innerHTML = parseInteractiveActionChips(finalParsed) + '<span class="ai-cursor"></span>';
                     renderMath(replyContent);
                     if (window.lucide) lucide.createIcons();
@@ -4287,10 +4287,10 @@ window.executeClientIntentTools = function(queryText, replyText, containerEl) {
 
           if (!replyText.trim()) {
             replyText = "⚠️ Dify API 已成功链接，但未返回生成文本。请确认 Dify 应用已添加提示词与知识库匹配。";
-            let finalParsed = window.marked ? marked.parse(replyText) : replyText;
+            let finalParsed = window.marked ? marked.parse(window.preProcessMath ? window.preProcessMath(replyText) : replyText) : replyText;
             replyContent.innerHTML = parseInteractiveActionChips(finalParsed);
           } else {
-            let finalParsed = window.marked ? marked.parse(replyText) : replyText;
+            let finalParsed = window.marked ? marked.parse(window.preProcessMath ? window.preProcessMath(replyText) : replyText) : replyText;
             replyContent.innerHTML = parseInteractiveActionChips(finalParsed);
             renderMath(replyContent);
             if (typeof window.executeClientIntentTools === 'function') {
@@ -4525,7 +4525,7 @@ window.executeClientIntentTools = function(queryText, replyText, containerEl) {
                 firstChunk = false;
               }
               reply += delta.content;
-              let rawParsed = window.marked ? marked.parse(reply) : reply;
+              let rawParsed = window.marked ? marked.parse(window.preProcessMath ? window.preProcessMath(reply) : reply) : reply;
               replyContent.innerHTML =
                 parseInteractiveActionChips(rawParsed) +
                 '<span class="ai-cursor"></span>';
@@ -6584,7 +6584,7 @@ ${cleanHtml}
         reply = window.sanitizeMathText(lastUserMsg.content, reply);
       }
       reply = sanitizeChatOutput(reply);
-      let finalParsed = window.marked ? marked.parse(reply) : reply;
+      let finalParsed = window.marked ? marked.parse(window.preProcessMath ? window.preProcessMath(reply) : reply) : reply;
       replyContent.innerHTML = parseInteractiveActionChips(finalParsed);
       renderMath(replyContent);
       if (window.mermaid) {
