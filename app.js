@@ -465,17 +465,20 @@ if (window.marked) {
 
     const trimmed = (codeStr || "").trim();
     // 🌟 UNWRAP UI CARDS & HTML WIDGETS FROM CODE BLOCKS 🌟
-    if (/^<div[\s\S]*<\/div>$/i.test(trimmed) && (
-      trimmed.includes("interactive-route-map-card") ||
-      trimmed.includes("open-url-btn") ||
-      trimmed.includes("Route Dashboard Header") ||
-      trimmed.includes("Route Line") ||
-      trimmed.includes("m.amap.com") ||
-      trimmed.includes("math-calc-card") ||
-      trimmed.includes("code-diff-card") ||
-      trimmed.includes("task-planner-card")
-    )) {
-      return `<br>${trimmed}<br>`;
+    if (trimmed.includes("interactive-route-map-card") ||
+        trimmed.includes("google-map-embed-card") ||
+        trimmed.includes("route-map-card") ||
+        trimmed.includes("open-url-btn") ||
+        trimmed.includes("Route Dashboard Header") ||
+        trimmed.includes("Route Line") ||
+        trimmed.includes("m.amap.com") ||
+        trimmed.includes("math-calc-card") ||
+        trimmed.includes("code-diff-card") ||
+        trimmed.includes("task-planner-card")) {
+      const cardMatch = trimmed.match(/<div[\s\S]*<\/div>/i);
+      if (cardMatch) {
+        return `<br>${cardMatch[0]}<br>`;
+      }
     }
 
     const highlighted =
@@ -1868,8 +1871,8 @@ const sanitizeChatOutput = (text) => {
              .replace(/\{"\s*chart_config\s*":\s*\{[\s\S]*?\}\}/gi, '')
              .replace(/`\{"\s*chart_config[\s\S]*?\}`/gi, '');
   // Unwrap UI card HTML elements if enclosed inside markdown code blocks (```html <div ...>...</div> ```)
-  // so that the HTML card is rendered directly as a live DOM element instead of being erased or shown as a code block!
-  text = text.replace(/```(?:html|text|xml|markdown)?\s*(<div[\s\S]*?<\/div>)\s*```/gi, '$1');
+  // so that the HTML card is rendered directly as a live DOM element instead of being shown as a code block!
+  text = text.replace(/```(?:html|text|xml|markdown)?[\s\S]*?(<div[\s\S]*?<\/div>)[\s\S]*?```/gi, '$1');
   return text.trim();
 };
 
@@ -6832,6 +6835,7 @@ You operate under an advanced Adaptive Thinking (自适应思考) and Structured
    - When the user asks or clicks to open a map/site (e.g., "请在 百度地图 中为您打开 衡水 到 石家庄 路线导航" or "给我打开百度地图"):
      1. FIRST output text: "马上为您打开 百度地图（起始地：衡水，目的地：石家庄）..."
      2. IMMEDIATELY call the 'render_interactive_map' or 'open_browser_url' tool to open the target browser tab.
+     3. CRITICAL DIRECTIVE: DO NOT output any HTML, CSS, or markdown code blocks for maps or route cards in your text response! The system tool will render the UI card automatically.
 `;
 
   // 🌟 Ensure active persona system prompt & output format are 100% in sync with active UI pills 🌟
