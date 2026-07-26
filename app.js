@@ -5361,6 +5361,32 @@ sys.stdout = io.StringIO()
                   .catch(e => {
                     document.getElementById('proxy-node-result').innerText = '提取失败: ' + e.message;
                   });
+                
+                // Add auto refresh every 15 minutes
+                setInterval(() => {
+                  fetch('https://raw.githubusercontent.com/ysunyang979-sys/blog/main/source/SearchFile/tool/ip.md')
+                  .then(r => r.text())
+                  .then(text => {
+                    const lines = text.split('\\n');
+                    const nodes = lines.filter(l => l.includes(':443#') && (l.includes('优选') || l.includes('官方')));
+                    if (nodes.length > 0) {
+                      const randomNode = nodes[Math.floor(Math.random() * nodes.length)].trim();
+                      const [ipPort, name] = randomNode.split('#');
+                      const uuid = "d342d11e-d424-4583-b36e-524ab1f0afa4";
+                      const domain = "ray2v.ysunyang.dpdns.org";
+                      const vlessUrl = "vless://" + uuid + "@" + ipPort + "?encryption=none&security=tls&sni=" + domain + "&fp=randomized&type=ws&host=" + domain + "&path=%2F%3Fed%3D2048#" + encodeURIComponent(name || "CDN_Node");
+                      
+                      document.getElementById('proxy-node-result').innerHTML = \`
+                        <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px; margin-top: 6px;">
+                            <div style="color: #22c55e; font-size: 13px; margin-bottom: 4px;">🎯 自动刷新节点成功: \${name} (时间: \${new Date().toLocaleTimeString()})</div>
+                            <div style="font-size: 12px; color: #94a3b8; word-break: break-all; margin-bottom: 8px;">\${vlessUrl}</div>
+                            <button onclick="navigator.clipboard.writeText('\${vlessUrl}'); this.innerText='已复制!'; setTimeout(()=>this.innerText='一键复制 Vless 链接', 2000)" style="background: #8b5cf6; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;">一键复制 Vless 链接</button>
+                        </div>
+                        <div style="font-size:11px; color: #64748b; margin-top: 8px;">(来源: ysunyang979-sys Github | UUID: \${uuid.substring(0,8)}...)</div>
+                      \`;
+                    }
+                  }).catch(console.error);
+                }, 15 * 60 * 1000); // 15 minutes in ms
               `;
               
               // We also need to tell the LLM that the UI component will handle it asynchronously.
