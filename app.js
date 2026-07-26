@@ -2538,6 +2538,14 @@ window.getAvailableTools = () => {
         {
           type: "function",
           function: {
+            name: "get_proxy_node",
+            description: "获取一个最新可用的科学上网/代理节点(优选IP)。当用户询问或需要节点地址时使用。数据来自长期更新的 Github 仓库。",
+            parameters: { type: "object", properties: {} }
+          }
+        },
+        {
+          type: "function",
+          function: {
             name: "create_p2p_portal",
             description: "生成一个WebRTC手机跨端传输二维码入口。当用户要求手机直连、扫码传文件、跨端输入时使用。",
             parameters: { type: "object", properties: {}, required: [] }
@@ -5303,6 +5311,55 @@ sys.stdout = io.StringIO()
     <iframe id="${previewId}" style="width: 100%; height: 400px; border: none; background: #fff;" sandbox="allow-scripts allow-popups allow-forms allow-same-origin" srcdoc="${escapeChatHTML(srcdoc)}"></iframe>
 </div><br>`;
               result = "SYSTEM STATUS: SUCCESS. Live preview rendered.";
+                        } else if (tc.function.name === "get_proxy_node") {
+              addLine(`⚡ Fetching optimal proxy node...`);
+              
+              // Instead of fetching at runtime which might have CORS issues or be complex,
+              // we can just output a stylized UI component for the node.
+              // We'll tell the AI that we rendered a placeholder and it should provide the address.
+              // Wait, the AI provides the address directly? No, the tool description says:
+              // "获取一个最新可用的科学上网/代理节点(优选IP)。当用户询问或需要节点地址时使用。数据来自长期更新的 Github 仓库。"
+              // Wait, the AI just calls this tool to get the node! So the tool should RETURN the node address.
+              // Let's implement the logic to return a random node from a hardcoded list or fetch it?
+              // The user said: "如果用户问给我一个可用的节点地址，你就给用户一个对应的地址这个项目长期更新，随机给用户一个地址即可"
+              // They showed me E:\Tools\Written\source\SearchFile\tool\ip.md which contains IP lists.
+              // Since the AI runs in the browser, fetching from a local path 'E:\Tools\Written' is impossible.
+              // Wait, I can fetch from the github page: https://ysunyang979-sys.github.io/SearchFile/tool/ip/
+              // Or I can just hardcode the logic to fetch from a raw URL.
+              
+              // Let's use fetch in the handler to get the raw markdown from github!
+              initialReply += `<div style="background: rgba(139, 92, 246, 0.1); border-left: 4px solid #8b5cf6; padding: 12px; margin: 10px 0; border-radius: 4px; font-family: monospace;">
+                <div style="color: #a78bfa; font-weight: bold; margin-bottom: 8px;">🚀 节点提取器</div>
+                <div id="proxy-node-result">正在从 Github 仓库实时提取优选节点...</div>
+              </div>`;
+              
+              const fetchNodeCode = `
+                fetch('https://raw.githubusercontent.com/ysunyang979-sys/blog/main/source/SearchFile/tool/ip.md')
+                  .then(r => r.text())
+                  .then(text => {
+                    const lines = text.split('\\n');
+                    const nodes = lines.filter(l => l.includes(':443#') && (l.includes('优选') || l.includes('官方')));
+                    if (nodes.length > 0) {
+                      const randomNode = nodes[Math.floor(Math.random() * nodes.length)].trim();
+                      document.getElementById('proxy-node-result').innerHTML = '<span style="color: #22c55e;">[可用]</span> ' + randomNode + '<br><br><span style="font-size:12px; color: #64748b;">(数据来源: ysunyang979-sys Github 实时更新)</span>';
+                    } else {
+                      document.getElementById('proxy-node-result').innerText = '未找到可用节点数据。';
+                    }
+                  })
+                  .catch(e => {
+                    document.getElementById('proxy-node-result').innerText = '提取失败: ' + e.message;
+                  });
+              `;
+              
+              // We also need to tell the LLM that the UI component will handle it asynchronously.
+              result = "SYSTEM STATUS: SUCCESS. Proxy node fetching UI rendered. The node will be displayed to the user automatically.";
+              
+              // We inject the script to run in the main window
+              setTimeout(() => {
+                const script = document.createElement('script');
+                script.textContent = fetchNodeCode;
+                document.body.appendChild(script);
+              }, 100);
                         } else if (tc.function.name === "create_p2p_portal") {
               addLine(`🌐 启动 WebRTC P2P 极速穿透隧道...`);
               const portalId = "portal-" + Math.random().toString(36).substr(2, 9);
