@@ -5350,83 +5350,27 @@ sys.stdout = io.StringIO()
               switch(toolName) {
                 case "uuid_generator":
                   const uuid = crypto.randomUUID();
-                  widgetContent = `
-                    <div style="font-size: 16px; font-family: monospace; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px; text-align: center; margin-bottom: 10px; color: #a78bfa;">${uuid}</div>
-                    <button onclick="navigator.clipboard.writeText('${uuid}'); this.innerText='已复制!'; setTimeout(()=>this.innerText='复制 UUID', 2000)" style="width: 100%; padding: 8px; background: #8b5cf6; border: none; border-radius: 4px; color: white; cursor: pointer;">复制 UUID</button>
-                  `;
+                  widgetContent = `<div style="font-size: 16px; font-family: monospace; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px; text-align: center; margin-bottom: 10px; color: #a78bfa;">${uuid}</div><button onclick="navigator.clipboard.writeText('${uuid}'); this.innerText='已复制!'; setTimeout(()=>this.innerText='复制 UUID', 2000)" style="width: 100%; padding: 8px; background: #8b5cf6; border: none; border-radius: 4px; color: white; cursor: pointer;">复制 UUID</button>`;
                   resultStr = `Generated UUID: ${uuid}`;
                   break;
                 case "password_generator":
                   const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
                   let pwd = "";
                   for(let i=0; i<16; i++) pwd += charset.charAt(Math.floor(Math.random() * charset.length));
-                  widgetContent = `
-                    <div style="font-size: 20px; font-family: monospace; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px; text-align: center; margin-bottom: 10px; color: #34d399;">${pwd}</div>
-                    <button onclick="navigator.clipboard.writeText('${pwd}'); this.innerText='已复制!'; setTimeout(()=>this.innerText='复制密码', 2000)" style="width: 100%; padding: 8px; background: #10b981; border: none; border-radius: 4px; color: white; cursor: pointer;">复制密码</button>
-                  `;
+                  widgetContent = `<div style="font-size: 20px; font-family: monospace; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px; text-align: center; margin-bottom: 10px; color: #34d399;">${pwd}</div><button onclick="navigator.clipboard.writeText('${pwd}'); this.innerText='已复制!'; setTimeout(()=>this.innerText='复制密码', 2000)" style="width: 100%; padding: 8px; background: #10b981; border: none; border-radius: 4px; color: white; cursor: pointer;">复制密码</button>`;
                   resultStr = `Generated Password: ${pwd}`;
                   break;
                 case "ip_lookup":
-                  widgetContent = `
-                    <div id="ip-result-${widgetId}">正在查询 IP 信息...</div>
-                    <script>
-                      fetch('https://ipapi.co/json/')
-                        .then(r => r.json())
-                        .then(data => {
-                          const html = \`<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px; color: #e2e8f0;">
-                            <div><span style="color: #94a3b8;">IP:</span> \${data.ip}</div>
-                            <div><span style="color: #94a3b8;">城市:</span> \${data.city}</div>
-                            <div><span style="color: #94a3b8;">地区:</span> \${data.region}</div>
-                            <div><span style="color: #94a3b8;">国家:</span> \${data.country_name}</div>
-                            <div><span style="color: #94a3b8;">ISP:</span> \${data.org}</div>
-                            <div><span style="color: #94a3b8;">ASN:</span> \${data.asn}</div>
-                          </div>\`;
-                          document.getElementById('ip-result-${widgetId}').innerHTML = html;
-                        }).catch(e => document.getElementById('ip-result-${widgetId}').innerText = '查询失败');
-                    </script>
-                  `;
+                  widgetContent = `<div id="ip-result-${widgetId}">正在查询 IP 信息...</div><script>fetch('https://ipapi.co/json/').then(r => r.json()).then(data => { const html = \`<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px; color: #e2e8f0;"><div><span style="color: #94a3b8;">IP:</span> \${data.ip}</div><div><span style="color: #94a3b8;">城市:</span> \${data.city}</div><div><span style="color: #94a3b8;">地区:</span> \${data.region}</div><div><span style="color: #94a3b8;">国家:</span> \${data.country_name}</div><div><span style="color: #94a3b8;">ISP:</span> \${data.org}</div><div><span style="color: #94a3b8;">ASN:</span> \${data.asn}</div></div>\`; document.getElementById('ip-result-${widgetId}').innerHTML = html; }).catch(e => document.getElementById('ip-result-${widgetId}').innerText = '查询失败'); </script>`;
                   break;
                 case "qr_code_generator":
                   const qrText = toolParams || "https://github.com/ysunyang979-sys";
                   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrText)}`;
-                  widgetContent = `
-                    <div style="text-align: center;">
-                        <div style="margin-bottom: 10px; font-size: 12px; color: #94a3b8;">数据内容: ${escapeChatHTML(qrText)}</div>
-                        <img src="${qrUrl}" style="border-radius: 8px; padding: 10px; background: white; max-width: 200px;">
-                    </div>
-                  `;
+                  widgetContent = `<div style="text-align: center;"><div style="margin-bottom: 10px; font-size: 12px; color: #94a3b8;">数据内容: ${escapeChatHTML(qrText)}</div><img src="${qrUrl}" style="border-radius: 8px; padding: 10px; background: white; max-width: 200px;"></div>`;
                   resultStr = `Rendered QR Code for: ${qrText}`;
                   break;
                 case "pomo_os":
-                  widgetContent = `
-                    <div style="text-align: center; padding: 15px;">
-                      <div id="pomo-time-${widgetId}" style="font-size: 42px; font-weight: 800; font-family: monospace; color: #f43f5e; margin-bottom: 15px; text-shadow: 0 0 10px rgba(244,63,94,0.3);">25:00</div>
-                      <div style="display: flex; gap: 10px; justify-content: center;">
-                        <button onclick="window.startPomo('${widgetId}')" style="background: #f43f5e; color: white; border: none; padding: 6px 16px; border-radius: 20px; cursor: pointer; font-weight: bold;">开始专注</button>
-                        <button onclick="window.resetPomo('${widgetId}')" style="background: rgba(255,255,255,0.1); color: white; border: none; padding: 6px 16px; border-radius: 20px; cursor: pointer;">重置</button>
-                      </div>
-                      <script>
-                        if(!window.pomoIntervals) window.pomoIntervals = {};
-                        window.startPomo = (id) => {
-                          if(window.pomoIntervals[id]) return;
-                          let timeLeft = 25 * 60;
-                          window.pomoIntervals[id] = setInterval(() => {
-                            timeLeft--;
-                            const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
-                            const s = (timeLeft % 60).toString().padStart(2, '0');
-                            const el = document.getElementById('pomo-time-'+id);
-                            if(el) el.innerText = \`\${m}:\${s}\`;
-                            if(timeLeft <= 0) { clearInterval(window.pomoIntervals[id]); window.pomoIntervals[id]=null; alert('专注时间到！'); }
-                          }, 1000);
-                        };
-                        window.resetPomo = (id) => {
-                          if(window.pomoIntervals[id]) { clearInterval(window.pomoIntervals[id]); window.pomoIntervals[id]=null; }
-                          const el = document.getElementById('pomo-time-'+id);
-                          if(el) el.innerText = '25:00';
-                        };
-                      </script>
-                    </div>
-                  `;
+                  widgetContent = `<div style="text-align: center; padding: 15px;"><div id="pomo-time-${widgetId}" style="font-size: 42px; font-weight: 800; font-family: monospace; color: #f43f5e; margin-bottom: 15px; text-shadow: 0 0 10px rgba(244,63,94,0.3);">25:00</div><div style="display: flex; gap: 10px; justify-content: center;"><button onclick="window.startPomo('${widgetId}')" style="background: #f43f5e; color: white; border: none; padding: 6px 16px; border-radius: 20px; cursor: pointer; font-weight: bold;">开始专注</button><button onclick="window.resetPomo('${widgetId}')" style="background: rgba(255,255,255,0.1); color: white; border: none; padding: 6px 16px; border-radius: 20px; cursor: pointer;">重置</button></div><script>if(!window.pomoIntervals) window.pomoIntervals = {}; window.startPomo = (id) => { if(window.pomoIntervals[id]) return; let timeLeft = 25 * 60; window.pomoIntervals[id] = setInterval(() => { timeLeft--; const m = Math.floor(timeLeft / 60).toString().padStart(2, '0'); const s = (timeLeft % 60).toString().padStart(2, '0'); const el = document.getElementById('pomo-time-'+id); if(el) el.innerText = \`\${m}:\${s}\`; if(timeLeft <= 0) { clearInterval(window.pomoIntervals[id]); window.pomoIntervals[id]=null; alert('专注时间到！'); } }, 1000); }; window.resetPomo = (id) => { if(window.pomoIntervals[id]) { clearInterval(window.pomoIntervals[id]); window.pomoIntervals[id]=null; } const el = document.getElementById('pomo-time-'+id); if(el) el.innerText = '25:00'; }; </script></div>`;
                   break;
                 case "color_palette":
                   let colorsHtml = "";
@@ -5434,52 +5378,19 @@ sys.stdout = io.StringIO()
                       const hex = '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
                       colorsHtml += `<div style="flex: 1; height: 60px; background: ${hex}; cursor: pointer; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 5px; color: #fff; font-size: 11px; text-shadow: 0 0 2px #000;" onclick="navigator.clipboard.writeText('${hex}'); this.innerText='已复制'; setTimeout(()=>this.innerText='${hex}',1000)">${hex}</div>`;
                   }
-                  widgetContent = `
-                    <div style="display: flex; width: 100%; border-radius: 8px; overflow: hidden; margin-bottom: 10px;">
-                        ${colorsHtml}
-                    </div>
-                    <div style="font-size: 11px; color: #94a3b8; text-align: center;">点击色块即可复制 HEX 色值</div>
-                  `;
+                  widgetContent = `<div style="display: flex; width: 100%; border-radius: 8px; overflow: hidden; margin-bottom: 10px;">${colorsHtml}</div><div style="font-size: 11px; color: #94a3b8; text-align: center;">点击色块即可复制 HEX 色值</div>`;
                   break;
                 case "encode_decode":
-                  widgetContent = `
-                    <div>
-                      <textarea id="ed-input-${widgetId}" style="width: 100%; height: 60px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: white; padding: 8px; font-family: monospace; margin-bottom: 10px;" placeholder="输入文本...">${escapeChatHTML(toolParams)}</textarea>
-                      <div style="display: flex; gap: 8px; margin-bottom: 10px;">
-                        <button onclick="document.getElementById('ed-output-${widgetId}').value = btoa(unescape(encodeURIComponent(document.getElementById('ed-input-${widgetId}').value)))" style="flex: 1; padding: 6px; background: #3b82f6; border: none; border-radius: 4px; color: white; cursor: pointer;">Base64 编码</button>
-                        <button onclick="document.getElementById('ed-output-${widgetId}').value = decodeURIComponent(escape(atob(document.getElementById('ed-input-${widgetId}').value)))" style="flex: 1; padding: 6px; background: #6366f1; border: none; border-radius: 4px; color: white; cursor: pointer;">Base64 解码</button>
-                        <button onclick="document.getElementById('ed-output-${widgetId}').value = encodeURIComponent(document.getElementById('ed-input-${widgetId}').value)" style="flex: 1; padding: 6px; background: #0ea5e9; border: none; border-radius: 4px; color: white; cursor: pointer;">URL Encode</button>
-                      </div>
-                      <textarea id="ed-output-${widgetId}" style="width: 100%; height: 60px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: #34d399; padding: 8px; font-family: monospace;" readonly placeholder="转换结果..."></textarea>
-                    </div>
-                  `;
+                  widgetContent = `<div><textarea id="ed-input-${widgetId}" style="width: 100%; height: 60px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: white; padding: 8px; font-family: monospace; margin-bottom: 10px;" placeholder="输入文本...">${escapeChatHTML(toolParams)}</textarea><div style="display: flex; gap: 8px; margin-bottom: 10px;"><button onclick="document.getElementById('ed-output-${widgetId}').value = btoa(unescape(encodeURIComponent(document.getElementById('ed-input-${widgetId}').value)))" style="flex: 1; padding: 6px; background: #3b82f6; border: none; border-radius: 4px; color: white; cursor: pointer;">Base64 编码</button><button onclick="document.getElementById('ed-output-${widgetId}').value = decodeURIComponent(escape(atob(document.getElementById('ed-input-${widgetId}').value)))" style="flex: 1; padding: 6px; background: #6366f1; border: none; border-radius: 4px; color: white; cursor: pointer;">Base64 解码</button><button onclick="document.getElementById('ed-output-${widgetId}').value = encodeURIComponent(document.getElementById('ed-input-${widgetId}').value)" style="flex: 1; padding: 6px; background: #0ea5e9; border: none; border-radius: 4px; color: white; cursor: pointer;">URL Encode</button></div><textarea id="ed-output-${widgetId}" style="width: 100%; height: 60px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: #34d399; padding: 8px; font-family: monospace;" readonly placeholder="转换结果..."></textarea></div>`;
                   break;
                 case "timestamp_converter":
-                  widgetContent = `
-                    <div style="display: flex; flex-direction: column; gap: 10px;">
-                      <div><span style="color:#94a3b8; font-size: 12px;">当前时间戳 (秒):</span> <br><b style="color: #60a5fa;">${Math.floor(Date.now()/1000)}</b></div>
-                      <div><span style="color:#94a3b8; font-size: 12px;">当前本地时间:</span> <br><b style="color: #60a5fa;">${new Date().toLocaleString()}</b></div>
-                    </div>
-                  `;
+                  widgetContent = `<div style="display: flex; flex-direction: column; gap: 10px;"><div><span style="color:#94a3b8; font-size: 12px;">当前时间戳 (秒):</span> <br><b style="color: #60a5fa;">${Math.floor(Date.now()/1000)}</b></div><div><span style="color:#94a3b8; font-size: 12px;">当前本地时间:</span> <br><b style="color: #60a5fa;">${new Date().toLocaleString()}</b></div></div>`;
                   break;
                 default:
-                  widgetContent = `<div style="padding: 20px; text-align: center; color: #94a3b8;">
-                    <i data-lucide="wrench" style="width: 32px; height: 32px; margin-bottom: 10px; color: #8b5cf6;"></i>
-                    <br>该极客小工具 (${escapeChatHTML(toolName)}) 的专属界面正在开发中。<br>已通过系统接口完成了基础处理逻辑。
-                  </div>`;
+                  widgetContent = `<div style="padding: 20px; text-align: center; color: #94a3b8;"><i data-lucide="wrench" style="width: 32px; height: 32px; margin-bottom: 10px; color: #8b5cf6;"></i><br>该极客小工具 (${escapeChatHTML(toolName)}) 的专属界面正在开发中。<br>已通过系统接口完成了基础处理逻辑。</div>`;
               }
               
-              initialReply += `
-                <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(148, 163, 184, 0.2); padding: 16px; margin: 12px 0; border-radius: 12px; backdrop-filter: blur(10px);">
-                  <div style="display: flex; align-items: center; margin-bottom: 12px; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px;">
-                    <span style="font-size: 16px;">🛠️</span>
-                    <span style="color: #f8fafc; font-weight: 600; font-size: 14px;">极客小工具 - ${escapeChatHTML(toolName.replace('_', ' ').toUpperCase())}</span>
-                  </div>
-                  <div id="${widgetId}">
-                    ${widgetContent}
-                  </div>
-                </div>
-              `;
+              initialReply += `<div style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(148, 163, 184, 0.2); padding: 16px; margin: 12px 0; border-radius: 12px; backdrop-filter: blur(10px);"><div style="display: flex; align-items: center; margin-bottom: 12px; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px;"><span style="font-size: 16px;">🛠️</span><span style="color: #f8fafc; font-weight: 600; font-size: 14px;">极客小工具 - ${escapeChatHTML(toolName.replace('_', ' ').toUpperCase())}</span></div><div id="${widgetId}">${widgetContent}</div></div><br>`;
               
               result = resultStr;
                         } else if (tc.function.name === "get_proxy_node") {
