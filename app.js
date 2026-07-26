@@ -8049,9 +8049,20 @@ function initPlusMenu() {
             });
         }
 
-        // 4. Personas Sub-options
+        // 4. Personas Sub-options (Built-in Instant & High Reliability)
         const subPersonas = document.getElementById('plus-sub-personas');
         if (subPersonas) {
+            const EXPERT_PERSONAS_PROMPTS = {
+                musk: `你现在是埃隆·马斯克 (Elon Musk)。回答风格与思考框架要求: 1.采用“第一性原理”(First Principles Thinking)，拆解事物最本质逻辑；2.强调极速迭代、打破规则与火星级宏伟愿景；3.硬核、充满科技激情。`,
+                jobs: `你现在是史蒂夫·乔布斯 (Steve Jobs)。回答风格与思考框架要求: 1.极简主义与极致品味，对妥协零容忍；2.站在科技与人文的交汇点；3.语言自信、富有改变世界的激情。`,
+                naval: `你现在是纳瓦尔 (Naval Ravikant)。回答风格与思考框架要求: 1.关注杠杆率、专长、财富自由与内心平静；2.语言格言化、极简凝练、充满哲学智慧。`,
+                feynman: `你现在是理查德·费曼 (Richard Feynman)。回答风格与思考框架要求: 1.采用“费曼学习法”，用最通俗大白话解释复杂概念；2.充满真诚的探索激情与幽默。`,
+                munger: `你现在是查理·芒格 (Charlie Munger)。回答风格与思考框架要求: 1.运用多维思维模型与逆向思考(Invert, Always Invert)；2.强调理性、诚实、避免蠢事。`,
+                trump: `你现在是唐纳德·特朗普 (Donald Trump)。回答风格与思考框架要求: 1.极度自信、直白、善用夸张与商业谈判契约(Art of the Deal)；2.强调“赢”(Winning)与结果导向。`,
+                pg: `你现在是保罗·格雷厄姆 (Paul Graham)。回答风格与思考框架要求: 1.YC导师级创业洞察，关注做人们需要的东西(Make something people want)；2.逻辑严密、条理清晰。`,
+                taleb: `你现在是纳西姆·塔勒布 (Nassim Taleb)。回答风格与思考框架要求: 1.关注反脆弱(Antifragile)、切肤之痛(Skin in the Game)与黑天鹅风险；2.犀利指出虚伪与懦弱。`
+            };
+
             subPersonas.querySelectorAll('.plus-sub-item').forEach(subItem => {
                 subItem.addEventListener('click', (e) => {
                     e.stopPropagation();
@@ -8064,20 +8075,13 @@ function initPlusMenu() {
                         window.activePersonaName = null;
                         localStorage.removeItem("activePersonaName");
                     } else {
-                        // Keyword mapping to find .skill-dropdown-item in index.html
-                        const keywordMap = {
-                            musk: '马斯克', jobs: '乔布斯', naval: '纳瓦尔', feynman: '费曼',
-                            munger: '芒格', trump: '特朗普', pg: '保罗·格雷厄姆', taleb: '塔勒布'
-                        };
-                        const kw = keywordMap[pKey] || itemText;
-                        const skillItems = document.querySelectorAll('.skill-dropdown-item');
-                        let foundSkill = null;
-                        skillItems.forEach(si => {
-                            if (si.textContent.includes(kw)) foundSkill = si;
-                        });
-                        
-                        if (foundSkill) {
-                            foundSkill.click();
+                        const promptText = EXPERT_PERSONAS_PROMPTS[pKey];
+                        if (promptText) {
+                            currentSysPrompt = promptText;
+                            const sysInput = document.getElementById('sys-prompt-input');
+                            if (sysInput) sysInput.value = promptText;
+                            localStorage.setItem("aiSysPrompt", currentSysPrompt);
+                            window._personaJustSwitched = true;
                         }
                         
                         window.activePersonaName = itemText;
