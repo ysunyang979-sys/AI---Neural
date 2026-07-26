@@ -463,6 +463,21 @@ if (window.marked) {
       langLabel = lang || "text";
     }
 
+    const trimmed = (codeStr || "").trim();
+    // 🌟 UNWRAP UI CARDS & HTML WIDGETS FROM CODE BLOCKS 🌟
+    if (/^<div[\s\S]*<\/div>$/i.test(trimmed) && (
+      trimmed.includes("interactive-route-map-card") ||
+      trimmed.includes("open-url-btn") ||
+      trimmed.includes("Route Dashboard Header") ||
+      trimmed.includes("Route Line") ||
+      trimmed.includes("m.amap.com") ||
+      trimmed.includes("math-calc-card") ||
+      trimmed.includes("code-diff-card") ||
+      trimmed.includes("task-planner-card")
+    )) {
+      return `<br>${trimmed}<br>`;
+    }
+
     const highlighted =
       langLabel !== "text" && window.hljs && hljs.getLanguage(langLabel)
         ? hljs.highlight(codeStr, { language: langLabel }).value
