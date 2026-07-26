@@ -3853,3 +3853,12 @@ label.chat-input-action-btn,
         border: 1px solid rgba(56, 189, 248, 0.2) !important;
     }
 }
+
+/* 🌟 CLEAN INPUT BAR: HIDE REDUNDANT STANDALONE ACTION BUTTONS (NOW ACCESSIBLE VIA + MENU) 🌟 */
+#chat-search-toggle,
+#chat-draw-toggle,
+#chat-canvas-toggle,
+#chat-personas-toggle-btn,
+#chat-code-mode-toggle {
+    display: none !important;
+}
