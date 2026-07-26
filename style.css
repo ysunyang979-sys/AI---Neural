@@ -1348,15 +1348,15 @@ pre code.hljs { display: block; padding: 0; background: transparent; color: var(
     color: #ffffff !important;
 }
 
-/* 🧠 大脑推理分析过程 (Brain Reasoning) Block */
+/* 🧠 简洁透明 AI 思考 Block (Transparent Minimal Thinking UI) */
 .ai-thinking-block {
-    margin: 8px 0 12px 0;
-    border-radius: 12px;
-    background: var(--bg-secondary, rgba(24, 24, 37, 0.7));
-    border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
-    overflow: hidden;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    margin: 6px 0 10px 0;
+    border-radius: 8px;
+    background: transparent;
+    border: none;
+    border-left: 2px solid var(--accent-color, rgba(249, 115, 22, 0.4));
+    padding-left: 8px;
+    transition: all 0.2s ease;
 }
 .ai-thinking-block details {
     width: 100%;
@@ -1365,18 +1365,9 @@ pre code.hljs { display: block; padding: 0; background: transparent; color: var(
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 14px;
+    padding: 4px 6px;
     cursor: pointer;
     user-select: none;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-primary);
-    background: rgba(255, 152, 0, 0.04);
-    border-bottom: 1px solid transparent;
-    transition: background 0.2s;
-}
-.ai-thinking-block details[open] summary {
-    border-bottom: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
     background: rgba(255, 152, 0, 0.08);
 }
 .ai-thinking-block summary:hover {

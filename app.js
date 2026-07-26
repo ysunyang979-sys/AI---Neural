@@ -4019,7 +4019,7 @@ window.sanitizeMathText = function(query, text) {
   replyDiv.innerHTML = `<div class="bot-avatar">${botAvatarSVG}</div><div class="bot-content"><div class="bot-text"><span class="ai-cursor"></span></div></div>`;
   // replyDiv.style.display = "none";
 
-  // 🧠 大脑推理分析过程 (Brain Reasoning) Block
+  // 🧠 透明简洁 AI 思考 Block (Transparent Minimal Thinking UI)
   const thinkBlock = document.createElement("div");
   thinkBlock.className = "ai-thinking-block";
   const thinkStartTime = Date.now();
@@ -4028,7 +4028,7 @@ window.sanitizeMathText = function(query, text) {
             <summary>
               <div class="think-header-left">
                 <span class="think-brain-icon">💭</span>
-                <span class="think-title">大脑推理分析过程 <span class="think-sub-tag">(Brain Reasoning)</span></span>
+                <span class="think-title">思考过程</span>
               </div>
               <div class="think-header-right">
                 <span class="think-timer">(0.0秒)</span>
@@ -4054,12 +4054,12 @@ window.sanitizeMathText = function(query, text) {
     }
   }, 100);
 
-  // Generate dynamic step-by-step streaming reasoning items
-  const queryText = messageContent || "";
-  const truncatedQ = queryText.length > 22 ? queryText.slice(0, 22) + '...' : queryText;
+  // Generate natural continuous reasoning prose stream (写成一段话，流式打字输出)
+  const queryText = (messageContent || "").trim();
+  const truncatedQ = queryText.length > 25 ? queryText.slice(0, 25) + '...' : queryText;
 
   let isNav = /衡水|石家庄|怎么走|路线|导航|地图|公交|驾车|坐车|火车站|机票|方案/i.test(queryText);
-  let isMath = /^[\d\.\s\+\-\*\/\(\)\=\%\^]+$/.test(queryText.trim().replace(/=$/, '')) || /计算|算一下|求值/i.test(queryText);
+  let isMath = /^[\d\.\s\+\-\*\/\(\)\=\%\^]+$/.test(queryText.replace(/=$/, '')) || /计算|算一下|求值/i.test(queryText);
   let isCode = /python|javascript|代码|写个|函数|程序|算法|画图/i.test(queryText);
   let isTime = /时间|几点|日期|今天是|星期几|现在几点/i.test(queryText);
 
@@ -4068,130 +4068,43 @@ window.sanitizeMathText = function(query, text) {
     try { availCount = window.getAvailableTools().length || 12; } catch(e){}
   }
 
-  let steps = [];
-  steps.push({
-    icon: "🎯",
-    title: `用户提问「${truncatedQ}」`,
-    desc: "我先看看需要调用工具吗？正在分析核心需求与预期交付结果..."
-  });
-
+  let fullProse = "";
   if (isNav) {
-    steps.push({
-      icon: "🔍",
-      title: "好的，这个需要调用工具！",
-      desc: `正在评估外部工具依赖，查询到 ${availCount} 个可用外挂工具组件...`
-    });
-    steps.push({
-      icon: "⚡",
-      title: "让我来规划一下（路径与导航工具链）",
-      desc: "已匹配【地图导航、路线规划、距离测算】工具，构建最优出行解决方案..."
-    });
-    steps.push({
-      icon: "🚀",
-      title: "让我来执行为用户解决问题！",
-      desc: "正在协同计算多种出行策略（高铁/驾车/大巴建议）并生成渲染可视化路线..."
-    });
+    fullProse = `用户问道「${truncatedQ}」，我先看看需要调用工具吗？好的，这个需要调用工具！让我来规划一下，查询到 ${availCount} 个可用外挂工具组件。我将匹配地图导航与路线规划控件，协同计算最优出行路线与多种交通策略（高铁/驾车/大巴等），让我来执行为用户解决问题...`;
   } else if (isMath) {
-    steps.push({
-      icon: "🔍",
-      title: "好的，这个需要调用工具！",
-      desc: `评估高精度算术逻辑引擎，查询到 ${availCount} 个可用外挂工具组件...`
-    });
-    steps.push({
-      icon: "⚡",
-      title: "让我来规划一下（数学计算与公式校验）",
-      desc: "准备激活【KaTeX 高精度算术计算器】，防止大模型分词运算幻觉..."
-    });
-    steps.push({
-      icon: "🚀",
-      title: "让我来执行为用户解决问题！",
-      desc: "执行双重精度校验，准备将绝对精确结果格式化输出..."
-    });
+    fullProse = `用户询问算术算式「${truncatedQ}」，我先看看需要调用工具吗？好的，这个需要调用工具！让我来规划一下，查询到 ${availCount} 个可用外挂工具组件。我将激活 KaTeX 高精度算术计算器，评估数学校准规则与精度，防止大模型分词运算幻觉，让我来执行为用户解决问题...`;
   } else if (isCode) {
-    steps.push({
-      icon: "🔍",
-      title: "好的，这个需要调用工具！",
-      desc: `评估代码沙盒与语法架构，查询到 ${availCount} 个可用外挂工具组件...`
-    });
-    steps.push({
-      icon: "⚡",
-      title: "让我来规划一下（程序构建与代码执行）",
-      desc: "准备激活【Python Pyodide / Piston 代码执行沙盒与交互卡片】..."
-    });
-    steps.push({
-      icon: "🚀",
-      title: "让我来执行为用户解决问题！",
-      desc: "正在编译逻辑结构并生成结构化代码与可运行范例..."
-    });
+    fullProse = `用户提出了编程构建任务「${truncatedQ}」，我先看看需要调用工具吗？好的，这个需要调用工具！让我来规划一下，查询到 ${availCount} 个可用外挂工具组件。我将评估代码架构与运行沙盒，准备激活 Python Pyodide 代码环境与结构化代码块，让我来执行为用户解决问题...`;
   } else if (isTime) {
-    steps.push({
-      icon: "🔍",
-      title: "好的，这个需要调用工具！",
-      desc: "评估系统实时时间与日期，准备触发实时时钟计算引擎..."
-    });
-    steps.push({
-      icon: "⚡",
-      title: "让我来规划一下（系统时间与时区精准计算）",
-      desc: "获取系统公历日期、时间戳与星期数据..."
-    });
-    steps.push({
-      icon: "🚀",
-      title: "让我来执行为用户解决问题！",
-      desc: "正在将准确时间与相关资讯呈现给用户..."
-    });
+    fullProse = `用户询问系统时间「${truncatedQ}」，我先看看需要调用工具吗？好的，这个需要调用工具！让我来规划一下，查询到 ${availCount} 个可用外挂工具组件。我将感知系统公历日期与实时时间戳，触发真实时钟计算引擎，让我来执行为用户解决问题...`;
   } else {
-    steps.push({
-      icon: "🔍",
-      title: "需求感知：分析知识推理路线",
-      desc: `检查知识切片与关联资料库，查询到 ${availCount} 个可用外挂工具组件...`
-    });
-    steps.push({
-      icon: "⚡",
-      title: "让我来规划一下（多维逻辑推理）",
-      desc: "构建结构化解题链，评估是否需要调用联网或多模态渲染卡片..."
-    });
-    steps.push({
-      icon: "🚀",
-      title: "让我来执行为用户解决问题！",
-      desc: "正在生成最佳综合解答方案..."
-    });
+    fullProse = `用户提出了问题「${truncatedQ}」，我先看看需要调用工具吗？正在分析核心需求与语义切片，查询到 ${availCount} 个可用外挂工具组件。我将规划最佳推理路线与多维解答结构，评估是否调用联网或多模态组件，让我来执行为用户解决问题...`;
   }
 
-  let stepIndex = 0;
-  function streamStep() {
-    if (stepIndex < steps.length) {
-      const s = steps[stepIndex];
-      const div = document.createElement("div");
-      div.className = "think-step-item";
-      div.innerHTML = `
-        <div class="think-step-bullet">${stepIndex + 1}</div>
-        <div class="think-step-text">
-          <strong style="color: var(--text-primary); font-size: 13px;">${escapeChatHTML(s.icon)} ${escapeChatHTML(s.title)}</strong>
-          <div style="font-size: 11.5px; color: var(--text-tertiary); margin-top: 2px;">${escapeChatHTML(s.desc)}</div>
-        </div>
-      `;
-      thinkContentEl.appendChild(div);
+  let proseCharIdx = 0;
+  let hasRealModelReasoning = false;
+
+  function streamProseChar() {
+    if (!hasRealModelReasoning && proseCharIdx < fullProse.length) {
+      thinkContentEl.textContent += fullProse[proseCharIdx];
       $chatLog.scrollTop = $chatLog.scrollHeight;
-      stepIndex++;
-      setTimeout(streamStep, 200);
+      proseCharIdx++;
+      setTimeout(streamProseChar, 35);
     }
   }
 
-  streamStep();
+  streamProseChar();
 
   const addLine = (t) => {
-    const div = document.createElement("div");
-    div.className = "think-step-item";
     let textStr = String(t || "").trim();
-    div.innerHTML = `
-      <div class="think-step-bullet">⚡</div>
-      <div class="think-step-text">
-        <strong style="color: var(--text-primary); font-size: 13px;">💡 推理节点</strong>
-        <div style="font-size: 11.5px; color: var(--text-tertiary); margin-top: 2px;">${escapeChatHTML(textStr)}</div>
-      </div>
-    `;
-    thinkContentEl.appendChild(div);
-    $chatLog.scrollTop = $chatLog.scrollHeight;
+    if (!hasRealModelReasoning && textStr) {
+      if (thinkContentEl.textContent) {
+        thinkContentEl.textContent += "\n" + textStr;
+      } else {
+        thinkContentEl.textContent = textStr;
+      }
+      $chatLog.scrollTop = $chatLog.scrollHeight;
+    }
   };
 
   const endThinking = (collapse = false) => {
