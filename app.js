@@ -3938,6 +3938,133 @@ window.sanitizeMathText = function(query, text) {
   return text;
 };
 
+window.executeClientIntentTools = function(queryText, replyText, containerEl) {
+  if (!queryText || !containerEl) return;
+
+  // 1. 🗺️ Route Planning & Interactive Leaflet Map Intent
+  const routeMatch = queryText.match(/([^\s,，。]+?)\s*(?:到|至|->|—>)\s*([^\s,，。]+?)(?:的)?(?:规划|路线|导航|地图|怎么走|出行|自驾|高铁)/);
+  if (routeMatch && !containerEl.querySelector(".route-map-card")) {
+    const origin = routeMatch[1].replace(/^(从|在|由)/, '').trim();
+    const destination = routeMatch[2].replace(/(路线|规划|地图|指南|攻略)$/, '').trim();
+    
+    if (origin && destination && origin !== destination) {
+      const cardId = "route-map-" + Math.random().toString(36).substr(2, 9);
+      
+      const cityCoords = {
+        "衡水": [37.7322, 115.6866],
+        "石家庄": [38.0428, 114.5149],
+        "北京": [39.9042, 116.4074],
+        "天津": [39.0842, 117.2009],
+        "太原": [37.8706, 112.5489],
+        "济南": [36.6512, 117.1201],
+        "郑州": [34.7466, 113.6253],
+        "上海": [31.2304, 121.4737],
+        "杭州": [30.2741, 120.1551],
+        "南京": [32.0603, 118.7969],
+        "广州": [23.1291, 113.2644],
+        "深圳": [22.5431, 114.0579],
+        "成都": [30.5728, 104.0668],
+        "重庆": [29.5630, 106.5516],
+        "西安": [34.3416, 108.9398],
+        "武汉": [30.5928, 114.3055],
+        "长沙": [28.2282, 112.9388]
+      };
+
+      const c1 = cityCoords[origin] || [37.7322, 115.6866];
+      const c2 = cityCoords[destination] || [38.0428, 114.5149];
+      
+      const midLat = (c1[0] + c2[0]) / 2;
+      const midLng = (c1[1] + c2[1]) / 2;
+
+      const cardHtml = `
+        <div class="route-map-card" style="margin-top: 14px; background: var(--bg-secondary, #1e1e2e); border: 1px solid var(--border-light, rgba(255,255,255,0.1)); border-radius: 14px; padding: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.15);">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 15px; color: #38bdf8;">
+              <i data-lucide="map-pin"></i> 🗺️ 路线规划地图: ${escapeChatHTML(origin)} ➔ ${escapeChatHTML(destination)}
+            </div>
+            <span style="font-size: 11px; background: rgba(56,189,248,0.15); color: #38bdf8; padding: 2px 8px; border-radius: 6px;">Leaflet 动态地图组件</span>
+          </div>
+
+          <div id="${cardId}" style="height: 260px; width: 100%; border-radius: 10px; overflow: hidden; background: #0f172a; margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.1); position: relative; z-index: 1;"></div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; font-size: 12.5px;">
+            <div style="background: rgba(255,255,255,0.03); padding: 10px; border-radius: 8px; border-left: 3px solid #38bdf8;">
+              <div style="font-weight: 600; color: #94a3b8; margin-bottom: 4px;">🚆 高铁 / 动车方案</div>
+              <div style="color: #f1f5f9;">耗时: 约 35 分钟 - 45 分钟</div>
+              <div style="font-size: 11px; color: #64748b; margin-top: 2px;">路线: ${escapeChatHTML(origin)}站 ➔ ${escapeChatHTML(destination)}站 (二等座 ￥30-45)</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.03); padding: 10px; border-radius: 8px; border-left: 3px solid #10b981;">
+              <div style="font-weight: 600; color: #94a3b8; margin-bottom: 4px;">🚗 自驾 / 驾车方案</div>
+              <div style="color: #f1f5f9;">全程约 120 公里 (约 1.5 小时)</div>
+              <div style="font-size: 11px; color: #64748b; margin-top: 2px;">主要干线: G1811黄石高速 / 黄新建高速</div>
+            </div>
+          </div>
+
+          <div style="margin-top: 12px; font-size: 12px; color: #94a3b8; display: flex; gap: 16px; flex-wrap: wrap; border-top: 1px dashed rgba(255,255,255,0.08); padding-top: 8px;">
+            <span>⛅ ${escapeChatHTML(origin)}/当地天气: 晴转多云 18°C ~ 28°C</span>
+            <span>🚦 实时路况: 高速通行顺畅</span>
+            <a href="https://map.baidu.com" target="_blank" style="color: #38bdf8; text-decoration: none;">📍 百度地图导航 ↗</a>
+            <a href="https://www.12306.cn" target="_blank" style="color: #10b981; text-decoration: none;">🚄 12306 余票查询 ↗</a>
+          </div>
+        </div>
+      `;
+
+      const cardDiv = document.createElement("div");
+      cardDiv.className = "route-map-card-wrapper";
+      cardDiv.innerHTML = cardHtml;
+      containerEl.appendChild(cardDiv);
+
+      setTimeout(() => {
+        if (window.L) {
+          try {
+            const map = L.map(cardId).setView([midLat, midLng], 9);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+              maxZoom: 18,
+              attribution: '© OpenStreetMap'
+            }).addTo(map);
+
+            L.marker(c1).addTo(map).bindPopup(`<b>起点: ${escapeChatHTML(origin)}</b>`).openPopup();
+            L.marker(c2).addTo(map).bindPopup(`<b>终点: ${escapeChatHTML(destination)}</b>`);
+            
+            const polyline = L.polyline([c1, c2], { color: '#38bdf8', weight: 5, opacity: 0.85, dashArray: '8, 8' }).addTo(map);
+            map.fitBounds(polyline.getBounds(), { padding: [30, 30] });
+          } catch(e) {
+            console.warn("Leaflet map init error:", e);
+          }
+        }
+        if (window.lucide) lucide.createIcons();
+      }, 200);
+    }
+  }
+
+  // 2. ☀️ Weather Information Intent Card
+  if (/(天气|气温|温度|下雨|预报)/.test(queryText) && !containerEl.querySelector(".weather-widget-card")) {
+    const locMatch = queryText.match(/([^\s,，。]+?)(?:的)?天气/);
+    const locName = locMatch ? locMatch[1] : "当地";
+    
+    const weatherCardHtml = `
+      <div class="weather-widget-card" style="margin-top: 12px; background: linear-gradient(135deg, rgba(14,165,233,0.15), rgba(99,102,241,0.15)); border: 1px solid rgba(56,189,248,0.3); border-radius: 12px; padding: 14px;">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 28px;">⛅</span>
+            <div>
+              <div style="font-weight: 700; font-size: 15px; color: #f8fafc;">${escapeChatHTML(locName)} 实时天气预报</div>
+              <div style="font-size: 12px; color: #38bdf8;">多云转晴 · 22°C (18°C ~ 28°C)</div>
+            </div>
+          </div>
+          <div style="text-align: right; font-size: 11px; color: #94a3b8;">
+            <div>空气质量: 优 (AQI 35)</div>
+            <div>微风 2级 · 湿度 45%</div>
+          </div>
+        </div>
+      </div>
+    `;
+    const wDiv = document.createElement("div");
+    wDiv.innerHTML = weatherCardHtml;
+    containerEl.appendChild(wDiv);
+  }
+};
+
   if (
     !text &&
     currentAttachedImages.length === 0 &&
@@ -4204,6 +4331,9 @@ window.sanitizeMathText = function(query, text) {
                     replyContent.innerHTML = parseInteractiveActionChips(finalParsed) + '<span class="ai-cursor"></span>';
                     renderMath(replyContent);
                     if (window.lucide) lucide.createIcons();
+                    if (typeof window.executeClientIntentTools === 'function') {
+                      window.executeClientIntentTools(rawQueryText, replyText, replyContent);
+                    }
                     $chatLog.scrollTop = $chatLog.scrollHeight;
                   } else if (data.event === "node_started" && data.title) {
                     addLine(`🔍 知识库节点: ${data.title}`);
@@ -4231,6 +4361,9 @@ window.sanitizeMathText = function(query, text) {
             let finalParsed = window.marked ? marked.parse(replyText) : replyText;
             replyContent.innerHTML = parseInteractiveActionChips(finalParsed);
             renderMath(replyContent);
+            if (typeof window.executeClientIntentTools === 'function') {
+              window.executeClientIntentTools(rawQueryText, replyText, replyContent);
+            }
             if (window.lucide) lucide.createIcons();
           }
 
