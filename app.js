@@ -754,20 +754,41 @@ window.getCanvasPreviewHtml = function(code, langInput, titleInput) {
       btn.style.opacity = '0.6';
       
       if (!pyodideReady) {
-        term.textContent = '⏳ Loading Pyodide Python 3.11 engine in browser...';
+        term.textContent = '⏳ Loading Pyodide Python 3.11 engine in browser...\n';
         try {
+          if (typeof loadPyodide === 'undefined') {
+            term.textContent += '📦 Injecting Pyodide engine script...\n';
+            await new Promise((resolve, reject) => {
+              const script = document.createElement('script');
+              script.src = 'https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js';
+              script.onload = resolve;
+              script.onerror = () => reject(new Error('Failed to load pyodide.js from CDN'));
+              document.head.appendChild(script);
+            });
+          }
           pyodide = await loadPyodide();
           pyodideReady = true;
         } catch(e) {
-          term.textContent = '❌ Pyodide Load Failed: ' + e.message;
+          term.textContent += '❌ Pyodide Load Failed: ' + e.message + '\n';
           btn.disabled = false;
           btn.style.opacity = '1';
           return;
         }
       }
       
-      term.textContent = '🚀 Executing Python script...\n-------------------------------------\n';
+      term.textContent += '🚀 Analyzing imports & executing Python script...\n-------------------------------------\n';
       try {
+        const rawCode = document.getElementById('code-block').textContent;
+
+        if (pyodide.loadPackagesFromImports) {
+          term.textContent += '📦 Auto-loading Python packages (e.g. sympy, numpy)...\n';
+          try {
+            await pyodide.loadPackagesFromImports(rawCode);
+          } catch(pkgErr) {
+            console.warn("loadPackagesFromImports warning:", pkgErr);
+          }
+        }
+
         pyodide.setStdout({
           batched: (str) => { term.textContent += str + '\n'; }
         });
@@ -775,14 +796,13 @@ window.getCanvasPreviewHtml = function(code, langInput, titleInput) {
           batched: (str) => { term.textContent += '[Error] ' + str + '\n'; }
         });
         
-        const rawCode = document.getElementById('code-block').textContent;
         let result = await pyodide.runPythonAsync(rawCode);
-        if (result !== undefined) {
-          term.textContent += '\n[Return Value]: ' + result;
+        if (result !== undefined && result !== null) {
+          term.textContent += '\n➜ Result: ' + String(result) + '\n';
         }
         term.textContent += '\n-------------------------------------\n✅ Execution finished successfully.';
       } catch(err) {
-        term.textContent += '\n❌ Execution Error:\n' + err.message;
+        term.textContent += '\n❌ Execution Error:\n' + err.message + '\n';
       } finally {
         btn.disabled = false;
         btn.style.opacity = '1';
