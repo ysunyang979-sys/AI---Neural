@@ -2458,6 +2458,25 @@ window.getAvailableTools = () => {
         {
           type: "function",
           function: {
+            name: "create_webcontainer_os",
+            description: "CRITICAL: Launch a full Node.js Operating System strictly inside the user's browser using WebContainers API. When the user asks you to write a full-stack project, start a dev server, run npm install, or build a complex interactive app, you MUST call this tool. You can pass the entire project files and the command to run.",
+            parameters: {
+              type: "object",
+              properties: {
+                files: { 
+                  type: "array", 
+                  description: "Array of files to generate in the container. Example: [{path: 'package.json', content: '...'}, {path: 'src/index.js', content: '...'}]",
+                  items: { type: "object", properties: { path: { type: "string" }, content: { type: "string" } } }
+                },
+                install_command: { type: "string", description: "Command to run immediately (e.g., 'npm install && npm run dev')" }
+              },
+              required: ["files", "install_command"]
+            }
+          }
+        },
+        {
+          type: "function",
+          function: {
             name: "create_p2p_portal",
             description: "生成一个WebRTC手机跨端传输二维码入口。当用户要求手机直连、扫码传文件、跨端输入时使用。",
             parameters: { type: "object", properties: {}, required: [] }
@@ -5025,6 +5044,28 @@ sys.stdout = io.StringIO()
 </div>
 </div><br>`;
               result = "SYSTEM STATUS: SUCCESS. Logic simulator rendered.";
+                        } else if (tc.function.name === "create_webcontainer_os") {
+              addLine(`⚡ Booting WebContainer Virtual OS...`);
+              window.localStorage.setItem('wc_init_files', JSON.stringify(args.files || []));
+              window.localStorage.setItem('wc_init_command', args.install_command || 'npm run dev');
+              initialReply += `<br>
+<div style="background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 12px; padding: 16px; margin: 10px 0;">
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+        <span style="font-size: 24px;">🚀</span>
+        <div>
+            <div style="font-weight: 600; font-size: 15px; color: #f8fafc;">WebContainer OS Prepared</div>
+            <div style="font-size: 12px; color: #94a3b8;">Full Node.js environment ready to boot in isolated sandbox.</div>
+        </div>
+    </div>
+    <div style="font-size: 13px; color: #38bdf8; background: rgba(56, 189, 248, 0.1); padding: 8px; border-radius: 6px; font-family: monospace; margin-bottom: 12px;">
+        $ ${escapeChatHTML(args.install_command || 'npm run dev')}
+    </div>
+    <button onclick="window.open('webcontainer.html', '_blank', 'width=1200,height=800')" style="background: #38bdf8; color: #0f172a; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%; transition: all 0.2s; box-shadow: 0 4px 14px rgba(56,189,248,0.3);">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+        Launch Isolated WebContainer OS
+    </button>
+</div><br>`;
+              result = "SYSTEM STATUS: SUCCESS. WebContainer OS files prepared. Instruct the user to click the launch button.";
                         } else if (tc.function.name === "create_p2p_portal") {
               addLine(`🌐 启动 WebRTC P2P 极速穿透隧道...`);
               const portalId = "portal-" + Math.random().toString(36).substr(2, 9);
