@@ -5348,62 +5348,84 @@ sys.stdout = io.StringIO()
               let resultStr = "SYSTEM STATUS: SUCCESS. Geek Tool Rendered.";
               
               switch(toolName) {
-                case "uuid_generator":
-                  const uuid = crypto.randomUUID();
-                  widgetContent = `<div style="font-size: 16px; font-family: monospace; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px; text-align: center; margin-bottom: 10px; color: #a78bfa;">${uuid}</div><button onclick="navigator.clipboard.writeText('${uuid}'); this.innerText='已复制!'; setTimeout(()=>this.innerText='复制 UUID', 2000)" style="width: 100%; padding: 8px; background: #8b5cf6; border: none; border-radius: 4px; color: white; cursor: pointer;">复制 UUID</button>`;
-                  resultStr = `Generated UUID: ${uuid}`;
+                case "proxy_nodes":
+                  widgetContent = `<div id="geek-res-${widgetId}" style="text-align: center; color: #94a3b8;"><i data-lucide="loader-2" class="spin"></i> 获取最新优选节点中...</div>
+                  <script>
+                    fetch('https://raw.githubusercontent.com/ysunyang979-sys/blog/main/source/SearchFile/tool/ip.md')
+                      .then(r=>r.text())
+                      .then(text => {
+                        const match = text.match(/\\\`\\\`\\\`csharp\\n([\\s\\S]*?)\\n\\\`\\\`\\\`/);
+                        if(match && match[1]) {
+                          const lines = match[1].split('\\n').filter(l=>l.trim());
+                          let html = '<div style="display: flex; flex-direction: column; gap: 8px;">';
+                          lines.forEach(line => {
+                            html += \`<div style="display: flex; justify-content: space-between; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 4px;"><span style="color: #60a5fa; font-family: monospace;">\${line.split('#')[0]}</span><span style="color: #34d399; font-size: 12px;">\${line.split('#')[1] || ''}</span></div>\`;
+                          });
+                          html += '</div>';
+                          document.getElementById('geek-res-${widgetId}').innerHTML = html;
+                        } else {
+                          document.getElementById('geek-res-${widgetId}').innerText = '未找到节点数据';
+                        }
+                      }).catch(()=>document.getElementById('geek-res-${widgetId}').innerText='获取失败');
+                  </script>`;
                   break;
-                case "password_generator":
-                  const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
-                  let pwd = "";
-                  for(let i=0; i<16; i++) pwd += charset.charAt(Math.floor(Math.random() * charset.length));
-                  widgetContent = `<div style="font-size: 20px; font-family: monospace; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px; text-align: center; margin-bottom: 10px; color: #34d399;">${pwd}</div><button onclick="navigator.clipboard.writeText('${pwd}'); this.innerText='已复制!'; setTimeout(()=>this.innerText='复制密码', 2000)" style="width: 100%; padding: 8px; background: #10b981; border: none; border-radius: 4px; color: white; cursor: pointer;">复制密码</button>`;
-                  resultStr = `Generated Password: ${pwd}`;
+                case "temp_mail":
+                  widgetContent = `<div id="geek-res-${widgetId}" style="color: #e2e8f0; font-size: 14px;"><i data-lucide="loader-2" class="spin"></i> 加载临时邮箱资源中...</div>
+                  <script>
+                    fetch('https://raw.githubusercontent.com/ysunyang979-sys/blog/main/source/SearchFile/tool/%E4%B8%B4%E6%97%B6%E9%82%AE%E7%AE%B1.md')
+                      .then(r=>r.text())
+                      .then(text => {
+                        document.getElementById('geek-res-${widgetId}').innerHTML = marked.parse(text);
+                      }).catch(()=>document.getElementById('geek-res-${widgetId}').innerText='获取失败');
+                  </script>`;
                   break;
-                case "ip_lookup":
-                  widgetContent = `<div id="ip-result-${widgetId}">正在查询 IP 信息...</div><script>fetch('https://ipapi.co/json/').then(r => r.json()).then(data => { const html = \`<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px; color: #e2e8f0;"><div><span style="color: #94a3b8;">IP:</span> \${data.ip}</div><div><span style="color: #94a3b8;">城市:</span> \${data.city}</div><div><span style="color: #94a3b8;">地区:</span> \${data.region}</div><div><span style="color: #94a3b8;">国家:</span> \${data.country_name}</div><div><span style="color: #94a3b8;">ISP:</span> \${data.org}</div><div><span style="color: #94a3b8;">ASN:</span> \${data.asn}</div></div>\`; document.getElementById('ip-result-${widgetId}').innerHTML = html; }).catch(e => document.getElementById('ip-result-${widgetId}').innerText = '查询失败'); </script>`;
+                case "pc_software":
+                  widgetContent = `<div id="geek-res-${widgetId}" style="color: #e2e8f0; font-size: 14px;"><i data-lucide="loader-2" class="spin"></i> 加载电脑软件资源中...</div>
+                  <script>
+                    fetch('https://raw.githubusercontent.com/ysunyang979-sys/blog/main/source/SearchFile/tool/%E7%94%B5%E8%84%91%E8%BD%AF%E4%BB%B6.md')
+                      .then(r=>r.text())
+                      .then(text => {
+                        document.getElementById('geek-res-${widgetId}').innerHTML = marked.parse(text);
+                      }).catch(()=>document.getElementById('geek-res-${widgetId}').innerText='获取失败');
+                  </script>`;
                   break;
-                case "qr_code_generator":
-                  const qrText = toolParams || "https://github.com/ysunyang979-sys";
-                  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrText)}`;
-                  widgetContent = `<div style="text-align: center;"><div style="margin-bottom: 10px; font-size: 12px; color: #94a3b8;">数据内容: ${escapeChatHTML(qrText)}</div><img src="${qrUrl}" style="border-radius: 8px; padding: 10px; background: white; max-width: 200px;"></div>`;
-                  resultStr = `Rendered QR Code for: ${qrText}`;
+                case "ai_prompts":
+                  widgetContent = `<div id="geek-res-${widgetId}" style="color: #e2e8f0; font-size: 14px; max-height: 400px; overflow-y: auto; padding-right: 10px;"><i data-lucide="loader-2" class="spin"></i> 加载AI提示词库中...</div>
+                  <script>
+                    fetch('https://raw.githubusercontent.com/ysunyang979-sys/blog/main/source/SearchFile/tool/AI%E5%AE%9E%E7%94%A8%E6%8F%90%E7%A4%BA%E8%AF%8D.md')
+                      .then(r=>r.text())
+                      .then(text => {
+                        document.getElementById('geek-res-${widgetId}').innerHTML = marked.parse(text);
+                      }).catch(()=>document.getElementById('geek-res-${widgetId}').innerText='获取失败');
+                  </script>`;
                   break;
-                case "pomo_os":
-                  widgetContent = `<div style="text-align: center; padding: 15px;"><div id="pomo-time-${widgetId}" style="font-size: 42px; font-weight: 800; font-family: monospace; color: #f43f5e; margin-bottom: 15px; text-shadow: 0 0 10px rgba(244,63,94,0.3);">25:00</div><div style="display: flex; gap: 10px; justify-content: center;"><button onclick="window.startPomo('${widgetId}')" style="background: #f43f5e; color: white; border: none; padding: 6px 16px; border-radius: 20px; cursor: pointer; font-weight: bold;">开始专注</button><button onclick="window.resetPomo('${widgetId}')" style="background: rgba(255,255,255,0.1); color: white; border: none; padding: 6px 16px; border-radius: 20px; cursor: pointer;">重置</button></div><script>if(!window.pomoIntervals) window.pomoIntervals = {}; window.startPomo = (id) => { if(window.pomoIntervals[id]) return; let timeLeft = 25 * 60; window.pomoIntervals[id] = setInterval(() => { timeLeft--; const m = Math.floor(timeLeft / 60).toString().padStart(2, '0'); const s = (timeLeft % 60).toString().padStart(2, '0'); const el = document.getElementById('pomo-time-'+id); if(el) el.innerText = \`\${m}:\${s}\`; if(timeLeft <= 0) { clearInterval(window.pomoIntervals[id]); window.pomoIntervals[id]=null; alert('专注时间到！'); } }, 1000); }; window.resetPomo = (id) => { if(window.pomoIntervals[id]) { clearInterval(window.pomoIntervals[id]); window.pomoIntervals[id]=null; } const el = document.getElementById('pomo-time-'+id); if(el) el.innerText = '25:00'; }; </script></div>`;
+                case "ai_art_prompts":
+                  widgetContent = `<div id="geek-res-${widgetId}" style="color: #e2e8f0; font-size: 14px; max-height: 400px; overflow-y: auto; padding-right: 10px;"><i data-lucide="loader-2" class="spin"></i> 加载AI绘画提示词中...</div>
+                  <script>
+                    fetch('https://raw.githubusercontent.com/ysunyang979-sys/blog/main/source/SearchFile/tool/AI%E7%BB%98%E7%94%BB%E6%8F%90%E7%A4%BA%E8%AF%8D.md')
+                      .then(r=>r.text())
+                      .then(text => {
+                        document.getElementById('geek-res-${widgetId}').innerHTML = marked.parse(text);
+                      }).catch(()=>document.getElementById('geek-res-${widgetId}').innerText='获取失败');
+                  </script>`;
                   break;
-                case "color_palette":
-                  let colorsHtml = "";
-                  for(let i=0; i<5; i++) {
-                      const hex = '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
-                      colorsHtml += `<div style="flex: 1; height: 60px; background: ${hex}; cursor: pointer; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 5px; color: #fff; font-size: 11px; text-shadow: 0 0 2px #000;" onclick="navigator.clipboard.writeText('${hex}'); this.innerText='已复制'; setTimeout(()=>this.innerText='${hex}',1000)">${hex}</div>`;
-                  }
-                  widgetContent = `<div style="display: flex; width: 100%; border-radius: 8px; overflow: hidden; margin-bottom: 10px;">${colorsHtml}</div><div style="font-size: 11px; color: #94a3b8; text-align: center;">点击色块即可复制 HEX 色值</div>`;
+                case "book_store":
+                  widgetContent = `<div style="text-align: center; padding: 20px;">
+                    <div style="font-size: 48px; margin-bottom: 15px;">📚</div>
+                    <div style="font-size: 18px; font-weight: bold; margin-bottom: 10px; color: #f8fafc;">数智图书馆</div>
+                    <div style="font-size: 14px; color: #94a3b8; margin-bottom: 20px;">包含海量电子书资源导航与检索</div>
+                    <a href="https://ysun.de5.net/tools/BookStore.html" target="_blank" style="display: inline-block; padding: 10px 24px; background: #3b82f6; color: white; text-decoration: none; border-radius: 8px; font-weight: bold;">进入图书馆</a>
+                  </div>`;
                   break;
-                case "encode_decode":
-                  widgetContent = `<div><textarea id="ed-input-${widgetId}" style="width: 100%; height: 60px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: white; padding: 8px; font-family: monospace; margin-bottom: 10px;" placeholder="输入文本...">${escapeChatHTML(toolParams)}</textarea><div style="display: flex; gap: 8px; margin-bottom: 10px;"><button onclick="document.getElementById('ed-output-${widgetId}').value = btoa(unescape(encodeURIComponent(document.getElementById('ed-input-${widgetId}').value)))" style="flex: 1; padding: 6px; background: #3b82f6; border: none; border-radius: 4px; color: white; cursor: pointer;">Base64 编码</button><button onclick="document.getElementById('ed-output-${widgetId}').value = decodeURIComponent(escape(atob(document.getElementById('ed-input-${widgetId}').value)))" style="flex: 1; padding: 6px; background: #6366f1; border: none; border-radius: 4px; color: white; cursor: pointer;">Base64 解码</button><button onclick="document.getElementById('ed-output-${widgetId}').value = encodeURIComponent(document.getElementById('ed-input-${widgetId}').value)" style="flex: 1; padding: 6px; background: #0ea5e9; border: none; border-radius: 4px; color: white; cursor: pointer;">URL Encode</button></div><textarea id="ed-output-${widgetId}" style="width: 100%; height: 60px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: #34d399; padding: 8px; font-family: monospace;" readonly placeholder="转换结果..."></textarea></div>`;
-                  break;
-                case "timestamp_converter":
-                  widgetContent = `<div style="display: flex; flex-direction: column; gap: 10px;"><div><span style="color:#94a3b8; font-size: 12px;">当前时间戳 (秒):</span> <br><b style="color: #60a5fa;">${Math.floor(Date.now()/1000)}</b></div><div><span style="color:#94a3b8; font-size: 12px;">当前本地时间:</span> <br><b style="color: #60a5fa;">${new Date().toLocaleString()}</b></div></div>`;
-                  break;
-                case "text_format":
-                  widgetContent = `<div><textarea id="tf-input-${widgetId}" style="width: 100%; height: 80px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: white; padding: 8px; margin-bottom: 10px;" placeholder="输入需要排版的文本..."></textarea><div style="display: flex; gap: 8px; flex-wrap: wrap;"><button onclick="const el=document.getElementById('tf-input-${widgetId}'); el.value=el.value.toUpperCase()" style="padding: 6px; background: #3b82f6; border: none; border-radius: 4px; color: white; cursor: pointer;">大写</button><button onclick="const el=document.getElementById('tf-input-${widgetId}'); el.value=el.value.toLowerCase()" style="padding: 6px; background: #8b5cf6; border: none; border-radius: 4px; color: white; cursor: pointer;">小写</button><button onclick="const el=document.getElementById('tf-input-${widgetId}'); el.value=el.value.replace(/\\s+/g, '')" style="padding: 6px; background: #10b981; border: none; border-radius: 4px; color: white; cursor: pointer;">去空格</button><button onclick="const el=document.getElementById('tf-input-${widgetId}'); el.value=el.value.replace(/\\n+/g, '\\n')" style="padding: 6px; background: #f59e0b; border: none; border-radius: 4px; color: white; cursor: pointer;">去空行</button><button onclick="const el=document.getElementById('tf-input-${widgetId}'); navigator.clipboard.writeText(el.value); this.innerText='已复制'; setTimeout(()=>this.innerText='复制结果', 1500)" style="padding: 6px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; color: white; cursor: pointer; flex: 1;">复制结果</button></div></div>`;
-                  break;
-                case "svg_wave":
-                  const svgCode = `<svg viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg"><path fill="#0099ff" fill-opacity="1" d="M0,160L48,144C96,128,192,96,288,106.7C384,117,480,171,576,165.3C672,160,768,96,864,85.3C960,75,1056,117,1152,149.3C1248,181,1344,203,1392,213.3L1440,224L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>`;
-                  widgetContent = `<div style="text-align: center;"><div style="background: white; border-radius: 8px; margin-bottom: 10px; overflow: hidden; padding: 20px 0;">${svgCode}</div><button onclick="navigator.clipboard.writeText('${escapeChatHTML(svgCode)}'); this.innerText='已复制 SVG 代码'; setTimeout(()=>this.innerText='复制 SVG 代码', 1500)" style="width: 100%; padding: 8px; background: #0ea5e9; border: none; border-radius: 4px; color: white; cursor: pointer;">复制 SVG 代码</button></div>`;
-                  break;
-                case "fake_data":
-                  const names = ["张三", "李四", "王五", "赵六", "Alice", "Bob", "Charlie", "David"];
-                  const jobs = ["前端工程师", "后端工程师", "产品经理", "UI设计师", "数据分析师"];
-                  const randomName = names[Math.floor(Math.random()*names.length)];
-                  const randomJob = jobs[Math.floor(Math.random()*jobs.length)];
-                  const randomPhone = "1" + Math.floor(Math.random() * 9000000000 + 1000000000);
-                  const fakeDataHtml = `<div style="display: grid; grid-template-columns: auto 1fr; gap: 8px; font-size: 14px;"><div style="color: #94a3b8;">姓名:</div><div style="color: #60a5fa;">${randomName}</div><div style="color: #94a3b8;">职业:</div><div style="color: #60a5fa;">${randomJob}</div><div style="color: #94a3b8;">手机号:</div><div style="color: #60a5fa;">${randomPhone}</div><div style="color: #94a3b8;">邮箱:</div><div style="color: #60a5fa;">${randomName.toLowerCase().replace(/[^a-z]/g,'user')}@example.com</div></div>`;
-                  widgetContent = `<div style="padding: 10px; background: rgba(0,0,0,0.2); border-radius: 6px;">${fakeDataHtml}</div><div style="margin-top: 10px; text-align: center; font-size: 12px; color: #64748b;">(关闭后重新呼出可生成新数据)</div>`;
-                  break;
-                case "text_diff":
-                  widgetContent = `<div style="display: flex; flex-direction: column; gap: 8px;"><div style="display: flex; gap: 8px;"><textarea id="td-a-${widgetId}" style="flex: 1; height: 60px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: white; padding: 4px;" placeholder="文本 A"></textarea><textarea id="td-b-${widgetId}" style="flex: 1; height: 60px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: white; padding: 4px;" placeholder="文本 B"></textarea></div><button onclick="const a = document.getElementById('td-a-${widgetId}').value; const b = document.getElementById('td-b-${widgetId}').value; document.getElementById('td-res-${widgetId}').innerHTML = (a === b) ? '<span style=\\'color:#10b981\\'>完全一致 ✅</span>' : '<span style=\\'color:#f43f5e\\'>不一致 ❌</span>';" style="padding: 8px; background: #6366f1; border: none; border-radius: 4px; color: white; cursor: pointer;">比较异同</button><div id="td-res-${widgetId}" style="text-align: center; font-size: 16px; font-weight: bold; margin-top: 5px;"></div></div>`;
+                case "tampermonkey":
+                  widgetContent = `<div id="geek-res-${widgetId}" style="color: #e2e8f0; font-size: 14px; max-height: 400px; overflow-y: auto; padding-right: 10px;"><i data-lucide="loader-2" class="spin"></i> 加载油猴脚本中...</div>
+                  <script>
+                    fetch('https://raw.githubusercontent.com/ysunyang979-sys/blog/main/source/SearchFile/tool/%E6%8F%90%E7%A4%BA%E8%AF%8D%E7%AE%A1%E7%90%86%E6%B2%B9%E7%8C%B4%E8%84%9A%E6%9C%AC.md')
+                      .then(r=>r.text())
+                      .then(text => {
+                        document.getElementById('geek-res-${widgetId}').innerHTML = marked.parse(text);
+                      }).catch(()=>document.getElementById('geek-res-${widgetId}').innerText='获取失败');
+                  </script>`;
                   break;
 
                 default:
