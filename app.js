@@ -1,3 +1,9 @@
+
+function safeBtoa(str) {
+  try {
+    return btoa(encodeURIComponent(str || '').replace(/%([0-9A-F]{2})/g, (match, p1) => String.fromCharCode('0x' + p1)));
+  } catch(e) { return ''; }
+}
 const _localKeys = window.MY_LOCAL_API_KEYS || {};
 
 window.collabApis = {
@@ -708,15 +714,9 @@ window.getCanvasPreviewHtml = function(code, langInput, titleInput) {
 
   // 7. PYTHON (py, python)
   if (lang === 'py' || lang === 'python') {
-    const escapedCode = esc(code);
     const lineCount = code.split('\n').length;
     const byteSize = new Blob([code]).size;
-    let base64Code = "";
-    try {
-      base64Code = btoa(unescape(encodeURIComponent(code)));
-    } catch(e) {
-      base64Code = "";
-    }
+    const base64Code = safeBtoa(code);
     
     return `<!DOCTYPE html>
 <html>
@@ -729,6 +729,12 @@ window.getCanvasPreviewHtml = function(code, langInput, titleInput) {
   <script>
     let pyodideReady = false;
     let pyodide = null;
+    
+    function safeAtob(b64) {
+      try {
+        return decodeURIComponent(Array.prototype.map.call(atob(b64 || ''), c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+      } catch(e) { return ''; }
+    }
     
     window.runPython = async function runPython() {
       const term = document.getElementById('term-box');
@@ -768,15 +774,9 @@ window.getCanvasPreviewHtml = function(code, langInput, titleInput) {
       
       if (term) term.textContent += '🚀 Analyzing imports & executing Python script...\n-------------------------------------\n';
       try {
-        let rawCode = "";
-        const b64 = "${base64Code}";
-        if (b64) {
-          try {
-            rawCode = decodeURIComponent(escape(atob(b64)));
-          } catch(e) {
-            rawCode = document.getElementById('code-block').textContent;
-          }
-        } else {
+        const b64El = document.getElementById('py-b64');
+        let rawCode = b64El ? safeAtob(b64El.value) : '';
+        if (!rawCode) {
           rawCode = document.getElementById('code-block').textContent;
         }
 
@@ -832,6 +832,7 @@ window.getCanvasPreviewHtml = function(code, langInput, titleInput) {
   </style>
 </head>
 <body>
+  <input type="hidden" id="py-b64" value="${base64Code}">
   <div class="header-card">
     <div class="title-area">
       <span>🐍 Python Script Inspector</span>
@@ -840,28 +841,31 @@ window.getCanvasPreviewHtml = function(code, langInput, titleInput) {
     <button class="run-btn" id="run-py-btn" onclick="window.runPython && window.runPython()">▶ Run Code (Pyodide)</button>
   </div>
   <div id="term-box" class="term-box">⚡ Initializing Python runtime...</div>
-  <pre><code class="language-python" id="code-block">${escapedCode}</code></pre>
+  <pre><code class="language-python" id="code-block"></code></pre>
   <script>
-    if (window.hljs) hljs.highlightAll();
-    const bindPyBtn = () => {
-      const b = document.getElementById('run-py-btn');
-      if (b && window.runPython) {
-        b.onclick = window.runPython;
-        b.addEventListener('click', window.runPython);
-      }
-    };
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', bindPyBtn);
-    } else {
-      bindPyBtn();
+    function renderPyCode() {
+      try {
+        const b64El = document.getElementById('py-b64');
+        const codeEl = document.getElementById('code-block');
+        if (b64El && codeEl && b64El.value) {
+          const raw = safeAtob(b64El.value);
+          codeEl.textContent = raw;
+          if (window.hljs) hljs.highlightElement(codeEl);
+        }
+      } catch(e) {}
     }
-    setTimeout(bindPyBtn, 50);
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', renderPyCode);
+    } else {
+      renderPyCode();
+    }
+    setTimeout(renderPyCode, 50);
   <\/script>
 </body>
 </html>`;
   }
 
-  // 8. ALL OTHER CODE FILES (js, ts, sh, cpp, java, rust, go, css, etc.)
+    // 8. ALL OTHER CODE FILES (js, ts, sh, cpp, java, rust, go, css, etc.)
   const escapedCode = esc(code);
   const lineCount = code.split('\n').length;
   const byteSize = new Blob([code]).size;
