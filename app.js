@@ -5808,15 +5808,23 @@ sys.stdout = io.StringIO()
 
               // Fallback: extract real city names from user message if LLM sent generic values
               if (!origin || origin === "起点" || !destination || destination === "终点") {
-                const userPrompt = typeof userMessageText !== "undefined" ? userMessageText : "";
-                const routeMatch = userPrompt.match(/(?:规划路线|路线|去|到|从)?\s*([^\s到\-\—]+)\s*(?:到|至|去|\-\—)\s*([^\s路线\?\？]+)/);
+                // Get last user message from messages array
+                let lastUserText = "";
+                for (let i = messages.length - 1; i >= 0; i--) {
+                  if (messages[i].role === "user") {
+                    const c = messages[i].content;
+                    lastUserText = typeof c === "string" ? c : (Array.isArray(c) ? c.map(p => p.text || "").join(" ") : "");
+                    break;
+                  }
+                }
+                const routeMatch = lastUserText.match(/([^\s,，。到至去\-\—]{2,})[\s]*(?:到|至|去)[\s]*([^\s,，。?\？的]{2,})/);
                 if (routeMatch) {
-                  if (!origin || origin === "起点") origin = routeMatch[1].replace(/^(从|在)/, '').trim();
-                  if (!destination || destination === "终点") destination = routeMatch[2].replace(/(路线|导航)$/, '').trim();
+                  if (!origin || origin === "起点") origin = routeMatch[1].replace(/^(从|在|由)/, '').trim();
+                  if (!destination || destination === "终点") destination = routeMatch[2].replace(/(路线|导航|的)$/, '').trim();
                 }
               }
-              if (!origin || origin === "起点") origin = "杭州";
-              if (!destination || destination === "终点") destination = "蚌埠";
+              if (!origin || origin === "起点") origin = "北京";
+              if (!destination || destination === "终点") destination = "上海";
 
               let provider = (args.map_provider || "amap").toLowerCase();
               
