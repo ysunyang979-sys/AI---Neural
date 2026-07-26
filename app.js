@@ -1852,10 +1852,9 @@ const sanitizeChatOutput = (text) => {
   text = text.replace(/\{"\s*chart_config\s*":\s*"[\s\S]*?"\}/gi, '')
              .replace(/\{"\s*chart_config\s*":\s*\{[\s\S]*?\}\}/gi, '')
              .replace(/`\{"\s*chart_config[\s\S]*?\}`/gi, '');
-  // Unwrap UI card HTML elements if enclosed inside markdown code blocks (```html <div class="...">...</div> ```)
+  // Unwrap UI card HTML elements if enclosed inside markdown code blocks (```html <div ...>...</div> ```)
   // so that the HTML card is rendered directly as a live DOM element instead of being erased or shown as a code block!
-  text = text.replace(/```(?:html|text|xml|markdown)?\s*(<div[\s\S]*?class="(?:interactive-route-map-card|google-map-embed-card|open-music-card|aplayer-card|n8n-workflow-card|legal-audit-card|browser-automation-card|license-card|apk-reverse-card|localfs-card|netscan-card)"[\s\S]*?<\/div>)\s*```/gi, '$1');
-  text = text.replace(/```(?:html|text|xml|markdown)?\s*(<div[\s\S]*?class="interactive-route-map-card[\s\S]*?<\/div>)\s*```/gi, '$1');
+  text = text.replace(/```(?:html|text|xml|markdown)?\s*(<div[\s\S]*?<\/div>)\s*```/gi, '$1');
   return text.trim();
 };
 
@@ -4440,7 +4439,8 @@ window.executeClientIntentTools = function(queryText, replyText, containerEl) {
                 firstChunk = false;
               }
               reply += delta.content;
-              let rawParsed = window.marked ? marked.parse(window.preProcessMath ? window.preProcessMath(reply) : reply) : reply;
+              let cleanText = sanitizeChatOutput(reply);
+              let rawParsed = window.marked ? marked.parse(window.preProcessMath ? window.preProcessMath(cleanText) : cleanText) : cleanText;
               replyContent.innerHTML =
                 parseInteractiveActionChips(rawParsed) +
                 '<span class="ai-cursor"></span>';
