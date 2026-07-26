@@ -4732,43 +4732,41 @@ _out
                 result = `Error evaluating expression '${args.expression}': ${e.message}`;
               }
             } else if (tc.function.name === "execute_python") {
-              addLine(`💻 正在沙盒中运行代码...`);
-              try {
-                if (!pyodideInstance) {
-                  pyodideInstance = await loadPyodide({ indexURL: "https://cdn.jsdelivr.net/pyodide/v0.25.0/full/" });
-                }
-                await pyodideInstance.loadPackagesFromImports(args.code);
-
-                // Redirect stdout
-                pyodideInstance.runPython(`
-import sys
-import io
-sys.stdout = io.StringIO()
-                                `);
-
-                await pyodideInstance.runPythonAsync(args.code);
-                let stdout = pyodideInstance.runPython("sys.stdout.getvalue()");
-                result = stdout
-                  ? stdout.trim()
-                  : "Code executed successfully with no output.";
-              } catch (err) {
-                result = `Python Error: ${err.message}`;
-              }
-            } else if (tc.function.name === "run_code_sandbox") {
-              addLine(`💻 正在沙盒中编译与运行代码...`);
+              addLine(`💻 正在在线云端沙盒中运行 Python 代码...`);
               try {
                 const res = await fetch("https://emkc.org/api/v2/piston/execute", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify({
-                    language: args.language,
+                    language: "python3",
                     version: "*",
                     files: [{ content: args.code }]
                   })
                 });
                 const data = await res.json();
-                if (data.run && data.run.output) {
-                  result = data.run.output;
+                if (data.run && typeof data.run.output === "string") {
+                  result = data.run.output.trim() || "Code executed successfully with no output.";
+                } else {
+                  throw new Error("Online Sandbox API returned no output");
+                }
+              } catch (err) {
+                result = `Python Execution Result: ${err.message}`;
+              }
+            } else if (tc.function.name === "run_code_sandbox") {
+              addLine(`💻 正在在线云端沙盒中编译与运行代码 (${args.language || 'python3'})...`);
+              try {
+                const res = await fetch("https://emkc.org/api/v2/piston/execute", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    language: args.language || "python3",
+                    version: "*",
+                    files: [{ content: args.code }]
+                  })
+                });
+                const data = await res.json();
+                if (data.run && typeof data.run.output === "string") {
+                  result = data.run.output.trim() || "Code executed successfully with no output.";
                 } else if (data.message) {
                   throw new Error(data.message);
                 } else {
