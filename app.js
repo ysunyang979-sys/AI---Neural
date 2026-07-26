@@ -3814,9 +3814,83 @@ window.executeClientIntentTools = function(queryText, replyText, containerEl) {
     const destination = routeMatch[2].replace(/(路线|规划|地图|指南|攻略)$/, '').trim();
     
     if (origin && destination && origin !== destination) {
+      const cityCoordsMap = {
+        "北京": [39.9042, 116.4074], "北京市": [39.9042, 116.4074],
+        "上海": [31.2304, 121.4737], "上海市": [31.2304, 121.4737],
+        "广州": [23.1291, 113.2644], "广州市": [23.1291, 113.2644],
+        "深圳": [22.5431, 114.0579], "深圳市": [22.5431, 114.0579],
+        "杭州": [30.2741, 120.1551], "杭州市": [30.2741, 120.1551],
+        "南京": [32.0603, 118.7969], "南京市": [32.0603, 118.7969],
+        "成都": [30.5728, 104.0668], "成都市": [30.5728, 104.0668],
+        "重庆": [29.5630, 106.5516], "重庆市": [29.5630, 106.5516],
+        "武汉": [30.5928, 114.3055], "武汉市": [30.5928, 114.3055],
+        "西安": [34.3416, 108.9398], "西安市": [34.3416, 108.9398],
+        "长沙": [28.2282, 112.9388], "长沙市": [28.2282, 112.9388],
+        "郑州": [34.7466, 113.6253], "郑州市": [34.7466, 113.6253],
+        "苏州": [31.2989, 120.5853], "苏州市": [31.2989, 120.5853],
+        "天津": [39.0842, 117.2009], "天津市": [39.0842, 117.2009],
+        "济南": [36.6512, 117.1201], "济南市": [36.6512, 117.1201],
+        "青岛": [36.0671, 120.3826], "青岛市": [36.0671, 120.3826],
+        "石家庄": [38.0428, 114.5149], "石家庄市": [38.0428, 114.5149],
+        "衡水": [37.7322, 115.6866], "衡水市": [37.7322, 115.6866],
+        "福州": [26.0745, 119.2965], "厦门": [24.4798, 118.0894],
+        "合肥": [31.8611, 117.2830], "南宁": [22.8170, 108.3665]
+      };
+      const origC = cityCoordsMap[origin] || [38.0428, 114.5149];
+      const destC = cityCoordsMap[destination] || [37.7322, 115.6866];
+
       const amapUrl = `https://www.amap.com/search?query=${encodeURIComponent(origin + '到' + destination + '路线')}`;
       const baiduUrl = `https://map.baidu.com/search/${encodeURIComponent(origin + '到' + destination + '路线')}`;
       const tencentUrl = `https://map.qq.com/search/${encodeURIComponent(origin + '到' + destination)}`;
+
+      const iframeDoc = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    html, body, #map { width: 100%; height: 100%; margin: 0; padding: 0; background: #0f172a; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    .leaflet-popup-content-wrapper { background: #1e293b; color: #f8fafc; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.5); box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+    .leaflet-popup-tip { background: #1e293b; }
+    .leaflet-container { background: #0f172a !important; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <script>
+    window.onload = function() {
+      try {
+        var orig = [${origC[0]}, ${origC[1]}];
+        var dest = [${destC[0]}, ${destC[1]}];
+        var centerLat = (orig[0] + dest[0]) / 2;
+        var centerLng = (orig[1] + dest[1]) / 2;
+
+        var map = L.map('map', { zoomControl: true }).setView([centerLat, centerLng], 7);
+
+        L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
+          subdomains: '1234',
+          maxZoom: 18,
+          attribution: '© 高德地图 Amap'
+        }).addTo(map);
+
+        L.marker(orig).addTo(map).bindPopup('<div style="font-size:13px; font-weight:600; color:#38bdf8;">📍 起点: ${escapeChatHTML(origin)}</div>').openPopup();
+        L.marker(dest).addTo(map).bindPopup('<div style="font-size:13px; font-weight:600; color:#a855f7;">🏁 终点: ${escapeChatHTML(destination)}</div>');
+
+        var polyline = L.polyline([orig, dest], {
+          color: '#38bdf8',
+          weight: 5,
+          opacity: 0.9,
+          dashArray: '8, 8'
+        }).addTo(map);
+
+        map.fitBounds(polyline.getBounds(), { padding: [40, 40] });
+      } catch(e) { console.error("Map error:", e); }
+    };
+  </script>
+</body>
+</html>`.replace(/"/g, '&quot;');
 
       const cardHtml = `
         <div class="interactive-route-map-card" style="margin: 14px 0; border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 14px; overflow: hidden; background: #0f172a; box-shadow: 0 8px 32px rgba(0,0,0,0.4);">
@@ -3857,9 +3931,9 @@ window.executeClientIntentTools = function(queryText, replyText, containerEl) {
               </div>
             </div>
 
-            <!-- High-speed Amap Web View Embed -->
-            <div style="width: 100%; height: 320px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.12); box-shadow: inset 0 0 20px rgba(0,0,0,0.5);">
-              <iframe src="https://m.amap.com/search/mapview/keywords=${encodeURIComponent(origin + '到' + destination + '路线')}" style="width: 100%; height: 100%; border: none; background: #1e293b;" loading="lazy"></iframe>
+            <!-- High-speed Amap Vector Tile Interactive Leaflet Map -->
+            <div style="width: 100%; height: 350px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.12); box-shadow: inset 0 0 20px rgba(0,0,0,0.5);">
+              <iframe srcdoc="${iframeDoc}" style="width: 100%; height: 100%; border: none; display: block;" loading="lazy"></iframe>
             </div>
           </div>
 
@@ -5886,14 +5960,63 @@ sys.stdout = io.StringIO()
                 "银川": [38.4872, 106.2309], "乌鲁木齐": [43.8256, 87.6168]
               };
 
-              let origCoords = cityCoords[origin] || [30.2741, 120.1551];
-              let destCoords = cityCoords[destination] || [32.9163, 117.3897];
+              let origCoords = cityCoords[origin] || [38.0428, 114.5149];
+              let destCoords = cityCoords[destination] || [37.7322, 115.6866];
 
               const mapId = "map-" + Math.random().toString(36).substr(2, 9);
               const routeQuery = `${origin}到${destination}路线`;
               const amapUrl = `https://www.amap.com/search?query=${encodeURIComponent(routeQuery)}`;
               const baiduUrl = `https://map.baidu.com/search/${encodeURIComponent(routeQuery)}`;
               const tencentUrl = `https://map.qq.com/search/${encodeURIComponent(origin + '到' + destination)}`;
+
+              const iframeDoc = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    html, body, #map { width: 100%; height: 100%; margin: 0; padding: 0; background: #0f172a; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    .leaflet-popup-content-wrapper { background: #1e293b; color: #f8fafc; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.5); box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+    .leaflet-popup-tip { background: #1e293b; }
+    .leaflet-container { background: #0f172a !important; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <script>
+    window.onload = function() {
+      try {
+        var orig = [${origCoords[0]}, ${origCoords[1]}];
+        var dest = [${destCoords[0]}, ${destCoords[1]}];
+        var centerLat = (orig[0] + dest[0]) / 2;
+        var centerLng = (orig[1] + dest[1]) / 2;
+
+        var map = L.map('map', { zoomControl: true }).setView([centerLat, centerLng], 7);
+
+        L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
+          subdomains: '1234',
+          maxZoom: 18,
+          attribution: '© 高德地图 Amap'
+        }).addTo(map);
+
+        L.marker(orig).addTo(map).bindPopup('<div style="font-size:13px; font-weight:600; color:#38bdf8;">📍 起点: ${escapeChatHTML(origin)}</div>').openPopup();
+        L.marker(dest).addTo(map).bindPopup('<div style="font-size:13px; font-weight:600; color:#a855f7;">🏁 终点: ${escapeChatHTML(destination)}</div>');
+
+        var polyline = L.polyline([orig, dest], {
+          color: '#38bdf8',
+          weight: 5,
+          opacity: 0.9,
+          dashArray: '8, 8'
+        }).addTo(map);
+
+        map.fitBounds(polyline.getBounds(), { padding: [40, 40] });
+      } catch(e) { console.error("Map error:", e); }
+    };
+  </script>
+</body>
+</html>`.replace(/"/g, '&quot;');
 
               addLine(`🗺️ 正在构建 ${origin} ➔ ${destination} 路线地图卡片...`);
 
@@ -5936,9 +6059,9 @@ sys.stdout = io.StringIO()
                     </div>
                   </div>
 
-                  <!-- High-speed Amap Web View Embed -->
-                  <div style="width: 100%; height: 320px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.12); box-shadow: inset 0 0 20px rgba(0,0,0,0.5);">
-                    <iframe src="https://m.amap.com/search/mapview/keywords=${encodeURIComponent(origin + '到' + destination + '路线')}" style="width: 100%; height: 100%; border: none; background: #1e293b;" loading="lazy"></iframe>
+                  <!-- High-speed Amap Vector Tile Interactive Leaflet Map -->
+                  <div style="width: 100%; height: 350px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.12); box-shadow: inset 0 0 20px rgba(0,0,0,0.5);">
+                    <iframe srcdoc="${iframeDoc}" style="width: 100%; height: 100%; border: none; display: block;" loading="lazy"></iframe>
                   </div>
                 </div>
 
