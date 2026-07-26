@@ -5395,6 +5395,18 @@ sys.stdout = io.StringIO()
               
               initialReply += `<div style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(148, 163, 184, 0.2); padding: 16px; margin: 12px 0; border-radius: 12px; backdrop-filter: blur(10px);"><div style="display: flex; align-items: center; margin-bottom: 12px; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px;"><span style="font-size: 16px;">🛠️</span><span style="color: #f8fafc; font-weight: 600; font-size: 14px;">极客小工具 - ${escapeChatHTML(toolName.replace('_', ' ').toUpperCase())}</span></div><div id="${widgetId}">${widgetContent}</div></div><br>`;
               
+              const scriptMatch = widgetContent.match(/<script>([\s\S]*?)<\/script>/);
+              if (scriptMatch && scriptMatch[1]) {
+                const scriptCode = scriptMatch[1];
+                setTimeout(() => {
+                  try {
+                    const script = document.createElement('script');
+                    script.textContent = scriptCode;
+                    document.body.appendChild(script);
+                  } catch(e) { console.error("Error executing geek tool script:", e); }
+                }, 500); // 500ms delay to ensure the widget is in the DOM before script runs
+              }
+              
               result = resultStr;
                         } else if (tc.function.name === "get_proxy_node") {
               addLine(`⚡ Fetching optimal proxy node...`);
