@@ -3793,70 +3793,73 @@ window.sanitizeMathText = function(query, text) {
 window.executeClientIntentTools = function(queryText, replyText, containerEl) {
   if (!queryText || !containerEl) return;
 
-  // 1. 🗺️ Route Planning & Interactive Leaflet Map Intent
+  // 1. 🗺️ Route Planning & Interactive Route Card Intent
   const routeMatch = queryText.match(/([^\s,，。]+?)\s*(?:到|至|->|—>)\s*([^\s,，。]+?)(?:的)?(?:规划|路线|导航|地图|怎么走|出行|自驾|高铁)/);
-  if (routeMatch && !containerEl.querySelector(".route-map-card")) {
+  if (routeMatch && !containerEl.querySelector(".interactive-route-map-card") && !containerEl.querySelector(".route-map-card")) {
     const origin = routeMatch[1].replace(/^(从|在|由)/, '').trim();
     const destination = routeMatch[2].replace(/(路线|规划|地图|指南|攻略)$/, '').trim();
     
     if (origin && destination && origin !== destination) {
-      const cardId = "route-map-" + Math.random().toString(36).substr(2, 9);
-      
-      const cityCoords = {
-        "衡水": [37.7322, 115.6866],
-        "石家庄": [38.0428, 114.5149],
-        "北京": [39.9042, 116.4074],
-        "天津": [39.0842, 117.2009],
-        "太原": [37.8706, 112.5489],
-        "济南": [36.6512, 117.1201],
-        "郑州": [34.7466, 113.6253],
-        "上海": [31.2304, 121.4737],
-        "杭州": [30.2741, 120.1551],
-        "南京": [32.0603, 118.7969],
-        "广州": [23.1291, 113.2644],
-        "深圳": [22.5431, 114.0579],
-        "成都": [30.5728, 104.0668],
-        "重庆": [29.5630, 106.5516],
-        "西安": [34.3416, 108.9398],
-        "武汉": [30.5928, 114.3055],
-        "长沙": [28.2282, 112.9388]
-      };
-
-      const c1 = cityCoords[origin] || [37.7322, 115.6866];
-      const c2 = cityCoords[destination] || [38.0428, 114.5149];
-      
-      const midLat = (c1[0] + c2[0]) / 2;
-      const midLng = (c1[1] + c2[1]) / 2;
+      const amapUrl = `https://www.amap.com/search?query=${encodeURIComponent(origin + '到' + destination + '路线')}`;
+      const baiduUrl = `https://map.baidu.com/search/${encodeURIComponent(origin + '到' + destination + '路线')}`;
+      const tencentUrl = `https://map.qq.com/search/${encodeURIComponent(origin + '到' + destination)}`;
 
       const cardHtml = `
-        <div class="route-map-card" style="margin-top: 14px; background: var(--bg-secondary, #1e1e2e); border: 1px solid var(--border-light, rgba(255,255,255,0.1)); border-radius: 14px; padding: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.15);">
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px;">
-            <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 15px; color: #38bdf8;">
-              <i data-lucide="map-pin"></i> 🗺️ 路线规划地图: ${escapeChatHTML(origin)} ➔ ${escapeChatHTML(destination)}
+        <div class="interactive-route-map-card" style="margin: 14px 0; border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 14px; overflow: hidden; background: #0f172a; box-shadow: 0 8px 32px rgba(0,0,0,0.4);">
+          <div style="padding: 12px 18px; background: linear-gradient(90deg, rgba(56, 189, 248, 0.25), rgba(99, 102, 241, 0.25)); border-bottom: 1px solid rgba(255,255,255,0.12); display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 15px; color: #f8fafc;">
+              <span>🗺️</span> <span>地图路线规划：<strong style="color:#38bdf8;">${escapeChatHTML(origin)}</strong> ➔ <strong style="color:#c084fc;">${escapeChatHTML(destination)}</strong></span>
             </div>
-            <span style="font-size: 11px; background: rgba(56,189,248,0.15); color: #38bdf8; padding: 2px 8px; border-radius: 6px;">Leaflet 动态地图组件</span>
+            <span style="font-size: 11px; color: #38bdf8; background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.3); padding: 3px 10px; border-radius: 20px;">全网智能导航</span>
+          </div>
+          
+          <div style="padding: 18px; background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);">
+            <!-- Route Dashboard Header -->
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; max-width: 540px; margin: 0 auto 16px; padding: 14px; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.3);">
+              <!-- Origin -->
+              <div style="text-align: center; flex: 1;">
+                <div style="width: 42px; height: 42px; margin: 0 auto 6px; border-radius: 50%; background: rgba(56, 189, 248, 0.2); border: 2px solid #38bdf8; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 0 14px rgba(56, 189, 248, 0.4);">📍</div>
+                <div style="font-size: 15px; font-weight: 700; color: #f8fafc;">${escapeChatHTML(origin)}</div>
+                <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">起点</div>
+              </div>
+              
+              <!-- Route Line -->
+              <div style="flex: 2; text-align: center; padding: 0 10px;">
+                <div style="font-size: 12px; font-weight: 600; color: #38bdf8; margin-bottom: 6px;">路线对齐与实时路况</div>
+                <div style="height: 3px; background: linear-gradient(90deg, #38bdf8, #a855f7); border-radius: 3px; position: relative; width: 100%;">
+                  <div style="position: absolute; top: -4px; left: 50%; transform: translateX(-50%); width: 10px; height: 10px; border-radius: 50%; background: #a855f7; box-shadow: 0 0 10px #a855f7;"></div>
+                </div>
+                <div style="display: flex; justify-content: space-around; font-size: 11px; color: #cbd5e1; margin-top: 8px;">
+                  <span>⚡ 高铁专线</span>
+                  <span>🚗 高速驾车</span>
+                </div>
+              </div>
+              
+              <!-- Destination -->
+              <div style="text-align: center; flex: 1;">
+                <div style="width: 42px; height: 42px; margin: 0 auto 6px; border-radius: 50%; background: rgba(168, 85, 247, 0.2); border: 2px solid #a855f7; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 0 14px rgba(168, 85, 247, 0.4);">🏁</div>
+                <div style="font-size: 15px; font-weight: 700; color: #f8fafc;">${escapeChatHTML(destination)}</div>
+                <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">终点</div>
+              </div>
+            </div>
+
+            <!-- High-speed Amap Web View Embed -->
+            <div style="width: 100%; height: 320px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.12); box-shadow: inset 0 0 20px rgba(0,0,0,0.5);">
+              <iframe src="https://m.amap.com/search/mapview/keywords=${encodeURIComponent(origin + '到' + destination + '路线')}" style="width: 100%; height: 100%; border: none; background: #1e293b;" loading="lazy"></iframe>
+            </div>
           </div>
 
-          <div id="${cardId}" style="height: 260px; width: 100%; border-radius: 10px; overflow: hidden; background: #0f172a; margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.1); position: relative; z-index: 1;"></div>
-
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; font-size: 12.5px;">
-            <div style="background: rgba(255,255,255,0.03); padding: 10px; border-radius: 8px; border-left: 3px solid #38bdf8;">
-              <div style="font-weight: 600; color: #94a3b8; margin-bottom: 4px;">🚆 高铁 / 动车方案</div>
-              <div style="color: #f1f5f9;">耗时: 约 35 分钟 - 45 分钟</div>
-              <div style="font-size: 11px; color: #64748b; margin-top: 2px;">路线: ${escapeChatHTML(origin)}站 ➔ ${escapeChatHTML(destination)}站 (二等座 ￥30-45)</div>
+          <!-- Bottom Navigation Actions -->
+          <div style="padding: 12px 18px; background: rgba(15, 23, 42, 0.95); border-top: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+            <div style="font-size: 12px; color: #94a3b8; display: flex; align-items: center; gap: 6px;">
+              <span style="width: 6px; height: 6px; border-radius: 50%; background: #38bdf8; display: inline-block;"></span>
+              <span>打开第三方官方 App 导航:</span>
             </div>
-            <div style="background: rgba(255,255,255,0.03); padding: 10px; border-radius: 8px; border-left: 3px solid #10b981;">
-              <div style="font-weight: 600; color: #94a3b8; margin-bottom: 4px;">🚗 自驾 / 驾车方案</div>
-              <div style="color: #f1f5f9;">全程约 120 公里 (约 1.5 小时)</div>
-              <div style="font-size: 11px; color: #64748b; margin-top: 2px;">主要干线: G1811黄石高速 / 黄新建高速</div>
+            <div style="display: flex; gap: 8px;">
+              <button class="open-url-btn" data-url="${escapeChatHTML(amapUrl)}" data-name="高德地图路线" style="padding: 6px 14px; background: linear-gradient(135deg, #0284c7, #0369a1); color: white; border: none; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;">高德导航 ↗</button>
+              <button class="open-url-btn" data-url="${escapeChatHTML(baiduUrl)}" data-name="百度地图路线" style="padding: 6px 14px; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border: none; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;">百度导航 ↗</button>
+              <button class="open-url-btn" data-url="${escapeChatHTML(tencentUrl)}" data-name="腾讯地图路线" style="padding: 6px 14px; background: linear-gradient(135deg, #059669, #047857); color: white; border: none; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;">腾讯导航 ↗</button>
             </div>
-          </div>
-
-          <div style="margin-top: 12px; font-size: 12px; color: #94a3b8; display: flex; gap: 16px; flex-wrap: wrap; border-top: 1px dashed rgba(255,255,255,0.08); padding-top: 8px;">
-            <span>⛅ ${escapeChatHTML(origin)}/当地天气: 晴转多云 18°C ~ 28°C</span>
-            <span>🚦 实时路况: 高速通行顺畅</span>
-            <a href="https://map.baidu.com" target="_blank" style="color: #38bdf8; text-decoration: none;">📍 百度地图导航 ↗</a>
-            <a href="https://www.12306.cn" target="_blank" style="color: #10b981; text-decoration: none;">🚄 12306 余票查询 ↗</a>
           </div>
         </div>
       `;
@@ -3865,27 +3868,7 @@ window.executeClientIntentTools = function(queryText, replyText, containerEl) {
       cardDiv.className = "route-map-card-wrapper";
       cardDiv.innerHTML = cardHtml;
       containerEl.appendChild(cardDiv);
-
-      setTimeout(() => {
-        if (window.L) {
-          try {
-            const map = L.map(cardId).setView([midLat, midLng], 9);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-              maxZoom: 18,
-              attribution: '© OpenStreetMap'
-            }).addTo(map);
-
-            L.marker(c1).addTo(map).bindPopup(`<b>起点: ${escapeChatHTML(origin)}</b>`).openPopup();
-            L.marker(c2).addTo(map).bindPopup(`<b>终点: ${escapeChatHTML(destination)}</b>`);
-            
-            const polyline = L.polyline([c1, c2], { color: '#38bdf8', weight: 5, opacity: 0.85, dashArray: '8, 8' }).addTo(map);
-            map.fitBounds(polyline.getBounds(), { padding: [30, 30] });
-          } catch(e) {
-            console.warn("Leaflet map init error:", e);
-          }
-        }
-        if (window.lucide) lucide.createIcons();
-      }, 200);
+      if (window.lucide) lucide.createIcons();
     }
   }
 
