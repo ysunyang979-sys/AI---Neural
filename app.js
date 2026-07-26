@@ -711,6 +711,12 @@ window.getCanvasPreviewHtml = function(code, langInput, titleInput) {
     const escapedCode = esc(code);
     const lineCount = code.split('\n').length;
     const byteSize = new Blob([code]).size;
+    let base64Code = "";
+    try {
+      base64Code = btoa(unescape(encodeURIComponent(code)));
+    } catch(e) {
+      base64Code = "";
+    }
     
     return `<!DOCTYPE html>
 <html>
@@ -762,7 +768,17 @@ window.getCanvasPreviewHtml = function(code, langInput, titleInput) {
       
       if (term) term.textContent += '🚀 Analyzing imports & executing Python script...\n-------------------------------------\n';
       try {
-        const rawCode = document.getElementById('code-block').textContent;
+        let rawCode = "";
+        const b64 = "${base64Code}";
+        if (b64) {
+          try {
+            rawCode = decodeURIComponent(escape(atob(b64)));
+          } catch(e) {
+            rawCode = document.getElementById('code-block').textContent;
+          }
+        } else {
+          rawCode = document.getElementById('code-block').textContent;
+        }
 
         if (pyodide.loadPackagesFromImports) {
           if (term) term.textContent += '📦 Auto-loading Python packages (e.g. sympy, numpy)...\n';
@@ -7281,7 +7297,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const lang = extMatch ? extMatch[1].toLowerCase() : "text";
         
         const previewHtml = window.getCanvasPreviewHtml(code, lang, title.textContent);
-        iframe.srcdoc = previewHtml;
+        try {
+          const doc = iframe.contentWindow.document;
+          doc.open();
+          doc.write(previewHtml);
+          doc.close();
+        } catch(e) {
+          iframe.srcdoc = previewHtml;
+        }
       }
     });
   }
