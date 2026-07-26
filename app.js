@@ -4019,21 +4019,16 @@ window.sanitizeMathText = function(query, text) {
   replyDiv.innerHTML = `<div class="bot-avatar">${botAvatarSVG}</div><div class="bot-content"><div class="bot-text"><span class="ai-cursor"></span></div></div>`;
   // replyDiv.style.display = "none";
 
-  // 🧠 透明简洁 AI 思考 Block (Transparent Minimal Thinking UI)
+  // Thinking block
   const thinkBlock = document.createElement("div");
   thinkBlock.className = "ai-thinking-block";
   const thinkStartTime = Date.now();
   thinkBlock.innerHTML = `
           <details open>
             <summary>
-              <div class="think-header-left">
-                <span class="think-brain-icon">💭</span>
-                <span class="think-title">思考过程</span>
-              </div>
-              <div class="think-header-right">
-                <span class="think-timer">(0.0秒)</span>
-                <span class="think-arrow">▶</span>
-              </div>
+              <span class="think-spinner"></span>
+              <span class="think-label active">思考中</span>
+              <span class="think-arrow">▶</span>
             </summary>
             <div class="think-content"></div>
           </details>`;
@@ -4045,72 +4040,26 @@ window.sanitizeMathText = function(query, text) {
   $chatLog.scrollTop = $chatLog.scrollHeight;
 
   const thinkContentEl = thinkBlock.querySelector(".think-content");
-  const thinkTimerEl = thinkBlock.querySelector(".think-timer");
-
-  let timerInterval = setInterval(() => {
-    if (thinkTimerEl) {
-      const elapsed = ((Date.now() - thinkStartTime) / 1000).toFixed(1);
-      thinkTimerEl.textContent = `(${elapsed}秒)`;
-    }
-  }, 100);
-
-  // Generate natural continuous reasoning prose stream (写成一段话，流式打字输出)
-  const queryText = (messageContent || "").trim();
-  const truncatedQ = queryText.length > 25 ? queryText.slice(0, 25) + '...' : queryText;
-
-  let isNav = /衡水|石家庄|怎么走|路线|导航|地图|公交|驾车|坐车|火车站|机票|方案/i.test(queryText);
-  let isMath = /^[\d\.\s\+\-\*\/\(\)\=\%\^]+$/.test(queryText.replace(/=$/, '')) || /计算|算一下|求值/i.test(queryText);
-  let isCode = /python|javascript|代码|写个|函数|程序|算法|画图/i.test(queryText);
-  let isTime = /时间|几点|日期|今天是|星期几|现在几点/i.test(queryText);
-
-  let availCount = 12;
-  if (typeof window.getAvailableTools === 'function') {
-    try { availCount = window.getAvailableTools().length || 12; } catch(e){}
-  }
-
-  let fullProse = "";
-  if (isNav) {
-    fullProse = `用户问道「${truncatedQ}」，我先看看需要调用工具吗？好的，这个需要调用工具！让我来规划一下，查询到 ${availCount} 个可用外挂工具组件。我将匹配地图导航与路线规划控件，协同计算最优出行路线与多种交通策略（高铁/驾车/大巴等），让我来执行为用户解决问题...`;
-  } else if (isMath) {
-    fullProse = `用户询问算术算式「${truncatedQ}」，我先看看需要调用工具吗？好的，这个需要调用工具！让我来规划一下，查询到 ${availCount} 个可用外挂工具组件。我将激活 KaTeX 高精度算术计算器，评估数学校准规则与精度，防止大模型分词运算幻觉，让我来执行为用户解决问题...`;
-  } else if (isCode) {
-    fullProse = `用户提出了编程构建任务「${truncatedQ}」，我先看看需要调用工具吗？好的，这个需要调用工具！让我来规划一下，查询到 ${availCount} 个可用外挂工具组件。我将评估代码架构与运行沙盒，准备激活 Python Pyodide 代码环境与结构化代码块，让我来执行为用户解决问题...`;
-  } else if (isTime) {
-    fullProse = `用户询问系统时间「${truncatedQ}」，我先看看需要调用工具吗？好的，这个需要调用工具！让我来规划一下，查询到 ${availCount} 个可用外挂工具组件。我将感知系统公历日期与实时时间戳，触发真实时钟计算引擎，让我来执行为用户解决问题...`;
-  } else {
-    fullProse = `用户提出了问题「${truncatedQ}」，我先看看需要调用工具吗？正在分析核心需求与语义切片，查询到 ${availCount} 个可用外挂工具组件。我将规划最佳推理路线与多维解答结构，评估是否调用联网或多模态组件，让我来执行为用户解决问题...`;
-  }
-
-  let proseCharIdx = 0;
-  let hasRealModelReasoning = false;
-
-  function streamProseChar() {
-    if (!hasRealModelReasoning && proseCharIdx < fullProse.length) {
-      thinkContentEl.textContent += fullProse[proseCharIdx];
-      $chatLog.scrollTop = $chatLog.scrollHeight;
-      proseCharIdx++;
-      setTimeout(streamProseChar, 35);
-    }
-  }
-
-  streamProseChar();
+  const thinkLabel = thinkBlock.querySelector(".think-label");
+  const thinkSpinner = thinkBlock.querySelector(".think-spinner");
 
   const addLine = (t) => {
+    const line = document.createElement("div");
+    line.className = "think-line";
+
     let textStr = String(t || "").trim();
-    if (!hasRealModelReasoning && textStr) {
-      if (thinkContentEl.textContent) {
-        thinkContentEl.textContent += "\n" + textStr;
-      } else {
-        thinkContentEl.textContent = textStr;
-      }
-      $chatLog.scrollTop = $chatLog.scrollHeight;
-    }
+    line.innerHTML = `<span class="think-icon-bullet">${botAvatarSVG}</span><span class="think-text-span">${escapeChatHTML(textStr)}</span>`;
+
+    thinkContentEl.appendChild(line);
+    $chatLog.scrollTop = $chatLog.scrollHeight;
   };
+  addLine("💭 正在理解需求并分析推导...");
 
   const endThinking = (collapse = false) => {
-    clearInterval(timerInterval);
-    const elapsed = ((Date.now() - thinkStartTime) / 1000).toFixed(1);
-    if (thinkTimerEl) thinkTimerEl.textContent = `(${elapsed}秒)`;
+    const t = ((Date.now() - thinkStartTime) / 1000).toFixed(1);
+    thinkLabel.classList.remove("active");
+    thinkLabel.textContent = `思考过程 (${t}秒)`;
+    if (thinkSpinner) thinkSpinner.style.display = "none";
     if (collapse) {
       const d = thinkBlock.querySelector("details");
       if (d) d.removeAttribute("open");
