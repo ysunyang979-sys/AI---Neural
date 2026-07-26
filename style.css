@@ -1347,6 +1347,119 @@ pre code.hljs { display: block; padding: 0; background: transparent; color: var(
     stroke: #ffffff !important;
     color: #ffffff !important;
 }
+
+/* 🧠 大脑推理分析过程 (Brain Reasoning) Block */
+.ai-thinking-block {
+    margin: 8px 0 12px 0;
+    border-radius: 12px;
+    background: var(--bg-secondary, rgba(24, 24, 37, 0.7));
+    border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+    overflow: hidden;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+.ai-thinking-block details {
+    width: 100%;
+}
+.ai-thinking-block summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    cursor: pointer;
+    user-select: none;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    background: rgba(255, 152, 0, 0.04);
+    border-bottom: 1px solid transparent;
+    transition: background 0.2s;
+}
+.ai-thinking-block details[open] summary {
+    border-bottom: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+    background: rgba(255, 152, 0, 0.08);
+}
+.ai-thinking-block summary:hover {
+    background: rgba(255, 152, 0, 0.1);
+}
+.think-header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.think-brain-icon {
+    font-size: 15px;
+    filter: drop-shadow(0 0 4px rgba(249, 115, 22, 0.4));
+}
+.think-title {
+    color: var(--text-primary);
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.2px;
+}
+.think-sub-tag {
+    font-size: 11px;
+    color: rgba(249, 115, 22, 0.85);
+    font-weight: 500;
+    margin-left: 2px;
+}
+.think-header-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.think-timer {
+    font-size: 11.5px;
+    font-family: var(--font-mono, monospace);
+    color: var(--text-tertiary, #a1a1aa);
+}
+.think-arrow {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    transition: transform 0.2s ease;
+}
+.ai-thinking-block details[open] .think-arrow {
+    transform: rotate(90deg);
+}
+.think-content {
+    padding: 12px 16px;
+    font-size: 13px;
+    line-height: 1.65;
+    color: var(--text-secondary, #d4d4d8);
+    font-family: var(--font-sans);
+    max-height: 400px;
+    overflow-y: auto;
+}
+.think-step-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 8px;
+    animation: fadeIn 0.25s ease;
+}
+.think-step-item:last-child {
+    margin-bottom: 0;
+}
+.think-step-bullet {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: rgba(249, 115, 22, 0.15);
+    color: #f97316;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+.think-step-text {
+    flex: 1;
+    color: var(--text-primary);
+    font-size: 13px;
+    line-height: 1.6;
+}
 #chat-dify-rag-toggle.active {
     color: #38bdf8 !important;
     background: rgba(56, 189, 248, 0.18) !important;

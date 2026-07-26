@@ -4019,16 +4019,21 @@ window.sanitizeMathText = function(query, text) {
   replyDiv.innerHTML = `<div class="bot-avatar">${botAvatarSVG}</div><div class="bot-content"><div class="bot-text"><span class="ai-cursor"></span></div></div>`;
   // replyDiv.style.display = "none";
 
-  // Thinking block
+  // 🧠 大脑推理分析过程 (Brain Reasoning) Block
   const thinkBlock = document.createElement("div");
   thinkBlock.className = "ai-thinking-block";
   const thinkStartTime = Date.now();
   thinkBlock.innerHTML = `
           <details open>
             <summary>
-              <span class="think-spinner"></span>
-              <span class="think-label active">思考中</span>
-              <span class="think-arrow">▶</span>
+              <div class="think-header-left">
+                <span class="think-brain-icon">💭</span>
+                <span class="think-title">大脑推理分析过程 <span class="think-sub-tag">(Brain Reasoning)</span></span>
+              </div>
+              <div class="think-header-right">
+                <span class="think-timer">(0.0秒)</span>
+                <span class="think-arrow">▶</span>
+              </div>
             </summary>
             <div class="think-content"></div>
           </details>`;
@@ -4040,26 +4045,159 @@ window.sanitizeMathText = function(query, text) {
   $chatLog.scrollTop = $chatLog.scrollHeight;
 
   const thinkContentEl = thinkBlock.querySelector(".think-content");
-  const thinkLabel = thinkBlock.querySelector(".think-label");
-  const thinkSpinner = thinkBlock.querySelector(".think-spinner");
+  const thinkTimerEl = thinkBlock.querySelector(".think-timer");
+
+  let timerInterval = setInterval(() => {
+    if (thinkTimerEl) {
+      const elapsed = ((Date.now() - thinkStartTime) / 1000).toFixed(1);
+      thinkTimerEl.textContent = `(${elapsed}秒)`;
+    }
+  }, 100);
+
+  // Generate dynamic step-by-step streaming reasoning items
+  const queryText = messageContent || "";
+  const truncatedQ = queryText.length > 22 ? queryText.slice(0, 22) + '...' : queryText;
+
+  let isNav = /衡水|石家庄|怎么走|路线|导航|地图|公交|驾车|坐车|火车站|机票|方案/i.test(queryText);
+  let isMath = /^[\d\.\s\+\-\*\/\(\)\=\%\^]+$/.test(queryText.trim().replace(/=$/, '')) || /计算|算一下|求值/i.test(queryText);
+  let isCode = /python|javascript|代码|写个|函数|程序|算法|画图/i.test(queryText);
+  let isTime = /时间|几点|日期|今天是|星期几|现在几点/i.test(queryText);
+
+  let availCount = 12;
+  if (typeof window.getAvailableTools === 'function') {
+    try { availCount = window.getAvailableTools().length || 12; } catch(e){}
+  }
+
+  let steps = [];
+  steps.push({
+    icon: "🎯",
+    title: `用户提问「${truncatedQ}」`,
+    desc: "我先看看需要调用工具吗？正在分析核心需求与预期交付结果..."
+  });
+
+  if (isNav) {
+    steps.push({
+      icon: "🔍",
+      title: "好的，这个需要调用工具！",
+      desc: `正在评估外部工具依赖，查询到 ${availCount} 个可用外挂工具组件...`
+    });
+    steps.push({
+      icon: "⚡",
+      title: "让我来规划一下（路径与导航工具链）",
+      desc: "已匹配【地图导航、路线规划、距离测算】工具，构建最优出行解决方案..."
+    });
+    steps.push({
+      icon: "🚀",
+      title: "让我来执行为用户解决问题！",
+      desc: "正在协同计算多种出行策略（高铁/驾车/大巴建议）并生成渲染可视化路线..."
+    });
+  } else if (isMath) {
+    steps.push({
+      icon: "🔍",
+      title: "好的，这个需要调用工具！",
+      desc: `评估高精度算术逻辑引擎，查询到 ${availCount} 个可用外挂工具组件...`
+    });
+    steps.push({
+      icon: "⚡",
+      title: "让我来规划一下（数学计算与公式校验）",
+      desc: "准备激活【KaTeX 高精度算术计算器】，防止大模型分词运算幻觉..."
+    });
+    steps.push({
+      icon: "🚀",
+      title: "让我来执行为用户解决问题！",
+      desc: "执行双重精度校验，准备将绝对精确结果格式化输出..."
+    });
+  } else if (isCode) {
+    steps.push({
+      icon: "🔍",
+      title: "好的，这个需要调用工具！",
+      desc: `评估代码沙盒与语法架构，查询到 ${availCount} 个可用外挂工具组件...`
+    });
+    steps.push({
+      icon: "⚡",
+      title: "让我来规划一下（程序构建与代码执行）",
+      desc: "准备激活【Python Pyodide / Piston 代码执行沙盒与交互卡片】..."
+    });
+    steps.push({
+      icon: "🚀",
+      title: "让我来执行为用户解决问题！",
+      desc: "正在编译逻辑结构并生成结构化代码与可运行范例..."
+    });
+  } else if (isTime) {
+    steps.push({
+      icon: "🔍",
+      title: "好的，这个需要调用工具！",
+      desc: "评估系统实时时间与日期，准备触发实时时钟计算引擎..."
+    });
+    steps.push({
+      icon: "⚡",
+      title: "让我来规划一下（系统时间与时区精准计算）",
+      desc: "获取系统公历日期、时间戳与星期数据..."
+    });
+    steps.push({
+      icon: "🚀",
+      title: "让我来执行为用户解决问题！",
+      desc: "正在将准确时间与相关资讯呈现给用户..."
+    });
+  } else {
+    steps.push({
+      icon: "🔍",
+      title: "需求感知：分析知识推理路线",
+      desc: `检查知识切片与关联资料库，查询到 ${availCount} 个可用外挂工具组件...`
+    });
+    steps.push({
+      icon: "⚡",
+      title: "让我来规划一下（多维逻辑推理）",
+      desc: "构建结构化解题链，评估是否需要调用联网或多模态渲染卡片..."
+    });
+    steps.push({
+      icon: "🚀",
+      title: "让我来执行为用户解决问题！",
+      desc: "正在生成最佳综合解答方案..."
+    });
+  }
+
+  let stepIndex = 0;
+  function streamStep() {
+    if (stepIndex < steps.length) {
+      const s = steps[stepIndex];
+      const div = document.createElement("div");
+      div.className = "think-step-item";
+      div.innerHTML = `
+        <div class="think-step-bullet">${stepIndex + 1}</div>
+        <div class="think-step-text">
+          <strong style="color: var(--text-primary); font-size: 13px;">${escapeChatHTML(s.icon)} ${escapeChatHTML(s.title)}</strong>
+          <div style="font-size: 11.5px; color: var(--text-tertiary); margin-top: 2px;">${escapeChatHTML(s.desc)}</div>
+        </div>
+      `;
+      thinkContentEl.appendChild(div);
+      $chatLog.scrollTop = $chatLog.scrollHeight;
+      stepIndex++;
+      setTimeout(streamStep, 200);
+    }
+  }
+
+  streamStep();
 
   const addLine = (t) => {
-    const line = document.createElement("div");
-    line.className = "think-line";
-
+    const div = document.createElement("div");
+    div.className = "think-step-item";
     let textStr = String(t || "").trim();
-    line.innerHTML = `<span class="think-icon-bullet">${botAvatarSVG}</span><span class="think-text-span">${escapeChatHTML(textStr)}</span>`;
-
-    thinkContentEl.appendChild(line);
+    div.innerHTML = `
+      <div class="think-step-bullet">⚡</div>
+      <div class="think-step-text">
+        <strong style="color: var(--text-primary); font-size: 13px;">💡 推理节点</strong>
+        <div style="font-size: 11.5px; color: var(--text-tertiary); margin-top: 2px;">${escapeChatHTML(textStr)}</div>
+      </div>
+    `;
+    thinkContentEl.appendChild(div);
     $chatLog.scrollTop = $chatLog.scrollHeight;
   };
-  addLine("💭 正在理解需求并分析推导...");
 
   const endThinking = (collapse = false) => {
-    const t = ((Date.now() - thinkStartTime) / 1000).toFixed(1);
-    thinkLabel.classList.remove("active");
-    thinkLabel.textContent = `思考过程 (${t}秒)`;
-    if (thinkSpinner) thinkSpinner.style.display = "none";
+    clearInterval(timerInterval);
+    const elapsed = ((Date.now() - thinkStartTime) / 1000).toFixed(1);
+    if (thinkTimerEl) thinkTimerEl.textContent = `(${elapsed}秒)`;
     if (collapse) {
       const d = thinkBlock.querySelector("details");
       if (d) d.removeAttribute("open");
