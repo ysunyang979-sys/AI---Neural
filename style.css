@@ -3497,3 +3497,87 @@ kbd {
         outline: none !important;
     }
 }
+
+
+/* ═══════════════════════════════════════
+   CRITICAL MOBILE ACTION BAR & POPUP FIXES
+   ═══════════════════════════════════════ */
+
+/* Ensure pop-up menus are never clipped on mobile */
+.chat-input-wrapper-full,
+.chat-input-container {
+    overflow: visible !important;
+}
+
+.chat-input-actions {
+    overflow: visible !important;
+    position: relative !important;
+    z-index: 100 !important;
+}
+
+/* Touch targets and z-index for mobile buttons */
+.chat-input-action-btn,
+#chat-attach-btn,
+#mode-btn,
+#chat-code-mode-toggle,
+#chat-draw-toggle {
+    min-width: 40px !important;
+    height: 40px !important;
+    cursor: pointer !important;
+    touch-action: manipulation !important;
+    pointer-events: auto !important;
+    position: relative !important;
+    z-index: 105 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* Pop-up menus elevation and unclipped positioning */
+#mode-menu,
+#chat-format-dropdown,
+#chat-draw-dropdown,
+#more-skills-dropdown {
+    position: absolute !important;
+    bottom: calc(100% + 8px) !important;
+    z-index: 999999 !important;
+    background: var(--bg-secondary, #1e1e2e) !important;
+    border: 1px solid var(--border-light, rgba(255,255,255,0.15)) !important;
+    border-radius: 14px !important;
+    box-shadow: 0 12px 36px rgba(0,0,0,0.5) !important;
+    padding: 8px !important;
+}
+
+.mode-item,
+.format-option,
+.draw-option {
+    min-width: 44px !important;
+    min-height: 44px !important;
+    padding: 10px 14px !important;
+    cursor: pointer !important;
+    touch-action: manipulation !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+@media (max-width: 768px) {
+    .chat-input-actions {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 6px !important;
+        overflow: visible !important;
+    }
+    
+    #mode-menu {
+        left: -10px !important;
+    }
+    
+    #chat-format-dropdown {
+        left: -40px !important;
+    }
+    
+    #chat-draw-dropdown {
+        left: 0 !important;
+    }
+}
