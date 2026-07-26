@@ -862,8 +862,8 @@ if (searchToggle) {
   if (!webSearchEnabled) searchToggle.classList.remove("active");
 }
 
-// ⚡ Dify Cloud Knowledge Base RAG Mode
-let difyRagModeEnabled = true;
+// ⚡ Dify Cloud Knowledge Base RAG Mode (Default: OFF)
+let difyRagModeEnabled = localStorage.getItem("difyRagModeEnabled") === "true";
 
 // 🎨 Drawing Mode Toggle
 let drawModeEnabled = false;
@@ -4060,7 +4060,8 @@ window.executeClientIntentTools = function(queryText, replyText, containerEl) {
       }
 
       // ─── Dify Cloud RAG App API Execution Branch ───
-      if (model === 'dify-cloud-rag' || (typeof difyRagModeEnabled !== 'undefined' && difyRagModeEnabled)) {
+      const isRagEnabled = localStorage.getItem("difyRagModeEnabled") === "true";
+      if (model === 'dify-cloud-rag' || (isRagEnabled && typeof difyRagModeEnabled !== 'undefined' && difyRagModeEnabled)) {
         const rawEndpoint = localStorage.getItem("difyApiEndpoint") || "https://api.dify.ai/v1";
         
         // 🌟 Synchronize with current active mode in UI 🌟
