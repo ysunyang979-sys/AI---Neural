@@ -7838,6 +7838,78 @@ function initModeSwitcher() {
     }
 }
 
+// 🌟 Sync Sub-Menu Highlight States with Actual System State 🌟
+function syncPlusSubMenuStates() {
+    // 1. Personas Sub-menu
+    const subPersonas = document.getElementById('plus-sub-personas');
+    if (subPersonas) {
+        const pName = window.activePersonaName || localStorage.getItem("activePersonaName");
+        subPersonas.querySelectorAll('.plus-sub-item').forEach(item => item.classList.remove('active'));
+        if (pName && pName !== 'Default') {
+            let matchedItem = null;
+            subPersonas.querySelectorAll('.plus-sub-item').forEach(item => {
+                const itemTxt = item.textContent.trim();
+                if (itemTxt.includes(pName) || pName.includes(itemTxt) || (item.getAttribute('data-persona') && pName.toLowerCase().includes(item.getAttribute('data-persona')))) {
+                    matchedItem = item;
+                }
+            });
+            if (matchedItem) {
+                matchedItem.classList.add('active');
+            } else {
+                const defItem = subPersonas.querySelector('.plus-sub-item[data-persona="default"]');
+                if (defItem) defItem.classList.add('active');
+            }
+        } else {
+            const defItem = subPersonas.querySelector('.plus-sub-item[data-persona="default"]');
+            if (defItem) defItem.classList.add('active');
+        }
+    }
+
+    // 2. Dify KB Sub-menu
+    const subDify = document.getElementById('plus-sub-dify');
+    if (subDify) {
+        const isRagEnabled = localStorage.getItem("difyRagModeEnabled") === "true";
+        const selectedMode = localStorage.getItem("difyUserSelectedMode");
+        subDify.querySelectorAll('.plus-sub-item').forEach(item => item.classList.remove('active'));
+        if (isRagEnabled && selectedMode && selectedMode !== 'normal') {
+            const targetItem = subDify.querySelector(`.plus-sub-item[data-dify="${selectedMode}"]`);
+            if (targetItem) targetItem.classList.add('active');
+            else {
+                const normItem = subDify.querySelector('.plus-sub-item[data-dify="normal"]');
+                if (normItem) normItem.classList.add('active');
+            }
+        } else {
+            const normItem = subDify.querySelector('.plus-sub-item[data-dify="normal"]');
+            if (normItem) normItem.classList.add('active');
+        }
+    }
+
+    // 3. Output Format Sub-menu
+    const subFormat = document.getElementById('plus-sub-format');
+    if (subFormat) {
+        const activeFmtBtn = document.querySelector('#chat-format-dropdown .format-option.active');
+        const activeFmt = activeFmtBtn ? activeFmtBtn.getAttribute('data-format') : 'default';
+        subFormat.querySelectorAll('.plus-sub-item').forEach(item => item.classList.remove('active'));
+        const targetFmtItem = subFormat.querySelector(`.plus-sub-item[data-format="${activeFmt}"]`) || subFormat.querySelector('.plus-sub-item[data-format="default"]');
+        if (targetFmtItem) targetFmtItem.classList.add('active');
+    }
+
+    // 4. AI Draw Sub-menu
+    const subDraw = document.getElementById('plus-sub-draw');
+    if (subDraw) {
+        const drawToggle = document.getElementById('chat-draw-toggle');
+        const isDrawActive = drawToggle && drawToggle.classList.contains('active');
+        subDraw.querySelectorAll('.plus-sub-item').forEach(item => item.classList.remove('active'));
+        if (isDrawActive) {
+            const activeRatioBtn = document.querySelector('#chat-draw-dropdown .draw-option.active');
+            const ratio = activeRatioBtn ? activeRatioBtn.getAttribute('data-ratio') : '1:1';
+            const targetRatioItem = subDraw.querySelector(`.plus-sub-item[data-ratio="${ratio}"]`);
+            if (targetRatioItem) targetRatioItem.classList.add('active');
+        }
+    }
+}
+window.syncPlusSubMenuStates = syncPlusSubMenuStates;
+
 // 🌟 Dynamic Active Features Bar Manager (Requirement 2) 🌟
 function updateActiveFeaturesBar() {
     const bar = document.getElementById('active-features-bar');
@@ -7861,7 +7933,7 @@ function updateActiveFeaturesBar() {
     // 2. Dify Knowledge Base Mode
     const selectedMode = localStorage.getItem("difyUserSelectedMode");
     const isRagEnabled = localStorage.getItem("difyRagModeEnabled") === "true";
-    if (isRagEnabled && selectedMode) {
+    if (isRagEnabled && selectedMode && selectedMode !== 'normal') {
         let labelText = "知识库";
         let iconName = "book-open";
         if (selectedMode === 'dify_kb') { labelText = "📚 通用知识库"; iconName = "book-open"; }
@@ -7940,6 +8012,7 @@ function updateActiveFeaturesBar() {
         bar.appendChild(pill);
     }
 
+    syncPlusSubMenuStates();
     if (window.lucide) window.lucide.createIcons();
 }
 window.updateActiveFeaturesBar = updateActiveFeaturesBar;
@@ -7958,7 +8031,10 @@ function initPlusMenu() {
             const isHidden = getComputedStyle(plusMenu).display === 'none' || plusMenu.style.display === 'none';
             plusMenu.style.display = isHidden ? 'flex' : 'none';
             plusBtn.classList.toggle('active', isHidden);
-            if (isHidden && window.lucide) window.lucide.createIcons();
+            if (isHidden) {
+                syncPlusSubMenuStates();
+                if (window.lucide) window.lucide.createIcons();
+            }
         });
 
         document.addEventListener('click', (e) => {
