@@ -6680,15 +6680,7 @@ function compressImage(file, maxSize = 512, quality = 0.5) {
   });
 }
 
-if ($attachBtn && $fileInput) {
-  const triggerFileInput = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    $fileInput.click();
-  };
-  $attachBtn.addEventListener("click", triggerFileInput);
-  $attachBtn.addEventListener("touchend", triggerFileInput);
-
+if ($fileInput) {
   $fileInput.addEventListener("change", async (e) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -7793,18 +7785,13 @@ function initModeSwitcher() {
         if (!modeBtn.hasAttribute('data-initialized')) {
             modeBtn.setAttribute('data-initialized', 'true');
             const toggleModeMenu = (e) => {
-                e.preventDefault();
                 e.stopPropagation();
                 const isHidden = getComputedStyle(modeMenu).display === 'none' || modeMenu.style.display === 'none';
                 modeMenu.style.display = isHidden ? 'flex' : 'none';
             };
             modeBtn.addEventListener('click', toggleModeMenu);
-            modeBtn.addEventListener('touchend', toggleModeMenu);
             
-            document.addEventListener('click', () => {
-                if (modeMenu) modeMenu.style.display = 'none';
-            });
-            document.addEventListener('touchend', (e) => {
+            document.addEventListener('click', (e) => {
                 if (modeMenu && !modeMenu.contains(e.target) && !modeBtn.contains(e.target)) {
                     modeMenu.style.display = 'none';
                 }

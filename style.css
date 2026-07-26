@@ -3517,10 +3517,14 @@ kbd {
 
 /* Touch targets and z-index for mobile buttons */
 .chat-input-action-btn,
+label.chat-input-action-btn,
 #chat-attach-btn,
 #mode-btn,
 #chat-code-mode-toggle,
-#chat-draw-toggle {
+#chat-draw-toggle,
+#chat-search-toggle,
+#chat-canvas-toggle,
+#chat-personas-toggle-btn {
     min-width: 40px !important;
     height: 40px !important;
     cursor: pointer !important;
@@ -3531,6 +3535,7 @@ kbd {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
+    -webkit-tap-highlight-color: rgba(56, 189, 248, 0.2) !important;
 }
 
 /* Pop-up menus elevation and unclipped positioning */

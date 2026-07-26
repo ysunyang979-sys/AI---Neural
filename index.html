@@ -6,7 +6,7 @@
   <title>Neural Core AI</title>
   <meta name="description" content="Neural Core — An advanced AI assistant powered by Mistral AI. Chat, search the web, run Python code, and more."/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
-  <link href="style.css?v=32" rel="stylesheet"/>
+  <link href="style.css?v=33" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -406,7 +406,7 @@
             <!-- Bottom Action Bar -->
             <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; min-width:0;">
               <div class="chat-input-actions" style="display:flex; gap:2px; position:relative; min-width:0; flex-shrink:1; overflow:visible;">
-                <button class="chat-input-action-btn" id="chat-attach-btn" title="Attach File"><i data-lucide="plus"></i></button>
+                <label class="chat-input-action-btn" id="chat-attach-btn" for="chat-file-input" title="Attach File"><i data-lucide="plus"></i></label>
                 <input accept="image/*,.pdf" id="chat-file-input" style="display:none;" type="file" multiple/>
                 <button class="chat-input-action-btn" id="chat-search-toggle" title="Web Search"><i data-lucide="globe"></i></button>
                 <button class="chat-input-action-btn" id="chat-draw-toggle" title="Drawing Mode"><i data-lucide="image"></i></button>
@@ -805,6 +805,6 @@
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
   <script src="keys.js"></script>
-  <script src="app.js?v=101"></script>
+  <script src="app.js?v=102"></script>
 </body>
 </html>
