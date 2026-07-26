@@ -3463,3 +3463,37 @@ kbd {
     }
     .chat-suggestion-item { font-size: 12px; padding: 12px 14px; }
 }
+
+
+/* PC vs Mobile Header Title Display Rules */
+.pc-only-title {
+    display: block !important;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+.mobile-menu-btn {
+    display: none !important;
+}
+
+@media (max-width: 768px) {
+    .pc-only-title {
+        display: none !important;
+    }
+    .mobile-menu-btn {
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        background: transparent !important;
+        border: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        color: var(--text-primary) !important;
+        cursor: pointer !important;
+        font-family: var(--font-heading) !important;
+        font-size: 16px !important;
+        font-weight: 700 !important;
+        box-shadow: none !important;
+        outline: none !important;
+    }
+}
