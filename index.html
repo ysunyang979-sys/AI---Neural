@@ -6,7 +6,7 @@
   <title>Neural Core AI</title>
   <meta name="description" content="Neural Core — An advanced AI assistant powered by Mistral AI. Chat, search the web, run Python code, and more."/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
-  <link href="style.css?v=34" rel="stylesheet"/>
+  <link href="style.css?v=35" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -409,32 +409,115 @@
                 <button class="chat-input-action-btn" id="chat-plus-toggle-btn" title="点击展开功能面板"><i data-lucide="plus"></i></button>
                 <input accept="image/*,.pdf" id="chat-file-input" style="display:none;" type="file" multiple/>
                 
-                <!-- 🌟 PLUS FLOATING ACTION PANEL (加号功能面板) 🌟 -->
+                <!-- 🌟 PLUS VERTICAL FLOATING MENU WITH SUB-OPTIONS 🌟 -->
                 <div id="chat-plus-menu" class="chat-plus-menu" style="display:none;">
-                  <label class="plus-menu-item" for="chat-file-input" title="上传图片/文件/文档">
-                    <i data-lucide="paperclip"></i>
-                    <span>上传附件</span>
+                  <!-- Item 1: Upload -->
+                  <label class="plus-vmenu-item" for="chat-file-input" title="上传图片/文件/文档">
+                    <div class="plus-vmenu-icon"><i data-lucide="paperclip"></i></div>
+                    <div class="plus-vmenu-text">
+                      <span class="plus-vmenu-title">上传附件</span>
+                      <span class="plus-vmenu-sub">支持图片、PDF 文档分析</span>
+                    </div>
                   </label>
-                  <button class="plus-menu-item" id="plus-search-toggle" title="实时联网搜索">
-                    <i data-lucide="globe"></i>
-                    <span>联网搜索</span>
-                  </button>
-                  <button class="plus-menu-item" id="plus-draw-toggle" title="AI 绘画与绘图模式">
-                    <i data-lucide="image"></i>
-                    <span>AI 绘画</span>
-                  </button>
-                  <button class="plus-menu-item" id="plus-canvas-toggle" title="Canvas 代码与网页工作区">
-                    <i data-lucide="layout-panel-left"></i>
-                    <span>Canvas</span>
-                  </button>
-                  <button class="plus-menu-item" id="plus-personas-toggle" title="切换专家人格 Skill">
-                    <i data-lucide="sparkles"></i>
-                    <span>专家 Skill</span>
-                  </button>
-                  <button class="plus-menu-item" id="plus-format-toggle" title="设置回答输出格式">
-                    <i data-lucide="layout-template"></i>
-                    <span>输出格式</span>
-                  </button>
+
+                  <!-- Item 2: Web Search -->
+                  <div class="plus-vmenu-item" id="plus-item-search" title="开启/关闭全网搜索">
+                    <div class="plus-vmenu-icon"><i data-lucide="globe"></i></div>
+                    <div class="plus-vmenu-text">
+                      <span class="plus-vmenu-title">联网搜索</span>
+                      <span class="plus-vmenu-sub">实时检索最新互联网信息</span>
+                    </div>
+                    <div class="plus-vmenu-badge" id="plus-search-badge">OFF</div>
+                  </div>
+
+                  <!-- Item 3: AI Draw (With Sub-options) -->
+                  <div class="plus-vmenu-item has-sub" id="plus-item-draw" title="选择 AI 绘图构图比例">
+                    <div class="plus-vmenu-icon"><i data-lucide="image"></i></div>
+                    <div class="plus-vmenu-text">
+                      <span class="plus-vmenu-title">AI 绘画模式</span>
+                      <span class="plus-vmenu-sub">多比例构图生成</span>
+                    </div>
+                    <div class="plus-vmenu-arrow"><i data-lucide="chevron-right"></i></div>
+                    <!-- Sub-options Panel -->
+                    <div class="plus-sub-panel" id="plus-sub-draw">
+                      <div class="plus-sub-title">选择绘画比例</div>
+                      <div class="plus-sub-item active" data-ratio="1:1"><span>1:1 正方形</span></div>
+                      <div class="plus-sub-item" data-ratio="16:9"><span>16:9 宽屏</span></div>
+                      <div class="plus-sub-item" data-ratio="9:16"><span>9:16 手机竖屏</span></div>
+                      <div class="plus-sub-item" data-ratio="4:3"><span>4:3 标准</span></div>
+                      <div class="plus-sub-item" data-ratio="3:4"><span>3:4 竖向</span></div>
+                    </div>
+                  </div>
+
+                  <!-- Item 4: Canvas -->
+                  <div class="plus-vmenu-item" id="plus-item-canvas" title="打开/关闭 Canvas 面板">
+                    <div class="plus-vmenu-icon"><i data-lucide="layout-panel-left"></i></div>
+                    <div class="plus-vmenu-text">
+                      <span class="plus-vmenu-title">Canvas 工作区</span>
+                      <span class="plus-vmenu-sub">代码/网页独立预览与导出</span>
+                    </div>
+                  </div>
+
+                  <!-- Item 5: Personas (With Sub-options) -->
+                  <div class="plus-vmenu-item has-sub" id="plus-item-personas" title="切换专家 Skill 与人格">
+                    <div class="plus-vmenu-icon"><i data-lucide="sparkles"></i></div>
+                    <div class="plus-vmenu-text">
+                      <span class="plus-vmenu-title">专家 Skill / 人格</span>
+                      <span class="plus-vmenu-sub">切换 16+ 深度思考模型</span>
+                    </div>
+                    <div class="plus-vmenu-arrow"><i data-lucide="chevron-right"></i></div>
+                    <!-- Sub-options Panel -->
+                    <div class="plus-sub-panel" id="plus-sub-personas">
+                      <div class="plus-sub-title">选择人格 / Skill</div>
+                      <div class="plus-sub-item" data-persona="musk"><span>🚀 马斯克 (Musk)</span></div>
+                      <div class="plus-sub-item" data-persona="jobs"><span>🍎 乔布斯 (Jobs)</span></div>
+                      <div class="plus-sub-item" data-persona="naval"><span>🧘 纳瓦尔 (Naval)</span></div>
+                      <div class="plus-sub-item" data-persona="feynman"><span>⚛️ 费曼 (Feynman)</span></div>
+                      <div class="plus-sub-item" data-persona="munger"><span>📚 芒格 (Munger)</span></div>
+                      <div class="plus-sub-item" data-persona="trump"><span>🗽 特朗普 (Trump)</span></div>
+                      <div class="plus-sub-item" data-persona="pg"><span>💡 保罗·格雷厄姆</span></div>
+                      <div class="plus-sub-item" data-persona="taleb"><span>🛡️ 塔勒布 (Taleb)</span></div>
+                      <div class="plus-sub-item active" data-persona="default"><span>⚙️ 恢复默认助手</span></div>
+                    </div>
+                  </div>
+
+                  <!-- Item 6: Output Format (With Sub-options) -->
+                  <div class="plus-vmenu-item has-sub" id="plus-item-format" title="设置回答输出格式">
+                    <div class="plus-vmenu-icon"><i data-lucide="layout-template"></i></div>
+                    <div class="plus-vmenu-text">
+                      <span class="plus-vmenu-title">输出回答格式</span>
+                      <span class="plus-vmenu-sub">控制 AI 回复表达形式</span>
+                    </div>
+                    <div class="plus-vmenu-arrow"><i data-lucide="chevron-right"></i></div>
+                    <!-- Sub-options Panel -->
+                    <div class="plus-sub-panel" id="plus-sub-format">
+                      <div class="plus-sub-title">选择格式类型</div>
+                      <div class="plus-sub-item active" data-format="default"><span>💬 默认对话</span></div>
+                      <div class="plus-sub-item" data-format="code"><span>💻 纯代码模式</span></div>
+                      <div class="plus-sub-item" data-format="table"><span>📊 Markdown 表格</span></div>
+                      <div class="plus-sub-item" data-format="outline"><span>🌳 大纲结构树</span></div>
+                      <div class="plus-sub-item" data-format="concise"><span>⚡ 极简摘要</span></div>
+                      <div class="plus-sub-item" data-format="stepbystep"><span>🔢 分步操作指南</span></div>
+                      <div class="plus-sub-item" data-format="bilingual"><span>🌐 中英双语对照</span></div>
+                    </div>
+                  </div>
+
+                  <!-- Item 7: Dify KB (With Sub-options) -->
+                  <div class="plus-vmenu-item has-sub" id="plus-item-dify" title="切换 Dify 云端知识库">
+                    <div class="plus-vmenu-icon"><i data-lucide="cpu"></i></div>
+                    <div class="plus-vmenu-text">
+                      <span class="plus-vmenu-title">Dify 云端知识库</span>
+                      <span class="plus-vmenu-sub">RAG 专业资料库检索</span>
+                    </div>
+                    <div class="plus-vmenu-arrow"><i data-lucide="chevron-right"></i></div>
+                    <!-- Sub-options Panel -->
+                    <div class="plus-sub-panel" id="plus-sub-dify">
+                      <div class="plus-sub-title">切换知识库模式</div>
+                      <div class="plus-sub-item" data-dify="dify_kb"><span>📚 学习/通用知识库</span></div>
+                      <div class="plus-sub-item" data-dify="dify_think"><span>🧠 深度思考知识库</span></div>
+                      <div class="plus-sub-item active" data-dify="normal"><span>🚫 关闭知识库</span></div>
+                    </div>
+                  </div>
                 </div>
                 <button class="chat-input-action-btn" id="chat-search-toggle" title="Web Search"><i data-lucide="globe"></i></button>
                 <button class="chat-input-action-btn" id="chat-draw-toggle" title="Drawing Mode"><i data-lucide="image"></i></button>
@@ -833,6 +916,6 @@
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
   <script src="keys.js"></script>
-  <script src="app.js?v=103"></script>
+  <script src="app.js?v=104"></script>
 </body>
 </html>

@@ -7838,7 +7838,7 @@ function initModeSwitcher() {
     }
 }
 
-// 🌟 Plus Button Floating Action Panel Handler 🌟
+// 🌟 Plus Button Vertical Floating Action Panel Handler 🌟
 function initPlusMenu() {
     const plusBtn = document.getElementById('chat-plus-toggle-btn');
     const plusMenu = document.getElementById('chat-plus-menu');
@@ -7852,60 +7852,137 @@ function initPlusMenu() {
             const isHidden = getComputedStyle(plusMenu).display === 'none' || plusMenu.style.display === 'none';
             plusMenu.style.display = isHidden ? 'flex' : 'none';
             plusBtn.classList.toggle('active', isHidden);
+            if (isHidden && window.lucide) window.lucide.createIcons();
         });
 
         document.addEventListener('click', (e) => {
             if (plusMenu && !plusMenu.contains(e.target) && !plusBtn.contains(e.target)) {
                 plusMenu.style.display = 'none';
                 plusBtn.classList.remove('active');
+                document.querySelectorAll('.plus-vmenu-item.sub-open').forEach(el => el.classList.remove('sub-open'));
             }
         });
 
-        // Sub-item click actions
-        const plusSearch = document.getElementById('plus-search-toggle');
+        // 1. Web Search Item
+        const itemSearch = document.getElementById('plus-item-search');
         const chatSearch = document.getElementById('chat-search-toggle');
-        if (plusSearch && chatSearch) {
-            plusSearch.addEventListener('click', () => {
+        const searchBadge = document.getElementById('plus-search-badge');
+        if (itemSearch && chatSearch) {
+            itemSearch.addEventListener('click', (e) => {
+                e.stopPropagation();
                 chatSearch.click();
+                const isSearchActive = chatSearch.classList.contains('active');
+                if (searchBadge) {
+                    searchBadge.textContent = isSearchActive ? 'ON' : 'OFF';
+                    searchBadge.classList.toggle('active', isSearchActive);
+                }
                 plusMenu.style.display = 'none';
+                plusBtn.classList.remove('active');
             });
         }
 
-        const plusDraw = document.getElementById('plus-draw-toggle');
-        const chatDraw = document.getElementById('chat-draw-toggle');
-        if (plusDraw && chatDraw) {
-            plusDraw.addEventListener('click', () => {
-                chatDraw.click();
-                plusMenu.style.display = 'none';
-            });
-        }
-
-        const plusCanvas = document.getElementById('plus-canvas-toggle');
+        // 2. Canvas Item
+        const itemCanvas = document.getElementById('plus-item-canvas');
         const chatCanvas = document.getElementById('chat-canvas-toggle');
-        if (plusCanvas && chatCanvas) {
-            plusCanvas.addEventListener('click', () => {
+        if (itemCanvas && chatCanvas) {
+            itemCanvas.addEventListener('click', (e) => {
+                e.stopPropagation();
                 chatCanvas.click();
                 plusMenu.style.display = 'none';
+                plusBtn.classList.remove('active');
             });
         }
 
-        const plusPersonas = document.getElementById('plus-personas-toggle');
-        const chatPersonas = document.getElementById('chat-personas-toggle-btn');
-        if (plusPersonas && chatPersonas) {
-            plusPersonas.addEventListener('click', () => {
-                chatPersonas.click();
-                plusMenu.style.display = 'none';
+        // 3. AI Draw Sub-options
+        const subDraw = document.getElementById('plus-sub-draw');
+        if (subDraw) {
+            subDraw.querySelectorAll('.plus-sub-item').forEach(subItem => {
+                subItem.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const ratio = subItem.getAttribute('data-ratio');
+                    const targetBtn = document.querySelector(`#chat-draw-dropdown .draw-option[data-ratio="${ratio}"]`);
+                    if (targetBtn) targetBtn.click();
+                    const drawToggle = document.getElementById('chat-draw-toggle');
+                    if (drawToggle && !drawToggle.classList.contains('active')) drawToggle.click();
+                    
+                    subDraw.querySelectorAll('.plus-sub-item').forEach(i => i.classList.remove('active'));
+                    subItem.classList.add('active');
+                    
+                    plusMenu.style.display = 'none';
+                    plusBtn.classList.remove('active');
+                });
             });
         }
 
-        const plusFormat = document.getElementById('plus-format-toggle');
-        const chatFormat = document.getElementById('chat-code-mode-toggle');
-        if (plusFormat && chatFormat) {
-            plusFormat.addEventListener('click', () => {
-                chatFormat.click();
-                plusMenu.style.display = 'none';
+        // 4. Personas Sub-options
+        const subPersonas = document.getElementById('plus-sub-personas');
+        if (subPersonas) {
+            subPersonas.querySelectorAll('.plus-sub-item').forEach(subItem => {
+                subItem.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const pKey = subItem.getAttribute('data-persona');
+                    let targetBtn = document.getElementById(`persona-${pKey}`);
+                    if (pKey === 'default') targetBtn = document.getElementById('personas-reset-btn');
+                    if (targetBtn) targetBtn.click();
+                    
+                    subPersonas.querySelectorAll('.plus-sub-item').forEach(i => i.classList.remove('active'));
+                    subItem.classList.add('active');
+                    
+                    plusMenu.style.display = 'none';
+                    plusBtn.classList.remove('active');
+                });
             });
         }
+
+        // 5. Output Format Sub-options
+        const subFormat = document.getElementById('plus-sub-format');
+        if (subFormat) {
+            subFormat.querySelectorAll('.plus-sub-item').forEach(subItem => {
+                subItem.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const fmt = subItem.getAttribute('data-format');
+                    const targetBtn = document.querySelector(`#chat-format-dropdown .format-option[data-format="${fmt}"]`);
+                    if (targetBtn) targetBtn.click();
+                    
+                    subFormat.querySelectorAll('.plus-sub-item').forEach(i => i.classList.remove('active'));
+                    subItem.classList.add('active');
+                    
+                    plusMenu.style.display = 'none';
+                    plusBtn.classList.remove('active');
+                });
+            });
+        }
+
+        // 6. Dify KB Sub-options
+        const subDify = document.getElementById('plus-sub-dify');
+        if (subDify) {
+            subDify.querySelectorAll('.plus-sub-item').forEach(subItem => {
+                subItem.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const difyMode = subItem.getAttribute('data-dify');
+                    const targetBtn = document.querySelector(`#mode-menu .mode-item[data-mode="${difyMode}"]`);
+                    if (targetBtn) targetBtn.click();
+                    
+                    subDify.querySelectorAll('.plus-sub-item').forEach(i => i.classList.remove('active'));
+                    subItem.classList.add('active');
+                    
+                    plusMenu.style.display = 'none';
+                    plusBtn.classList.remove('active');
+                });
+            });
+        }
+
+        // Mobile tap toggle for sub-option panels
+        document.querySelectorAll('.plus-vmenu-item.has-sub').forEach(item => {
+            item.addEventListener('click', (e) => {
+                if (window.innerWidth <= 768) {
+                    e.stopPropagation();
+                    const isSubOpen = item.classList.contains('sub-open');
+                    document.querySelectorAll('.plus-vmenu-item.sub-open').forEach(el => el.classList.remove('sub-open'));
+                    if (!isSubOpen) item.classList.add('sub-open');
+                }
+            });
+        });
     }
 }
 

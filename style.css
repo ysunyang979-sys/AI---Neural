@@ -3660,62 +3660,172 @@ label.chat-input-action-btn,
 }
 
 /* ═══════════════════════════════════════
-   PLUS BUTTON FLOATING ACTION PANEL
+   VERTICAL PLUS FLOATING MENU WITH SUB-PANELS
    ═══════════════════════════════════════ */
 .chat-plus-menu {
     display: none;
     position: absolute;
     bottom: calc(100% + 12px);
     left: 0;
+    width: 250px;
     z-index: 999999 !important;
     background: rgba(22, 27, 34, 0.96);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(56, 189, 248, 0.3);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(56, 189, 248, 0.25);
     border-radius: 16px;
     padding: 8px;
-    box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.6), 0 0 24px rgba(56, 189, 248, 0.2);
-    flex-direction: row;
-    align-items: center;
-    gap: 6px;
-    white-space: nowrap;
-    animation: plusMenuPop 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    box-shadow: 0 20px 40px -8px rgba(0, 0, 0, 0.6), 0 0 25px rgba(56, 189, 248, 0.15);
+    flex-direction: column;
+    gap: 4px;
+    animation: vmenuPop 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-@keyframes plusMenuPop {
-    from { opacity: 0; transform: translateY(10px) scale(0.94); }
+@keyframes vmenuPop {
+    from { opacity: 0; transform: translateY(12px) scale(0.95); }
     to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-.plus-menu-item {
-    display: inline-flex;
+.plus-vmenu-item {
+    display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 8px 12px;
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: 12px;
+    background: transparent;
+    border: 1px solid transparent;
     color: var(--text-primary, #f0f6fc);
-    font-size: 12.5px;
-    font-weight: 600;
     cursor: pointer;
+    position: relative;
     transition: all 0.2s ease;
     user-select: none;
     touch-action: manipulation;
 }
 
-.plus-menu-item:hover,
-.plus-menu-item:active {
-    background: rgba(56, 189, 248, 0.18);
-    border-color: rgba(56, 189, 248, 0.5);
-    color: #38bdf8;
-    transform: translateY(-1px);
+.plus-vmenu-item:hover,
+.plus-vmenu-item:active,
+.plus-vmenu-item.active {
+    background: rgba(56, 189, 248, 0.12);
+    border-color: rgba(56, 189, 248, 0.3);
 }
 
-.plus-menu-item i {
-    width: 15px;
-    height: 15px;
+.plus-vmenu-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #38bdf8;
     flex-shrink: 0;
+}
+
+.plus-vmenu-text {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+}
+
+.plus-vmenu-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary, #f0f6fc);
+    line-height: 1.3;
+}
+
+.plus-vmenu-sub {
+    font-size: 11px;
+    color: var(--text-secondary, #8b949e);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.plus-vmenu-arrow {
+    color: var(--text-secondary, #8b949e);
+    display: flex;
+    align-items: center;
+    transition: transform 0.2s ease;
+}
+
+.plus-vmenu-item:hover .plus-vmenu-arrow {
+    color: #38bdf8;
+    transform: translateX(2px);
+}
+
+.plus-vmenu-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #8b949e;
+}
+
+.plus-vmenu-badge.active {
+    background: #238636;
+    color: #fff;
+}
+
+/* 🌟 SUB-OPTIONS PANEL FLYOUT 🌟 */
+.plus-sub-panel {
+    display: none;
+    position: absolute;
+    left: calc(100% + 8px);
+    top: -4px;
+    width: 200px;
+    background: rgba(22, 27, 34, 0.98);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    border-radius: 14px;
+    padding: 6px;
+    box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.6), 0 0 20px rgba(56, 189, 248, 0.2);
+    flex-direction: column;
+    gap: 3px;
+    max-height: 280px;
+    overflow-y: auto;
+    z-index: 1000000 !important;
+}
+
+.plus-vmenu-item:hover > .plus-sub-panel,
+.plus-vmenu-item.sub-open > .plus-sub-panel {
+    display: flex;
+    animation: subPop 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes subPop {
+    from { opacity: 0; transform: translateX(-8px) scale(0.96); }
+    to { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+.plus-sub-title {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: #8b949e;
+    padding: 4px 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.plus-sub-item {
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--text-primary, #f0f6fc);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+}
+
+.plus-sub-item:hover,
+.plus-sub-item.active {
+    background: rgba(56, 189, 248, 0.2);
+    color: #38bdf8;
+    font-weight: 600;
 }
 
 #chat-plus-toggle-btn {
@@ -3731,11 +3841,15 @@ label.chat-input-action-btn,
 
 @media (max-width: 768px) {
     .chat-plus-menu {
-        max-width: 92vw !important;
-        overflow-x: auto !important;
-        scrollbar-width: none !important;
+        width: 88vw !important;
+        max-width: 320px !important;
+        left: 0 !important;
     }
-    .chat-plus-menu::-webkit-scrollbar {
-        display: none !important;
+    .plus-sub-panel {
+        position: static !important;
+        width: 100% !important;
+        margin-top: 6px !important;
+        box-shadow: none !important;
+        border: 1px solid rgba(56, 189, 248, 0.2) !important;
     }
 }
