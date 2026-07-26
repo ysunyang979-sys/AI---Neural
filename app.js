@@ -2523,6 +2523,21 @@ window.getAvailableTools = () => {
         {
           type: "function",
           function: {
+            name: "create_live_preview",
+            description: "CRITICAL: Launch an inline 'Live React/Vue Compiler' directly inside the chat interface. Use this when you generate a single React component (JSX) or Vue 3 component and want the user to see it rendered instantly. This is extremely fast and lightweight compared to WebContainers. TailwindCSS is available globally.",
+            parameters: {
+              type: "object",
+              properties: {
+                framework: { type: "string", enum: ["react", "vue", "html"], description: "The framework to use." },
+                code: { type: "string", description: "The raw JSX, Vue Template + Script, or HTML code. Do NOT use import statements for React/Vue, they are provided globally (e.g. React.useState, Vue.ref). For React, call ReactDOM.createRoot(document.getElementById('root')).render(<App/>) at the end. For Vue, call Vue.createApp({...}).mount('#app') at the end." }
+              },
+              required: ["framework", "code"]
+            }
+          }
+        },
+        {
+          type: "function",
+          function: {
             name: "create_p2p_portal",
             description: "生成一个WebRTC手机跨端传输二维码入口。当用户要求手机直连、扫码传文件、跨端输入时使用。",
             parameters: { type: "object", properties: {}, required: [] }
@@ -5128,6 +5143,94 @@ sys.stdout = io.StringIO()
                       addLine(`<span style="color: #ef4444;">${escapeChatHTML(result)}</span>`);
                   }
               }
+                        } else if (tc.function.name === "create_live_preview") {
+              addLine(`⚡ Booting Live Compiler (${args.framework})...`);
+              const fw = args.framework || 'html';
+              const rawCode = args.code || '';
+              let srcdoc = '';
+              if (fw === 'react') {
+                  srcdoc = `
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>body { margin: 0; font-family: system-ui, sans-serif; }</style>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        try {
+            ${rawCode.replace(/<\/script>/g, '<\\/script>')}
+            if (typeof lucide !== 'undefined') {
+                setTimeout(() => lucide.createIcons(), 100);
+            }
+        } catch(e) {
+            document.getElementById('root').innerHTML = '<div style="color:red;padding:20px;">' + e.message + '</div>';
+        }
+    </script>
+</body>
+</html>`;
+              } else if (fw === 'vue') {
+                  srcdoc = `
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>body { margin: 0; font-family: system-ui, sans-serif; }</style>
+</head>
+<body>
+    <div id="app"></div>
+    <script>
+        try {
+            ${rawCode.replace(/<\/script>/g, '<\\/script>')}
+            if (typeof lucide !== 'undefined') {
+                setTimeout(() => lucide.createIcons(), 100);
+            }
+        } catch(e) {
+            document.getElementById('app').innerHTML = '<div style="color:red;padding:20px;">' + e.message + '</div>';
+        }
+    </script>
+</body>
+</html>`;
+              } else {
+                  srcdoc = `
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>body { margin: 0; font-family: system-ui, sans-serif; }</style>
+</head>
+<body>
+    ${rawCode}
+    <script>if (typeof lucide !== 'undefined') { setTimeout(() => lucide.createIcons(), 100); }</script>
+</body>
+</html>`;
+              }
+
+              const previewId = "preview-" + Math.random().toString(36).substr(2, 9);
+              initialReply += `<br>
+<div style="border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; overflow: hidden; background: #0f172a; margin: 10px 0; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
+    <div style="background: rgba(255,255,255,0.05); padding: 8px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 12px; color: #94a3b8;">
+        <div style="display: flex; gap: 6px; align-items: center;">
+            <div style="width: 10px; height: 10px; border-radius: 50%; background: #ef4444;"></div>
+            <div style="width: 10px; height: 10px; border-radius: 50%; background: #eab308;"></div>
+            <div style="width: 10px; height: 10px; border-radius: 50%; background: #22c55e;"></div>
+            <span style="margin-left: 8px; font-weight: 600; letter-spacing: 0.5px;">LIVE PREVIEW - ${fw.toUpperCase()}</span>
+        </div>
+        <button onclick="document.getElementById('${previewId}').srcdoc = document.getElementById('${previewId}').srcdoc" style="background: transparent; border: none; color: #94a3b8; cursor: pointer; display: flex; align-items: center; gap: 4px;" title="Reload Preview">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg>
+        </button>
+    </div>
+    <iframe id="${previewId}" style="width: 100%; height: 400px; border: none; background: #fff;" sandbox="allow-scripts allow-popups allow-forms allow-same-origin" srcdoc="${escapeChatHTML(srcdoc)}"></iframe>
+</div><br>`;
+              result = "SYSTEM STATUS: SUCCESS. Live preview rendered.";
                         } else if (tc.function.name === "create_p2p_portal") {
               addLine(`🌐 启动 WebRTC P2P 极速穿透隧道...`);
               const portalId = "portal-" + Math.random().toString(36).substr(2, 9);
