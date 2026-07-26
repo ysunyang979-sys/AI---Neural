@@ -5388,7 +5388,7 @@ sys.stdout = io.StringIO()
                   break;
                 case "qr_code_generator":
                   const qrText = toolParams || "https://github.com/ysunyang979-sys";
-                  const qrUrl = \`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=\${encodeURIComponent(qrText)}\`;
+                  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrText)}`;
                   widgetContent = `
                     <div style="text-align: center;">
                         <div style="margin-bottom: 10px; font-size: 12px; color: #94a3b8;">数据内容: ${escapeChatHTML(qrText)}</div>
