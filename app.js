@@ -7967,17 +7967,41 @@ function initPlusMenu() {
             }
         });
 
-        // Requirement 1: Hover persistence buffer for sub-panels
+        // Click and Hover persistence buffer for sub-panels (100% prevents disappearance)
         document.querySelectorAll('.plus-vmenu-item.has-sub').forEach(item => {
             let hoverTimer = null;
             item.addEventListener('mouseenter', () => {
                 clearTimeout(hoverTimer);
+                document.querySelectorAll('.plus-vmenu-item.has-sub').forEach(el => {
+                    if (el !== item) {
+                        el.classList.remove('sub-hover');
+                        el.classList.remove('sub-active');
+                    }
+                });
                 item.classList.add('sub-hover');
             });
-            item.addEventListener('mouseleave', () => {
+
+            item.addEventListener('mouseleave', (e) => {
+                // If moving into sub-panel, don't remove sub-hover
+                const subPanel = item.querySelector('.plus-sub-panel');
+                if (subPanel && (subPanel.contains(e.relatedTarget) || e.relatedTarget === subPanel)) {
+                    item.classList.add('sub-hover');
+                    return;
+                }
                 hoverTimer = setTimeout(() => {
-                    item.classList.remove('sub-hover');
-                }, 200);
+                    if (!item.classList.contains('sub-active')) {
+                        item.classList.remove('sub-hover');
+                    }
+                }, 350); // 350ms buffer gives plenty of time to cross over
+            });
+
+            item.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const wasActive = item.classList.contains('sub-active');
+                document.querySelectorAll('.plus-vmenu-item.has-sub').forEach(el => el.classList.remove('sub-active'));
+                if (!wasActive) {
+                    item.classList.add('sub-active');
+                }
             });
         });
 
