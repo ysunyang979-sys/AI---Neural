@@ -1714,6 +1714,25 @@ pre code.hljs { display: block; padding: 0; background: transparent; color: var(
     line-height: 1.7;
 }
 
+/* Link Styling Overrides */
+.ai-msg.user a {
+    color: #ffffff !important;
+    text-decoration: underline !important;
+    word-break: break-all !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    font-weight: 500;
+}
+.ai-msg.bot a, .message-bubble a {
+    color: #38bdf8 !important;
+    text-decoration: underline !important;
+    word-break: break-all !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+}
+
 .ai-msg.bot blockquote,
 .bot-content blockquote {
     border-left: 3px solid var(--accent);

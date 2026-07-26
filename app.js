@@ -1107,86 +1107,14 @@ document.querySelectorAll(".chat-suggestion-item").forEach((item) => {
 window.parseInteractiveActionChips = function(htmlStr) {
   if (!htmlStr || typeof htmlStr !== "string") return htmlStr;
 
-  // Unescape &lt;suggest_chips and &lt;chip first if present
-  let unescaped = htmlStr
-    .replace(/&lt;suggest_chips(?:\s+question=&quot;([^&]*)&quot;)?&gt;/gi, '<suggest_chips question="$1">')
-    .replace(/&lt;\/suggest_chips&gt;/gi, '</suggest_chips>')
-    .replace(/&lt;chip(?:\s+prompt=&quot;([^&]*)&quot;)?&gt;/gi, '<chip prompt="$1">')
-    .replace(/&lt;\/chip&gt;/gi, '</chip>');
+  // Cleanly strip raw <suggest_chips> and <chip> XML tags completely from markdown body to avoid inline card bugs
+  let cleaned = htmlStr
+    .replace(/<suggest_chips[\s\S]*?<\/suggest_chips>/gi, '')
+    .replace(/&lt;suggest_chips[\s\S]*?&lt;\/suggest_chips&gt;/gi, '')
+    .replace(/<chip[\s\S]*?<\/chip>/gi, '')
+    .replace(/&lt;chip[\s\S]*?&lt;\/chip&gt;/gi, '');
 
-  // 1. If XML tags exist
-  if (unescaped.includes("<suggest_chips")) {
-    unescaped = unescaped.replace(/<suggest_chips(?:\s+question="([^"]*)")?>([\s\S]*?)<\/suggest_chips>/gi, (match, qText, body) => {
-      let questionStr = qText || "需要我为您在地图中直接导航并打开路线吗？";
-      let chipsHtml = "";
-      
-      let chipRegex = /<chip(?:\s+prompt="([^"]*)")?>([\s\S]*?)<\/chip>/gi;
-      let m;
-      while ((m = chipRegex.exec(body)) !== null) {
-        let promptVal = m[1] || m[2].replace(/^[🗺️🚆✨📍🚗]\s*/, "").trim();
-        let rawLabel = m[2].trim();
-        let displayLabel = rawLabel;
-        if (rawLabel.includes("高德地图")) displayLabel = "🗺️ 打开高德地图导航";
-        else if (rawLabel.includes("百度地图")) displayLabel = "🗺️ 打开百度地图导航";
-        else if (rawLabel.includes("谷歌地图")) displayLabel = "🗺️ 打开谷歌地图导航";
-        else if (rawLabel.includes("火车") || rawLabel.includes("高铁")) displayLabel = "🚆 查询高铁时刻表";
-        else if (rawLabel.includes("天气")) displayLabel = "🌦️ 查看沿途天气";
-
-        chipsHtml += `<button class="url-suggest-chip" data-prompt="${escapeChatHTML(promptVal)}">${escapeChatHTML(displayLabel)}</button>`;
-      }
-      
-      return `<div class="chat-followup-container" style="margin-top: 14px; padding: 12px 16px; background: rgba(255, 255, 255, 0.04); border: 1px dashed rgba(255, 255, 255, 0.15); border-radius: 10px;">
-        <div style="font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
-          <span>💬</span> <span>${escapeChatHTML(questionStr)}</span>
-        </div>
-        <div class="url-suggest-chips" style="display: flex; flex-wrap: wrap; gap: 8px;">
-          ${chipsHtml}
-        </div>
-      </div>`;
-    });
-  }
-
-  // 2. Fallback: Parse inline emoji list items (e.g. 🗺️ 在高德地图... 🗺️ 在百度地图...)
-  unescaped = unescaped.replace(/((?:[🗺️🚆✨📍🚗]\s*[^🗺️🚆✨📍🚗\n<]+\s*){2,})/g, (match) => {
-    let items = match.match(/([🗺️🚆✨📍🚗]\s*[^🗺️🚆✨📍🚗\n<]+)/g);
-    if (!items || items.length < 2) return match;
-    
-    let chipsHtml = items.map(item => {
-      let rawText = item.trim().replace(/^\[|\]$/g, "");
-      let prompt = rawText;
-      let displayLabel = rawText;
-
-      if (rawText.includes("高德地图")) {
-        prompt = "请在 高德地图 中为您打开 衡水 到 石家庄 路线导航";
-        displayLabel = "🗺️ 打开高德地图导航";
-      } else if (rawText.includes("百度地图")) {
-        prompt = "请在 百度地图 中为您打开 衡水 到 石家庄 路线导航";
-        displayLabel = "🗺️ 打开百度地图导航";
-      } else if (rawText.includes("谷歌地图")) {
-        prompt = "请在 谷歌地图 中为您打开 衡水 到 石家庄 路线导航";
-        displayLabel = "🗺️ 打开谷歌地图导航";
-      } else if (rawText.includes("火车") || rawText.includes("高铁")) {
-        prompt = "请帮我查询衡水到石家庄的火车时刻表";
-        displayLabel = "🚆 查询高铁时刻表";
-      } else if (rawText.includes("天气")) {
-        prompt = "查看衡水到石家庄沿途天气预报";
-        displayLabel = "🌦️ 查看沿途天气";
-      }
-
-      return `<button class="url-suggest-chip" data-prompt="${escapeChatHTML(prompt)}">${escapeChatHTML(displayLabel)}</button>`;
-    }).join("");
-
-    return `<div class="chat-followup-container" style="margin-top: 14px; padding: 12px 16px; background: rgba(255, 255, 255, 0.04); border: 1px dashed rgba(255, 255, 255, 0.15); border-radius: 10px;">
-      <div style="font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
-        <span>💬</span> <span>需要为您在地图中直接导航并打开路线吗？</span>
-      </div>
-      <div class="url-suggest-chips" style="display: flex; flex-wrap: wrap; gap: 8px;">
-        ${chipsHtml}
-      </div>
-    </div>`;
-  });
-
-  return unescaped;
+  return cleaned;
 };
 
 // ─── Dynamic URL Action Card & Suggestion Chips Event Delegation ───
@@ -8025,6 +7953,60 @@ window.nextFlashCard = function(deckId) {
     deck.querySelector('.card-counter').innerText = `${idx + 1} / ${cards.length}`;
   }, 150);
 };
+
+function initMobileSidebar() {
+  const mobileMenuBtn = document.getElementById("mobile-menu-btn");
+  const sidebar = document.getElementById("chat-sidebar");
+  const backdrop = document.getElementById("sidebar-backdrop");
+  const mobileNewChatBtn = document.getElementById("mobile-new-chat-btn");
+
+  const openMobileSidebar = () => {
+    if (sidebar) sidebar.classList.add("mobile-open");
+    if (backdrop) backdrop.classList.add("active");
+  };
+
+  const closeMobileSidebar = () => {
+    if (sidebar) sidebar.classList.remove("mobile-open");
+    if (backdrop) backdrop.classList.remove("active");
+  };
+
+  if (mobileMenuBtn) {
+    mobileMenuBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (sidebar && sidebar.classList.contains("mobile-open")) {
+        closeMobileSidebar();
+      } else {
+        openMobileSidebar();
+      }
+    });
+  }
+
+  if (backdrop) {
+    backdrop.addEventListener("click", closeMobileSidebar);
+  }
+
+  if (mobileNewChatBtn) {
+    mobileNewChatBtn.addEventListener("click", () => {
+      closeMobileSidebar();
+      const newChatBtn = document.getElementById("chat-new-btn");
+      if (newChatBtn) newChatBtn.click();
+    });
+  }
+
+  document.addEventListener("click", (e) => {
+    if (window.innerWidth <= 768) {
+      if (e.target.closest(".chat-session-item") || e.target.closest(".chat-mode-tab")) {
+        closeMobileSidebar();
+      }
+    }
+  });
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initMobileSidebar);
+} else {
+  initMobileSidebar();
+}
 
 /* ════════════════════════════════════════════════════════════════════════
    MCP (Model Context Protocol) 架构与 JSON-RPC 桥接引擎 (Hub Edition)
