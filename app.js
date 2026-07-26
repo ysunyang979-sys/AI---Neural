@@ -1,4 +1,4 @@
-﻿
+
 function safeBtoa(str) {
   try {
     return btoa(encodeURIComponent(str || '').replace(/%([0-9A-F]{2})/g, (match, p1) => String.fromCharCode('0x' + p1)));
@@ -5803,8 +5803,21 @@ sys.stdout = io.StringIO()
               initialReply += `<br><div class="task-planner-card"><div class="planner-header"><i data-lucide="kanban"></i> Plan-and-Solve 任务链拆解规划</div><div class="planner-goal">目标: ${escapeChatHTML(goal)}</div><div class="planner-steps">${stepRowsHtml}</div></div><br>`;
               result = `SUCCESS. Task planner solver finished. Generated ${steps.length} subtasks.`;
             } else if (tc.function.name === "render_interactive_map") {
-              let origin = (args.origin || "起点").replace(/路线$/g, "").trim();
-              let destination = (args.destination || "终点").replace(/路线$/g, "").trim();
+              let origin = (args.origin || "").replace(/路线$/g, "").trim();
+              let destination = (args.destination || "").replace(/路线$/g, "").trim();
+
+              // Fallback: extract real city names from user message if LLM sent generic values
+              if (!origin || origin === "起点" || !destination || destination === "终点") {
+                const userPrompt = typeof userMessageText !== "undefined" ? userMessageText : "";
+                const routeMatch = userPrompt.match(/(?:规划路线|路线|去|到|从)?\s*([^\s到\-\—]+)\s*(?:到|至|去|\-\—)\s*([^\s路线\?\？]+)/);
+                if (routeMatch) {
+                  if (!origin || origin === "起点") origin = routeMatch[1].replace(/^(从|在)/, '').trim();
+                  if (!destination || destination === "终点") destination = routeMatch[2].replace(/(路线|导航)$/, '').trim();
+                }
+              }
+              if (!origin || origin === "起点") origin = "杭州";
+              if (!destination || destination === "终点") destination = "蚌埠";
+
               let provider = (args.map_provider || "amap").toLowerCase();
               
               let routeQuery = `${origin}到${destination}路线`;
