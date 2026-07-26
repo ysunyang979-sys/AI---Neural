@@ -5898,6 +5898,58 @@ sys.stdout = io.StringIO()
 
               addLine(`🗺️ 正在构建 ${origin} ➔ ${destination} 交互式地图路线...`);
 
+              const iframeDoc = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    html, body, #map { width: 100%; height: 100%; margin: 0; padding: 0; background: #0f172a; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    .leaflet-popup-content-wrapper { background: #1e293b; color: #f8fafc; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.5); box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+    .leaflet-popup-tip { background: #1e293b; }
+    .leaflet-container { background: #0f172a !important; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <script>
+    window.onload = function() {
+      try {
+        var orig = [${origCoords[0]}, ${origCoords[1]}];
+        var dest = [${destCoords[0]}, ${destCoords[1]}];
+        var centerLat = (orig[0] + dest[0]) / 2;
+        var centerLng = (orig[1] + dest[1]) / 2;
+
+        var map = L.map('map', { zoomControl: true }).setView([centerLat, centerLng], 7);
+
+        // Amap vector tile layer (fast & high quality in China)
+        L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
+          subdomains: '1234',
+          maxZoom: 18,
+          attribution: '© 高德地图 Amap'
+        }).addTo(map);
+
+        var m1 = L.marker(orig).addTo(map).bindPopup('<div style="font-size:13px; font-weight:600; color:#38bdf8;">📍 起点: ${escapeChatHTML(origin)}</div>').openPopup();
+        var m2 = L.marker(dest).addTo(map).bindPopup('<div style="font-size:13px; font-weight:600; color:#a855f7;">🏁 终点: ${escapeChatHTML(destination)}</div>');
+
+        var polyline = L.polyline([orig, dest], {
+          color: '#38bdf8',
+          weight: 5,
+          opacity: 0.9,
+          dashArray: '8, 8'
+        }).addTo(map);
+
+        map.fitBounds(polyline.getBounds(), { padding: [40, 40] });
+      } catch(e) {
+        console.error("Map initialization failed:", e);
+      }
+    };
+  </script>
+</body>
+</html>`.replace(/"/g, '&quot;');
+
               initialReply += `<br>
               <div class="interactive-route-map-card" style="margin: 14px 0; border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 14px; overflow: hidden; background: #1e293b; box-shadow: 0 6px 24px rgba(0,0,0,0.3);">
                 <div style="padding: 10px 16px; background: linear-gradient(90deg, rgba(56, 189, 248, 0.2), rgba(99, 102, 241, 0.2)); border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: space-between;">
@@ -5906,7 +5958,9 @@ sys.stdout = io.StringIO()
                   </div>
                   <span style="font-size: 11px; color: #94a3b8; background: rgba(0,0,0,0.3); padding: 3px 8px; border-radius: 4px;">支持拖拽/缩放交互</span>
                 </div>
-                <div id="${mapId}" style="width: 100%; height: 350px; background: #0f172a; position: relative; z-index: 1;"></div>
+                <div style="width: 100%; height: 350px; background: #0f172a; position: relative;">
+                  <iframe srcdoc="${iframeDoc}" style="width: 100%; height: 100%; border: none; display: block;"></iframe>
+                </div>
                 <div style="padding: 12px 16px; background: rgba(15, 23, 42, 0.9); border-top: 1px solid rgba(255,255,255,0.08);">
                   <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; align-items: center;">
                     <div style="font-size: 12px; color: #cbd5e1; display: flex; align-items: center; gap: 10px;">
@@ -5920,28 +5974,6 @@ sys.stdout = io.StringIO()
                     </div>
                   </div>
                 </div>
-                <script>
-                  setTimeout(() => {
-                    try {
-                      if (window.L && document.getElementById('${mapId}')) {
-                        var map = L.map('${mapId}').setView([${(origCoords[0] + destCoords[0])/2}, ${(origCoords[1] + destCoords[1])/2}], 7);
-                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                          maxZoom: 18,
-                          attribution: '© OpenStreetMap'
-                        }).addTo(map);
-
-                        L.marker([${origCoords[0]}, ${origCoords[1]}]).addTo(map).bindPopup('<b>起点: ${escapeChatHTML(origin)}</b>').openPopup();
-                        L.marker([${destCoords[0]}, ${destCoords[1]}]).addTo(map).bindPopup('<b>终点: ${escapeChatHTML(destination)}</b>');
-
-                        var polyline = L.polyline([
-                          [${origCoords[0]}, ${origCoords[1]}],
-                          [${destCoords[0]}, ${destCoords[1]}]
-                        ], {color: '#38bdf8', weight: 4, opacity: 0.8, dashArray: '8, 8'}).addTo(map);
-                        map.fitBounds(polyline.getBounds(), {padding: [40, 40]});
-                      }
-                    } catch(e) { console.error("Map init error:", e); }
-                  }, 150);
-                </script>
               </div><br>`;
 
               result = `SUCCESS. Rendered interactive Leaflet route map for ${origin} to ${destination} with direct navigation links.`;
