@@ -3790,15 +3790,86 @@ label.chat-input-action-btn,
     z-index: 1000000 !important;
 }
 
+/* Invisible hover bridge to prevent sub-panel from closing when mouse crosses 8px gap */
+.plus-sub-panel::before {
+    content: '';
+    position: absolute;
+    left: -14px;
+    top: -6px;
+    bottom: -6px;
+    width: 16px;
+    background: transparent;
+    z-index: 1000001;
+}
+
 .plus-vmenu-item:hover > .plus-sub-panel,
+.plus-vmenu-item.sub-hover > .plus-sub-panel,
 .plus-vmenu-item.sub-open > .plus-sub-panel {
-    display: flex;
+    display: flex !important;
     animation: subPop 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @keyframes subPop {
     from { opacity: 0; transform: translateX(-8px) scale(0.96); }
     to { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+/* 🌟 DYNAMIC ACTIVE FEATURES BADGES BAR 🌟 */
+.active-features-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.active-features-bar::-webkit-scrollbar {
+    display: none;
+}
+
+.active-feature-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    border-radius: 12px;
+    background: rgba(56, 189, 248, 0.14);
+    border: 1px solid rgba(56, 189, 248, 0.4);
+    color: #38bdf8;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    white-space: nowrap;
+    user-select: none;
+    touch-action: manipulation;
+    animation: pillPop 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes pillPop {
+    from { opacity: 0; transform: scale(0.85); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.active-feature-pill:hover {
+    background: rgba(56, 189, 248, 0.25);
+    border-color: #38bdf8;
+    box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+    transform: translateY(-1px);
+}
+
+.active-feature-pill .pill-close-icon {
+    font-size: 13px;
+    line-height: 1;
+    opacity: 0.7;
+    margin-left: 2px;
+    transition: opacity 0.15s;
+}
+
+.active-feature-pill:hover .pill-close-icon {
+    opacity: 1;
+    color: #ef4444;
 }
 
 .plus-sub-title {

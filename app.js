@@ -7838,6 +7838,109 @@ function initModeSwitcher() {
     }
 }
 
+// 🌟 Dynamic Active Features Bar Manager (Requirement 2) 🌟
+function updateActiveFeaturesBar() {
+    const bar = document.getElementById('active-features-bar');
+    if (!bar) return;
+    bar.innerHTML = '';
+
+    // 1. Web Search
+    const searchToggle = document.getElementById('chat-search-toggle');
+    if (searchToggle && searchToggle.classList.contains('active')) {
+        const pill = document.createElement('div');
+        pill.className = 'active-feature-pill';
+        pill.innerHTML = `<i data-lucide="globe" style="width:14px;height:14px;"></i><span>联网搜索</span><span class="pill-close-icon">✕</span>`;
+        pill.onclick = (e) => {
+            e.stopPropagation();
+            searchToggle.click();
+            updateActiveFeaturesBar();
+        };
+        bar.appendChild(pill);
+    }
+
+    // 2. Dify Knowledge Base Mode
+    const selectedMode = localStorage.getItem("difyUserSelectedMode");
+    const isRagEnabled = localStorage.getItem("difyRagModeEnabled") === "true";
+    if (isRagEnabled && selectedMode) {
+        let labelText = "知识库";
+        let iconName = "book-open";
+        if (selectedMode === 'dify_kb') { labelText = "📚 通用知识库"; iconName = "book-open"; }
+        else if (selectedMode === 'dify_think') { labelText = "🧠 深度思考知识库"; iconName = "brain"; }
+        
+        const pill = document.createElement('div');
+        pill.className = 'active-feature-pill';
+        pill.innerHTML = `<i data-lucide="${iconName}" style="width:14px;height:14px;"></i><span>${labelText}</span><span class="pill-close-icon">✕</span>`;
+        pill.onclick = (e) => {
+            e.stopPropagation();
+            localStorage.setItem("difyRagModeEnabled", "false");
+            localStorage.removeItem("difyUserSelectedMode");
+            difyRagModeEnabled = false;
+            window.currentAiMode = "normal";
+            updateActiveFeaturesBar();
+        };
+        bar.appendChild(pill);
+    }
+
+    // 3. AI Draw Mode
+    const drawToggle = document.getElementById('chat-draw-toggle');
+    if (drawToggle && drawToggle.classList.contains('active')) {
+        const activeOption = document.querySelector('#chat-draw-dropdown .draw-option.active');
+        const ratioText = activeOption ? activeOption.getAttribute('data-ratio') : '1:1';
+        const pill = document.createElement('div');
+        pill.className = 'active-feature-pill';
+        pill.innerHTML = `<i data-lucide="image" style="width:14px;height:14px;"></i><span>AI 绘画 (${ratioText})</span><span class="pill-close-icon">✕</span>`;
+        pill.onclick = (e) => {
+            e.stopPropagation();
+            drawToggle.click();
+            updateActiveFeaturesBar();
+        };
+        bar.appendChild(pill);
+    }
+
+    // 4. Active Persona / Skill
+    const activePersonaBtn = document.querySelector('.personas-presets .preset-btn.active');
+    if (activePersonaBtn) {
+        const pName = activePersonaBtn.textContent.trim();
+        const pill = document.createElement('div');
+        pill.className = 'active-feature-pill';
+        pill.innerHTML = `<i data-lucide="sparkles" style="width:14px;height:14px;"></i><span>${pName}</span><span class="pill-close-icon">✕</span>`;
+        pill.onclick = (e) => {
+            e.stopPropagation();
+            const resetBtn = document.getElementById('personas-reset-btn');
+            if (resetBtn) resetBtn.click();
+            updateActiveFeaturesBar();
+        };
+        bar.appendChild(pill);
+    }
+
+    // 5. Output Format
+    const activeFormatBtn = document.querySelector('#chat-format-dropdown .format-option.active');
+    const activeFmt = activeFormatBtn ? activeFormatBtn.getAttribute('data-format') : 'default';
+    if (activeFmt && activeFmt !== 'default') {
+        let fmtLabel = activeFmt.toUpperCase();
+        if (activeFmt === 'code') fmtLabel = '💻 纯代码';
+        else if (activeFmt === 'table') fmtLabel = '📊 表格';
+        else if (activeFmt === 'outline') fmtLabel = '🌳 大纲';
+        else if (activeFmt === 'concise') fmtLabel = '⚡ 极简';
+        else if (activeFmt === 'stepbystep') fmtLabel = '🔢 分步指南';
+        else if (activeFmt === 'bilingual') fmtLabel = '🌐 双语';
+        
+        const pill = document.createElement('div');
+        pill.className = 'active-feature-pill';
+        pill.innerHTML = `<i data-lucide="layout-template" style="width:14px;height:14px;"></i><span>${fmtLabel}</span><span class="pill-close-icon">✕</span>`;
+        pill.onclick = (e) => {
+            e.stopPropagation();
+            const defFormatBtn = document.querySelector('#chat-format-dropdown .format-option[data-format="default"]');
+            if (defFormatBtn) defFormatBtn.click();
+            updateActiveFeaturesBar();
+        };
+        bar.appendChild(pill);
+    }
+
+    if (window.lucide) window.lucide.createIcons();
+}
+window.updateActiveFeaturesBar = updateActiveFeaturesBar;
+
 // 🌟 Plus Button Vertical Floating Action Panel Handler 🌟
 function initPlusMenu() {
     const plusBtn = document.getElementById('chat-plus-toggle-btn');
@@ -7860,7 +7963,22 @@ function initPlusMenu() {
                 plusMenu.style.display = 'none';
                 plusBtn.classList.remove('active');
                 document.querySelectorAll('.plus-vmenu-item.sub-open').forEach(el => el.classList.remove('sub-open'));
+                document.querySelectorAll('.plus-vmenu-item.sub-hover').forEach(el => el.classList.remove('sub-hover'));
             }
+        });
+
+        // Requirement 1: Hover persistence buffer for sub-panels
+        document.querySelectorAll('.plus-vmenu-item.has-sub').forEach(item => {
+            let hoverTimer = null;
+            item.addEventListener('mouseenter', () => {
+                clearTimeout(hoverTimer);
+                item.classList.add('sub-hover');
+            });
+            item.addEventListener('mouseleave', () => {
+                hoverTimer = setTimeout(() => {
+                    item.classList.remove('sub-hover');
+                }, 200);
+            });
         });
 
         // 1. Web Search Item
@@ -7878,6 +7996,7 @@ function initPlusMenu() {
                 }
                 plusMenu.style.display = 'none';
                 plusBtn.classList.remove('active');
+                updateActiveFeaturesBar();
             });
         }
 
@@ -7910,6 +8029,7 @@ function initPlusMenu() {
                     
                     plusMenu.style.display = 'none';
                     plusBtn.classList.remove('active');
+                    updateActiveFeaturesBar();
                 });
             });
         }
@@ -7930,6 +8050,7 @@ function initPlusMenu() {
                     
                     plusMenu.style.display = 'none';
                     plusBtn.classList.remove('active');
+                    updateActiveFeaturesBar();
                 });
             });
         }
@@ -7949,6 +8070,7 @@ function initPlusMenu() {
                     
                     plusMenu.style.display = 'none';
                     plusBtn.classList.remove('active');
+                    updateActiveFeaturesBar();
                 });
             });
         }
@@ -7960,14 +8082,24 @@ function initPlusMenu() {
                 subItem.addEventListener('click', (e) => {
                     e.stopPropagation();
                     const difyMode = subItem.getAttribute('data-dify');
-                    const targetBtn = document.querySelector(`#mode-menu .mode-item[data-mode="${difyMode}"]`);
-                    if (targetBtn) targetBtn.click();
+                    if (difyMode === 'normal') {
+                        localStorage.setItem("difyRagModeEnabled", "false");
+                        localStorage.removeItem("difyUserSelectedMode");
+                        difyRagModeEnabled = false;
+                        window.currentAiMode = "normal";
+                    } else {
+                        difyRagModeEnabled = true;
+                        localStorage.setItem("difyRagModeEnabled", "true");
+                        localStorage.setItem("difyUserSelectedMode", difyMode);
+                        window.currentAiMode = difyMode;
+                    }
                     
                     subDify.querySelectorAll('.plus-sub-item').forEach(i => i.classList.remove('active'));
                     subItem.classList.add('active');
                     
                     plusMenu.style.display = 'none';
                     plusBtn.classList.remove('active');
+                    updateActiveFeaturesBar();
                 });
             });
         }
@@ -7983,6 +8115,9 @@ function initPlusMenu() {
                 }
             });
         });
+
+        // Initialize active features bar on startup
+        updateActiveFeaturesBar();
     }
 }
 
@@ -7992,8 +8127,8 @@ if (document.readyState === 'loading') {
     initModeSwitcher();
     initPlusMenu();
 }
-window.addEventListener('load', () => { initModeSwitcher(); initPlusMenu(); });
-setTimeout(() => { initModeSwitcher(); initPlusMenu(); }, 300);
+window.addEventListener('load', () => { initModeSwitcher(); initPlusMenu(); updateActiveFeaturesBar(); });
+setTimeout(() => { initModeSwitcher(); initPlusMenu(); updateActiveFeaturesBar(); }, 300);
 
 // Flashcard interactive controls
 window.prevFlashCard = function(deckId) {

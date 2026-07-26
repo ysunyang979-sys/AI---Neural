@@ -6,7 +6,7 @@
   <title>Neural Core AI</title>
   <meta name="description" content="Neural Core — An advanced AI assistant powered by Mistral AI. Chat, search the web, run Python code, and more."/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
-  <link href="style.css?v=37" rel="stylesheet"/>
+  <link href="style.css?v=38" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -518,11 +518,15 @@
 
             <!-- Bottom Action Bar -->
             <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; min-width:0;">
-              <div class="chat-input-actions" style="display:flex; gap:2px; position:relative; min-width:0; flex-shrink:1; overflow:visible;">
+              <div class="chat-input-actions" style="display:flex; gap:6px; position:relative; min-width:0; flex-shrink:1; overflow:visible; align-items:center;">
                 <button class="chat-input-action-btn" id="chat-plus-toggle-btn" title="点击展开功能面板"><i data-lucide="plus"></i></button>
                 <input accept="image/*,.pdf" id="chat-file-input" style="display:none;" type="file" multiple/>
-                <button class="chat-input-action-btn" id="chat-search-toggle" title="Web Search"><i data-lucide="globe"></i></button>
-                <button class="chat-input-action-btn" id="chat-draw-toggle" title="Drawing Mode"><i data-lucide="image"></i></button>
+                
+                <!-- 🌟 DYNAMIC ACTIVE FEATURES BADGES BAR (已启动功能动态快捷栏) 🌟 -->
+                <div id="active-features-bar" class="active-features-bar"></div>
+
+                <button class="chat-input-action-btn" id="chat-search-toggle" style="display:none;" title="Web Search"><i data-lucide="globe"></i></button>
+                <button class="chat-input-action-btn" id="chat-draw-toggle" style="display:none;" title="Drawing Mode"><i data-lucide="image"></i></button>
                 <!-- Aspect Ratio Dropdown -->
                 <div id="chat-draw-dropdown" style="display:none; position:absolute; bottom:100%; left:40px; margin-bottom:8px; padding:4px; z-index:100; flex-direction:row; gap:4px; white-space:nowrap; background:var(--bg-secondary); border:1px solid var(--border-light); border-radius:12px; box-shadow:0 10px 25px -5px rgba(0,0,0,0.1);">
                   <button class="chat-input-action-btn draw-option active" data-ratio="1:1" title="1:1 Square" style="font-size:0.75rem; font-weight:bold; width:36px; padding:4px;">1:1</button>
@@ -531,9 +535,9 @@
                   <button class="chat-input-action-btn draw-option" data-ratio="4:3" title="4:3 Standard" style="font-size:0.75rem; font-weight:bold; width:36px; padding:4px;">4:3</button>
                   <button class="chat-input-action-btn draw-option" data-ratio="3:4" title="3:4 Standard" style="font-size:0.75rem; font-weight:bold; width:36px; padding:4px;">3:4</button>
                 </div>
-                <button class="chat-input-action-btn" id="chat-canvas-toggle" title="Canvas Mode (生成多文件项目 + ZIP打包)"><i data-lucide="layout-panel-left"></i></button>
-                <button class="chat-input-action-btn" id="chat-personas-toggle-btn" title="Personas"><i data-lucide="sparkles"></i></button>
-                <button class="chat-input-action-btn" id="chat-code-mode-toggle" title="Output Format"><i data-lucide="layout-template"></i></button>
+                <button class="chat-input-action-btn" id="chat-canvas-toggle" style="display:none;" title="Canvas Mode (生成多文件项目 + ZIP打包)"><i data-lucide="layout-panel-left"></i></button>
+                <button class="chat-input-action-btn" id="chat-personas-toggle-btn" style="display:none;" title="Personas"><i data-lucide="sparkles"></i></button>
+                <button class="chat-input-action-btn" id="chat-code-mode-toggle" style="display:none;" title="Output Format"><i data-lucide="layout-template"></i></button>
                 <!-- Format Dropdown -->
                 <div id="chat-format-dropdown" style="display:none; position:absolute; bottom:100%; left:80px; margin-bottom:8px; padding:6px; z-index:1000; flex-direction:row; gap:4px; white-space:nowrap; background:var(--bg-secondary); border:1px solid var(--border-light); border-radius:12px; box-shadow:0 10px 25px -5px rgba(0,0,0,0.15);">
                   <button class="chat-input-action-btn format-option active" data-format="default" title="默认回复 (Default)"><i data-lucide="message-square"></i></button>
@@ -545,16 +549,11 @@
                   <button class="chat-input-action-btn format-option" data-format="bilingual" title="双语对照 (Bilingual)"><i data-lucide="languages"></i></button>
                   <button class="chat-input-action-btn format-option" data-format="socratic" title="启发引导 (Socratic)"><i data-lucide="help-circle"></i></button>
                 </div>
-                <div style="position: relative; display: inline-block;" id="mode-switcher-container">
-                  <button class="chat-input-action-btn" id="mode-btn" title="切换 Dify 知识库 (书籍/大脑)">
-                      <i data-lucide="cpu"></i>
-                  </button>
-                  <div id="mode-menu" class="mode-menu" style="display: none; position: absolute; bottom: 100%; left: 0; margin-bottom: 8px; z-index: 1000; flex-direction: row; gap: 4px; white-space: nowrap; background: var(--bg-secondary); border: 1px solid var(--border-light); border-radius: 12px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.15); padding: 6px;">
-                      <div class="mode-item" data-mode="dify_kb" data-key="app-kH6Ld7psiW3PZ6LRaUGDDAWI" title="📚 学习/通用知识库 (Dify)"><i data-lucide="book-open" style="width:18px; height:18px;"></i></div>
-                      <div class="mode-item" data-mode="dify_think" data-key="app-RfVcWa2J8Be7VQJdFeykpV4l" title="🧠 深度思考知识库 (Dify)"><i data-lucide="brain" style="width:18px; height:18px;"></i></div>
-                      <div style="width: 1px; height: 18px; background: var(--border-light); margin: 0 2px; align-self: center;"></div>
-                      <div class="mode-item" data-mode="normal" title="🚫 关闭知识库 (恢复常规模式)"><i data-lucide="ban" style="width:18px; height:18px;"></i></div>
-                  </div>
+                <!-- Hidden mode-menu for state compatibility -->
+                <div id="mode-menu" style="display:none;">
+                  <div class="mode-item" data-mode="dify_kb" data-key="app-kH6Ld7psiW3PZ6LRaUGDDAWI"></div>
+                  <div class="mode-item" data-mode="dify_think" data-key="app-RfVcWa2J8Be7VQJdFeykpV4l"></div>
+                  <div class="mode-item" data-mode="normal"></div>
                 </div>
               </div>
               <div style="display:flex; align-items:center; flex-shrink:0;">
@@ -918,6 +917,6 @@
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
   <script src="keys.js"></script>
-  <script src="app.js?v=105"></script>
+  <script src="app.js?v=106"></script>
 </body>
 </html>
