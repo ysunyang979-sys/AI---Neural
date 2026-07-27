@@ -4420,7 +4420,19 @@ window.executeClientIntentTools = function(queryText, replyText, containerEl) {
         reqBody.messages = messages.map(m => ({...m}));
         let lastUserMsg = reqBody.messages.slice().reverse().find(m => m.role === 'user');
         if (lastUserMsg) {
-          lastUserMsg.content += "\n\n[CRITICAL INSTRUCTION: You are in DEEP THINKING MODE. First, wrap your reasoning inside <think>...</think> tags. Since the user can see these tags, DO NOT repeat your reasoning. Immediately after the </think> tag, you MUST output the exact line '===FINAL_ANSWER===' (without quotes), then provide your final conversational response.]";
+          const injection = "\n\n[CRITICAL INSTRUCTION: You are in DEEP THINKING MODE. First, wrap your reasoning inside <think>...</think> tags. Since the user can see these tags, DO NOT repeat your reasoning. Immediately after the </think> tag, you MUST output the exact line '===FINAL_ANSWER===' (without quotes), then provide your final conversational response.]";
+          if (Array.isArray(lastUserMsg.content)) {
+            // Deep copy the array to prevent modifying chat history
+            lastUserMsg.content = lastUserMsg.content.map(p => ({...p}));
+            let textPart = lastUserMsg.content.find(p => p.type === 'text');
+            if (textPart) {
+              textPart.text += injection;
+            } else {
+              lastUserMsg.content.push({ type: 'text', text: injection });
+            }
+          } else {
+            lastUserMsg.content += injection;
+          }
         } else {
           reqBody.messages = [{
             role: 'system',
