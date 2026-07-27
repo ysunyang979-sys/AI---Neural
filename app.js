@@ -4417,13 +4417,14 @@ window.executeClientIntentTools = function(queryText, replyText, containerEl) {
       };
       const isThinkingEnabled = document.getElementById('chat-thinking-toggle')?.classList.contains('active');
       if (isThinkingEnabled) {
+        const thinkInstruction = `\n\n[CRITICAL INSTRUCTION: You are in DEEP THINKING MODE. You MUST strictly follow this exact output format:\n<think>\n(Your detailed, step-by-step logical reasoning here)\n</think>\n(Your final, user-facing response here. This MUST be the actual conversational reply to the user. DO NOT repeat or copy-paste your reasoning here.)]`;
         let lastUserMsg = reqBody.messages.slice().reverse().find(m => m.role === 'user');
         if (lastUserMsg) {
-          lastUserMsg.content += "\n\n[CRITICAL INSTRUCTION: You are in DEEP THINKING MODE. You MUST start your response by wrapping your detailed, step-by-step logical reasoning inside <think>...</think> tags. IMPORTANT: Do NOT repeat your reasoning in your final response. Your final response (after the </think> tag) must ONLY contain the direct, final answer to the user.]";
+          lastUserMsg.content += thinkInstruction;
         } else {
           reqBody.messages.push({
             role: 'user',
-            content: "[CRITICAL INSTRUCTION: You are in DEEP THINKING MODE. You MUST start your response by wrapping your detailed, step-by-step logical reasoning inside <think>...</think> tags. IMPORTANT: Do NOT repeat your reasoning in your final response. Your final response (after the </think> tag) must ONLY contain the direct, final answer to the user.]"
+            content: thinkInstruction.trim()
           });
         }
       }
