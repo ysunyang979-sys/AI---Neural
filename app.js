@@ -4419,11 +4419,11 @@ window.executeClientIntentTools = function(queryText, replyText, containerEl) {
       if (isThinkingEnabled) {
         let lastUserMsg = reqBody.messages.slice().reverse().find(m => m.role === 'user');
         if (lastUserMsg) {
-          lastUserMsg.content += "\n\n[CRITICAL INSTRUCTION: You are in DEEP THINKING MODE. You MUST start your response by wrapping your detailed, step-by-step logical reasoning inside <think>...</think> tags. Do NOT skip this step.]";
+          lastUserMsg.content += "\n\n[CRITICAL INSTRUCTION: You are in DEEP THINKING MODE. You MUST start your response by wrapping your detailed, step-by-step logical reasoning inside <think>...</think> tags. IMPORTANT: Do NOT repeat your reasoning in your final response. Your final response (after the </think> tag) must ONLY contain the direct, final answer to the user.]";
         } else {
           reqBody.messages.push({
             role: 'user',
-            content: "[CRITICAL INSTRUCTION: You are in DEEP THINKING MODE. You MUST start your response by wrapping your detailed, step-by-step logical reasoning inside <think>...</think> tags. Do NOT skip this step.]"
+            content: "[CRITICAL INSTRUCTION: You are in DEEP THINKING MODE. You MUST start your response by wrapping your detailed, step-by-step logical reasoning inside <think>...</think> tags. IMPORTANT: Do NOT repeat your reasoning in your final response. Your final response (after the </think> tag) must ONLY contain the direct, final answer to the user.]"
           });
         }
       }
