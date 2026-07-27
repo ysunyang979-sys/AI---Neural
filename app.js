@@ -4602,64 +4602,64 @@ window.executeClientIntentTools = function(queryText, replyText, containerEl) {
                 if (match) {
                   extractedThink = match[1];
                   visibleReply = reply.replace(thinkRegex, '').trimStart();
-                  
-                  // --- DEEP SEMANTIC DEDUPLICATION ENGINE ---
-                  if (visibleReply.includes("===FINAL_ANSWER===")) {
-                    visibleReply = visibleReply.split("===FINAL_ANSWER===").pop().trimStart();
-                  } 
-                  else if (reply.includes("</think>")) {
-                    let rawThought = extractedThink;
-                    if (typeof currentThinkStreamEl !== 'undefined' && currentThinkStreamEl && currentThinkStreamEl.textContent) {
-                       rawThought = currentThinkStreamEl.textContent;
-                    }
-                    
-                    if (rawThought && rawThought.length > 10) {
-                      const isGarbage = (char) => /[\s\p{P}\p{S}\p{Z}\p{C}]/u.test(char);
-                      let thoughtStripped = "";
-                      for (let char of rawThought) if (!isGarbage(char)) thoughtStripped += char;
-                      
-                      let replyStripped = "";
-                      let replyChars = [];
-                      for (let char of visibleReply) {
-                        replyChars.push(char);
-                        if (!isGarbage(char)) replyStripped += char;
-                      }
-                      
-                      if (thoughtStripped.length > 5 && replyStripped.length > 0) {
-                        const prefixLen = Math.min(10, thoughtStripped.length);
-                        const thoughtPrefix = thoughtStripped.substring(0, prefixLen);
-                        
-                        if (replyStripped.startsWith(thoughtPrefix)) {
-                           let matchLen = 0;
-                           while (matchLen < replyStripped.length && matchLen < thoughtStripped.length && replyStripped[matchLen] === thoughtStripped[matchLen]) {
-                             matchLen++;
-                           }
-                           
-                           if (matchLen === replyStripped.length || matchLen > 10) {
-                             let strippedCount = 0;
-                             let sliceIdx = 0;
-                             for (let i = 0; i < replyChars.length; i++) {
-                               if (strippedCount >= matchLen) {
-                                 sliceIdx = i;
-                                 break;
-                               }
-                               if (!isGarbage(replyChars[i])) {
-                                 strippedCount++;
-                               }
-                             }
-                             visibleReply = replyChars.slice(sliceIdx).join('').trimStart();
-                           }
-                        } else if (thoughtPrefix.startsWith(replyStripped)) {
-                           visibleReply = "";
-                        }
-                      }
-                    }
-                  } else {
-                    visibleReply = "";
+                }
+
+                // --- DEEP SEMANTIC DEDUPLICATION ENGINE ---
+                if (visibleReply.includes("===FINAL_ANSWER===")) {
+                  visibleReply = visibleReply.split("===FINAL_ANSWER===").pop().trimStart();
+                } 
+                else if (isThinkingEnabled) {
+                  let rawThought = extractedThink;
+                  if (typeof currentThinkStreamEl !== 'undefined' && currentThinkStreamEl && currentThinkStreamEl.textContent) {
+                     rawThought = currentThinkStreamEl.textContent;
                   }
                   
-                  visibleReply = visibleReply.replace(/===FINAL_ANSWER===/g, '').trimStart();
+                  if (rawThought && rawThought.length > 10) {
+                    const isGarbage = (char) => /[\s\p{P}\p{S}\p{Z}\p{C}]/u.test(char);
+                    let thoughtStripped = "";
+                    for (let char of rawThought) if (!isGarbage(char)) thoughtStripped += char;
+                    
+                    let replyStripped = "";
+                    let replyChars = [];
+                    for (let char of visibleReply) {
+                      replyChars.push(char);
+                      if (!isGarbage(char)) replyStripped += char;
+                    }
+                    
+                    if (thoughtStripped.length > 5 && replyStripped.length > 0) {
+                      const prefixLen = Math.min(10, thoughtStripped.length);
+                      const thoughtPrefix = thoughtStripped.substring(0, prefixLen);
+                      
+                      if (replyStripped.startsWith(thoughtPrefix)) {
+                         let matchLen = 0;
+                         while (matchLen < replyStripped.length && matchLen < thoughtStripped.length && replyStripped[matchLen] === thoughtStripped[matchLen]) {
+                           matchLen++;
+                         }
+                         
+                         if (matchLen === replyStripped.length || matchLen > 10) {
+                           let strippedCount = 0;
+                           let sliceIdx = 0;
+                           for (let i = 0; i < replyChars.length; i++) {
+                             if (strippedCount >= matchLen) {
+                               sliceIdx = i;
+                               break;
+                             }
+                             if (!isGarbage(replyChars[i])) {
+                               strippedCount++;
+                             }
+                           }
+                           visibleReply = replyChars.slice(sliceIdx).join('').trimStart();
+                         }
+                      } else if (thoughtPrefix.startsWith(replyStripped)) {
+                         visibleReply = "";
+                      }
+                    }
+                  } else if (match && !reply.includes("</think>")) {
+                    visibleReply = "";
+                  }
                 }
+                
+                visibleReply = visibleReply.replace(/===FINAL_ANSWER===/g, '').trimStart();
 
                 if (extractedThink) {
                   if (!currentThinkStreamEl || !thinkContentEl.contains(currentThinkStreamEl)) {
@@ -7162,12 +7162,74 @@ ${cleanHtml}
       }
 
       if (firstChunk) endThinking();
+      
+      // --- APPLY DEDUPLICATION TO FINAL REPLY ---
+      let finalReply = reply;
+      let finalExtractedThink = "";
+      const thinkRegex = /<think>([\s\S]*?)(?:<\/think>|$)/i;
+      const match = reply.match(thinkRegex);
+      if (match) {
+        finalExtractedThink = match[1];
+        finalReply = reply.replace(thinkRegex, '').trimStart();
+      }
+      
+      if (finalReply.includes("===FINAL_ANSWER===")) {
+        finalReply = finalReply.split("===FINAL_ANSWER===").pop().trimStart();
+      } else if (isThinkingEnabled) {
+        let rawThought = finalExtractedThink;
+        if (typeof thinkBlock !== 'undefined') {
+          const streamEl = thinkBlock.querySelector(".think-content > span:last-child");
+          if (streamEl && streamEl.textContent) rawThought = streamEl.textContent;
+        }
+        
+        if (rawThought && rawThought.length > 10) {
+          const isGarbage = (char) => /[\s\p{P}\p{S}\p{Z}\p{C}]/u.test(char);
+          let thoughtStripped = "";
+          for (let char of rawThought) if (!isGarbage(char)) thoughtStripped += char;
+          
+          let replyStripped = "";
+          let replyChars = [];
+          for (let char of finalReply) {
+            replyChars.push(char);
+            if (!isGarbage(char)) replyStripped += char;
+          }
+          
+          if (thoughtStripped.length > 5 && replyStripped.length > 0) {
+            const prefixLen = Math.min(10, thoughtStripped.length);
+            const thoughtPrefix = thoughtStripped.substring(0, prefixLen);
+            
+            if (replyStripped.startsWith(thoughtPrefix)) {
+               let matchLen = 0;
+               while (matchLen < replyStripped.length && matchLen < thoughtStripped.length && replyStripped[matchLen] === thoughtStripped[matchLen]) {
+                 matchLen++;
+               }
+               
+               if (matchLen === replyStripped.length || matchLen > 10) {
+                 let strippedCount = 0;
+                 let sliceIdx = 0;
+                 for (let i = 0; i < replyChars.length; i++) {
+                   if (strippedCount >= matchLen) {
+                     sliceIdx = i;
+                     break;
+                   }
+                   if (!isGarbage(replyChars[i])) {
+                     strippedCount++;
+                   }
+                 }
+                 finalReply = replyChars.slice(sliceIdx).join('').trimStart();
+               }
+            }
+          }
+        }
+      }
+      finalReply = finalReply.replace(/===FINAL_ANSWER===/g, '').trimStart();
+      
       const lastUserMsg = messages.filter(m => m.role === 'user').pop();
       if (lastUserMsg && typeof window.sanitizeMathText === 'function') {
-        reply = window.sanitizeMathText(lastUserMsg.content, reply);
+        finalReply = window.sanitizeMathText(lastUserMsg.content, finalReply);
       }
-      reply = sanitizeChatOutput(reply);
-      let finalParsed = window.marked ? marked.parse(window.preProcessMath ? window.preProcessMath(reply) : reply) : reply;
+      finalReply = sanitizeChatOutput(finalReply);
+      let finalParsed = window.marked ? marked.parse(window.preProcessMath ? window.preProcessMath(finalReply) : finalReply) : finalReply;
       replyContent.innerHTML = parseInteractiveActionChips(finalParsed);
 
       // 🛡️ DOM Safety Net: If any <pre> code box contains UI card HTML, unwrap it immediately!
@@ -7194,7 +7256,7 @@ ${cleanHtml}
       if (window.lucide) lucide.createIcons();
       pushToActiveHistory({
         role: "assistant",
-        content: reply,
+        content: (finalExtractedThink ? "<think>\n" + finalExtractedThink + "\n</think>\n" : "") + finalReply,
         thinkHtml: thinkBlock.innerHTML,
       });
     } catch (error) {
