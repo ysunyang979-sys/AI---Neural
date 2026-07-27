@@ -388,7 +388,17 @@ window.fetchCollaborativeAPIWithTools = async function(provider, model, messages
                     }
                     continue;
                 } else {
-                    return msg.content || '⚠️ [模型返回了空内容]';
+                    let finalContent = msg.content || '⚠️ [模型返回了空内容]';
+                    if (Array.isArray(finalContent)) {
+                        let text = "";
+                        for (let item of finalContent) {
+                            if (item.type === 'text') text += item.text;
+                        }
+                        return text;
+                    } else if (typeof finalContent === 'object' && finalContent !== null) {
+                        return finalContent.text || JSON.stringify(finalContent);
+                    }
+                    return finalContent;
                 }
             } else {
                 if (data.error && data.error.message) {
@@ -4430,6 +4440,7 @@ window.executeClientIntentTools = function(queryText, replyText, containerEl) {
       const reader = response.body.getReader();
       const decoder = new TextDecoder("utf-8");
       let buffer = "";
+      let currentThinkStreamEl = null;
 
       while (true) {
         const { done, value } = await reader.read();
@@ -4537,18 +4548,49 @@ window.executeClientIntentTools = function(queryText, replyText, containerEl) {
               }
             }
             if (delta.content) {
-              if (firstChunk) {
-                endThinking();
-                firstChunk = false;
+              let newText = "";
+              let newThinking = "";
+              if (Array.isArray(delta.content)) {
+                for (let item of delta.content) {
+                  if (item.type === 'thinking' && item.thinking) {
+                    for (let t of item.thinking) {
+                      if (t.type === 'text' && t.text) newThinking += t.text;
+                    }
+                  } else if (item.type === 'text' && item.text) {
+                    newText += item.text;
+                  }
+                }
+              } else if (typeof delta.content === 'object' && delta.content !== null) {
+                newText += (delta.content.text || "");
+              } else {
+                newText += delta.content;
               }
-              reply += delta.content;
-              let cleanText = sanitizeChatOutput(reply);
-              let rawParsed = window.marked ? marked.parse(window.preProcessMath ? window.preProcessMath(cleanText) : cleanText) : cleanText;
-              replyContent.innerHTML =
-                parseInteractiveActionChips(rawParsed) +
-                '<span class="ai-cursor"></span>';
-              renderMath(replyContent);
-              $chatLog.scrollTop = $chatLog.scrollHeight;
+
+              if (newThinking) {
+                if (!currentThinkStreamEl || !thinkContentEl.contains(currentThinkStreamEl)) {
+                  currentThinkStreamEl = document.createElement('span');
+                  currentThinkStreamEl.style.whiteSpace = 'pre-wrap';
+                  currentThinkStreamEl.style.color = '#666';
+                  thinkContentEl.appendChild(currentThinkStreamEl);
+                }
+                currentThinkStreamEl.textContent += newThinking;
+                $chatLog.scrollTop = $chatLog.scrollHeight;
+              }
+
+              if (newText) {
+                if (firstChunk) {
+                  endThinking();
+                  firstChunk = false;
+                }
+                reply += newText;
+                let cleanText = sanitizeChatOutput(reply);
+                let rawParsed = window.marked ? marked.parse(window.preProcessMath ? window.preProcessMath(cleanText) : cleanText) : cleanText;
+                replyContent.innerHTML =
+                  parseInteractiveActionChips(rawParsed) +
+                  '<span class="ai-cursor"></span>';
+                renderMath(replyContent);
+                $chatLog.scrollTop = $chatLog.scrollHeight;
+              }
             }
           } catch (e) {
             /* skip */
