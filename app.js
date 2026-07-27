@@ -7137,6 +7137,7 @@ ${cleanHtml}
     if (memKeys.length > 0) {
       let allMem = {};
       memKeys.forEach(k => { let v = localStorage.getItem("ai_memory_" + k); if (v) allMem[k] = v; });
+      memoryContext = `\n\n[USER PERSISTENT MEMORY]:\nYou have saved the following long-term memories about the user:\n${JSON.stringify(allMem, null, 2)}\nAlways factor this into your responses.`;
     }
   } catch(e) {}
 
