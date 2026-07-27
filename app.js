@@ -4451,6 +4451,7 @@ window.executeClientIntentTools = function(queryText, replyText, containerEl) {
       const decoder = new TextDecoder("utf-8");
       let buffer = "";
       let currentThinkStreamEl = null;
+      let allThinkingText = ""; // Track ALL thinking text from both native API and <think> tags
 
       while (true) {
         const { done, value } = await reader.read();
@@ -4576,7 +4577,9 @@ window.executeClientIntentTools = function(queryText, replyText, containerEl) {
                 newText += delta.content;
               }
 
+              // Track native thinking (structured API)
               if (newThinking) {
+                allThinkingText += newThinking;
                 if (!currentThinkStreamEl || !thinkContentEl.contains(currentThinkStreamEl)) {
                   currentThinkStreamEl = document.createElement('span');
                   currentThinkStreamEl.style.whiteSpace = 'pre-wrap';
@@ -4604,7 +4607,9 @@ window.executeClientIntentTools = function(queryText, replyText, containerEl) {
                   visibleReply = reply.replace(thinkRegex, '').trim();
                 }
 
+                // Track <think> tag extracted thinking
                 if (extractedThink) {
+                  allThinkingText = extractedThink;
                   if (!currentThinkStreamEl || !thinkContentEl.contains(currentThinkStreamEl)) {
                     thinkContentEl.innerHTML = ''; // clear placeholder
                     currentThinkStreamEl = document.createElement('span');
@@ -4614,16 +4619,25 @@ window.executeClientIntentTools = function(queryText, replyText, containerEl) {
                   }
                   currentThinkStreamEl.textContent = extractedThink;
                   $chatLog.scrollTop = $chatLog.scrollHeight;
-                  
-                  // Deduplicate: Some models stubbornly repeat their exact thoughts in the final response
-                  const thoughtTrimmed = extractedThink.trim();
-                  let visTrimmed = visibleReply.trimStart();
-                  if (thoughtTrimmed.length > 10) {
-                    if (visTrimmed.startsWith(thoughtTrimmed)) {
-                      visibleReply = visTrimmed.substring(thoughtTrimmed.length).trimStart();
-                    } else if (thoughtTrimmed.startsWith(visTrimmed)) {
-                      visibleReply = ""; // Hide while streaming the exact duplicate
-                    }
+                }
+
+                // ══════ UNIVERSAL DEDUPLICATION ══════
+                // Strip repeated thinking text from main reply regardless of source
+                const thinkTrimmed = allThinkingText.trim();
+                if (thinkTrimmed.length > 20) {
+                  let visTrimmed = visibleReply.trim();
+                  // Case 1: visibleReply contains the full thought text → strip it
+                  const idx = visTrimmed.indexOf(thinkTrimmed);
+                  if (idx !== -1) {
+                    visibleReply = (visTrimmed.substring(0, idx) + visTrimmed.substring(idx + thinkTrimmed.length)).trim();
+                  }
+                  // Case 2: Still streaming the duplicate (partial match at start)
+                  else if (thinkTrimmed.startsWith(visTrimmed) && visTrimmed.length > 10) {
+                    visibleReply = "";
+                  }
+                  // Case 3: visibleReply starts with thought (startsWith check)
+                  else if (visTrimmed.startsWith(thinkTrimmed)) {
+                    visibleReply = visTrimmed.substring(thinkTrimmed.length).trim();
                   }
                 }
 
