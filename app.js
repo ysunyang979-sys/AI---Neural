@@ -4416,8 +4416,11 @@ window.executeClientIntentTools = function(queryText, replyText, containerEl) {
         stream: true,
       };
       const isThinkingEnabled = document.getElementById('chat-thinking-toggle')?.classList.contains('active');
-      if (isThinkingEnabled && (model.includes('mistral') || model.includes('codestral') || model.includes('pixtral'))) {
-        reqBody.reasoning_effort = "high";
+      if (isThinkingEnabled) {
+        messages = [{
+          role: 'system',
+          content: "[CRITICAL INSTRUCTION: The user has enabled DEEP THINKING MODE. You MUST wrap your detailed, step-by-step logical reasoning and thoughts inside <think>...</think> tags BEFORE providing your final response. Do NOT skip this.]"
+        }, ...messages];
       }
       if (tools && tools.length > 0) {
         reqBody.tools = tools;
@@ -4584,7 +4587,29 @@ window.executeClientIntentTools = function(queryText, replyText, containerEl) {
                   firstChunk = false;
                 }
                 reply += newText;
-                let cleanText = sanitizeChatOutput(reply);
+                
+                let visibleReply = reply;
+                let extractedThink = "";
+                const thinkRegex = /<think>([\s\S]*?)(?:<\/think>|$)/i;
+                const match = reply.match(thinkRegex);
+                
+                if (match) {
+                  extractedThink = match[1];
+                  visibleReply = reply.replace(thinkRegex, '').trim();
+                }
+
+                if (extractedThink) {
+                  if (!currentThinkStreamEl || !thinkContentEl.contains(currentThinkStreamEl)) {
+                    currentThinkStreamEl = document.createElement('span');
+                    currentThinkStreamEl.style.whiteSpace = 'pre-wrap';
+                    currentThinkStreamEl.style.color = '#666';
+                    thinkContentEl.appendChild(currentThinkStreamEl);
+                  }
+                  currentThinkStreamEl.textContent = extractedThink;
+                  $chatLog.scrollTop = $chatLog.scrollHeight;
+                }
+
+                let cleanText = sanitizeChatOutput(visibleReply);
                 let rawParsed = window.marked ? marked.parse(window.preProcessMath ? window.preProcessMath(cleanText) : cleanText) : cleanText;
                 replyContent.innerHTML =
                   parseInteractiveActionChips(rawParsed) +
