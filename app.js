@@ -4415,7 +4415,8 @@ window.executeClientIntentTools = function(queryText, replyText, containerEl) {
         max_tokens: maxTokens,
         stream: true,
       };
-      if ((model.includes('mistral') || model.includes('codestral') || model.includes('pixtral')) && !model.includes('large')) {
+      const isThinkingEnabled = document.getElementById('chat-thinking-toggle')?.classList.contains('active');
+      if (isThinkingEnabled && (model.includes('mistral') || model.includes('codestral') || model.includes('pixtral'))) {
         reqBody.reasoning_effort = "high";
       }
       if (tools && tools.length > 0) {
@@ -9865,3 +9866,19 @@ if (document.readyState === 'loading') {
   window.initMemoryDatabase().then(() => window.renderMemoryCardList());
 }
 
+// --- Thinking Mode Toggle ---
+const chatThinkingToggle = document.getElementById('chat-thinking-toggle');
+if (chatThinkingToggle) {
+  chatThinkingToggle.addEventListener('click', () => {
+    chatThinkingToggle.classList.toggle('active');
+    if (chatThinkingToggle.classList.contains('active')) {
+      chatThinkingToggle.style.color = '#3b82f6'; // Blue when active
+      chatThinkingToggle.style.background = 'rgba(59, 130, 246, 0.1)';
+      chatThinkingToggle.style.border = '1px solid rgba(59, 130, 246, 0.2)';
+    } else {
+      chatThinkingToggle.style.color = 'var(--text-secondary)';
+      chatThinkingToggle.style.background = 'transparent';
+      chatThinkingToggle.style.border = '1px solid transparent';
+    }
+  });
+}

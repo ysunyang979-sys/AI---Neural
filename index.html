@@ -547,7 +547,8 @@
                   <div class="mode-item" data-mode="normal"></div>
                 </div>
               </div>
-              <div style="display:flex; align-items:center; flex-shrink:0;">
+              <div style="display:flex; align-items:center; flex-shrink:0; gap:8px;">
+                <button class="chat-input-action-btn" id="chat-thinking-toggle" title="深度思考模式 (Deep Thinking)" style="width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:transparent; color:var(--text-secondary); border:1px solid transparent; cursor:pointer; transition:all 0.2s;"><i data-lucide="brain" style="width:16px; height:16px;"></i></button>
                 <select class="chat-model-select" id="chat-model-select">
                   <option selected value="mistral-small-latest">Low</option>
                   <option value="mistral-medium-latest">Mid</option>
@@ -908,6 +909,6 @@
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
   <script src="keys.js"></script>
-  <script src="app.js?v=157"></script>
+  <script src="app.js?v=158"></script>
 </body>
 </html>
