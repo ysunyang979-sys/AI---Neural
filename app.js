@@ -4614,6 +4614,17 @@ window.executeClientIntentTools = function(queryText, replyText, containerEl) {
                   }
                   currentThinkStreamEl.textContent = extractedThink;
                   $chatLog.scrollTop = $chatLog.scrollHeight;
+                  
+                  // Deduplicate: Some models stubbornly repeat their exact thoughts in the final response
+                  const thoughtTrimmed = extractedThink.trim();
+                  let visTrimmed = visibleReply.trimStart();
+                  if (thoughtTrimmed.length > 10) {
+                    if (visTrimmed.startsWith(thoughtTrimmed)) {
+                      visibleReply = visTrimmed.substring(thoughtTrimmed.length).trimStart();
+                    } else if (thoughtTrimmed.startsWith(visTrimmed)) {
+                      visibleReply = ""; // Hide while streaming the exact duplicate
+                    }
+                  }
                 }
 
                 let cleanText = sanitizeChatOutput(visibleReply);
