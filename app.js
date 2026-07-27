@@ -4417,10 +4417,15 @@ window.executeClientIntentTools = function(queryText, replyText, containerEl) {
       };
       const isThinkingEnabled = document.getElementById('chat-thinking-toggle')?.classList.contains('active');
       if (isThinkingEnabled) {
-        reqBody.messages = [{
-          role: 'system',
-          content: "[CRITICAL INSTRUCTION: The user has enabled DEEP THINKING MODE. You MUST wrap your detailed, step-by-step logical reasoning and thoughts inside <think>...</think> tags BEFORE providing your final response. Do NOT skip this.]"
-        }, ...messages];
+        let lastUserMsg = reqBody.messages.slice().reverse().find(m => m.role === 'user');
+        if (lastUserMsg) {
+          lastUserMsg.content += "\n\n[CRITICAL INSTRUCTION: You are in DEEP THINKING MODE. You MUST start your response by wrapping your detailed, step-by-step logical reasoning inside <think>...</think> tags. Do NOT skip this step.]";
+        } else {
+          reqBody.messages.push({
+            role: 'user',
+            content: "[CRITICAL INSTRUCTION: You are in DEEP THINKING MODE. You MUST start your response by wrapping your detailed, step-by-step logical reasoning inside <think>...</think> tags. Do NOT skip this step.]"
+          });
+        }
       }
       if (tools && tools.length > 0) {
         reqBody.tools = tools;
@@ -4600,6 +4605,7 @@ window.executeClientIntentTools = function(queryText, replyText, containerEl) {
 
                 if (extractedThink) {
                   if (!currentThinkStreamEl || !thinkContentEl.contains(currentThinkStreamEl)) {
+                    thinkContentEl.innerHTML = ''; // clear placeholder
                     currentThinkStreamEl = document.createElement('span');
                     currentThinkStreamEl.style.whiteSpace = 'pre-wrap';
                     currentThinkStreamEl.style.color = '#666';
