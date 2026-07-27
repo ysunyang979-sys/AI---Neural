@@ -5943,27 +5943,34 @@ sys.stdout = io.StringIO()
                 <div style="height: 4px; background: #f1f5f9; border-radius: 2px; overflow: hidden; width: 100%;">
                   <div id="${timerId}_bar" style="height: 100%; width: 100%; background: #ef4444; border-radius: 2px; transition: width 1s linear;"></div>
                 </div>
-              </div>
-              <script>
-                (function() {
-                  let remaining = ${totalSeconds};
-                  const total = ${totalSeconds};
-                  const textEl = document.getElementById('${timerId}_text');
-                  const barEl = document.getElementById('${timerId}_bar');
-                  const interval = setInterval(() => {
-                    remaining--;
-                    if(remaining < 0) {
-                      clearInterval(interval);
-                      return;
-                    }
-                    const m = Math.floor(remaining / 60);
-                    const s = remaining % 60;
-                    if (textEl) textEl.innerText = m.toString().padStart(2, '0') + ':' + s.toString().padStart(2, '0');
-                    if (barEl) barEl.style.width = ((remaining / total) * 100) + '%';
-                  }, 1000);
-                })();
-              <\/script><br>
+              </div><br>
               `;
+              
+              let remaining = totalSeconds;
+              const total = totalSeconds;
+              let hasFound = false;
+              const interval = setInterval(() => {
+                const textEl = document.getElementById(`${timerId}_text`);
+                const barEl = document.getElementById(`${timerId}_bar`);
+                
+                if (!textEl) {
+                  // If we already found it once but it's gone now, clear the interval (e.g. chat cleared)
+                  if (hasFound) clearInterval(interval);
+                  return;
+                }
+                hasFound = true;
+                
+                remaining--;
+                if(remaining < 0) {
+                  clearInterval(interval);
+                  return;
+                }
+                const m = Math.floor(remaining / 60);
+                const s = remaining % 60;
+                textEl.innerText = m.toString().padStart(2, '0') + ':' + s.toString().padStart(2, '0');
+                if (barEl) barEl.style.width = ((remaining / total) * 100) + '%';
+              }, 1000);
+
               addLine(`已为您启动 **${args.minutes}分钟** 的${title} 🌙，祝您顺利！`);
               } else if (tc.function.name === "play_music") {
               const query = args.song_name || args.query || "晴天";
