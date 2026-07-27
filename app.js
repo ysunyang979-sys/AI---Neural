@@ -4417,7 +4417,7 @@ window.executeClientIntentTools = function(queryText, replyText, containerEl) {
       };
       const isThinkingEnabled = document.getElementById('chat-thinking-toggle')?.classList.contains('active');
       if (isThinkingEnabled) {
-        messages = [{
+        reqBody.messages = [{
           role: 'system',
           content: "[CRITICAL INSTRUCTION: The user has enabled DEEP THINKING MODE. You MUST wrap your detailed, step-by-step logical reasoning and thoughts inside <think>...</think> tags BEFORE providing your final response. Do NOT skip this.]"
         }, ...messages];
