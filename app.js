@@ -343,6 +343,9 @@ window.fetchCollaborativeAPIWithTools = async function(provider, model, messages
         loopCount++;
         
         let reqBody = { model: model, messages: currentMessages };
+        if ((model.includes('mistral') || model.includes('codestral') || model.includes('pixtral')) && !model.includes('large')) {
+            reqBody.reasoning_effort = "high";
+        }
         if (supportsTools && availableTools.length > 0) {
             reqBody.tools = availableTools;
             reqBody.tool_choice = "auto";
@@ -4402,6 +4405,9 @@ window.executeClientIntentTools = function(queryText, replyText, containerEl) {
         max_tokens: maxTokens,
         stream: true,
       };
+      if ((model.includes('mistral') || model.includes('codestral') || model.includes('pixtral')) && !model.includes('large')) {
+        reqBody.reasoning_effort = "high";
+      }
       if (tools && tools.length > 0) {
         reqBody.tools = tools;
         reqBody.tool_choice = "auto";
