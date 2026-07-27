@@ -6641,12 +6641,33 @@ ${cleanHtml}
               
             } else if (tc.function.name === "search_wikipedia") {
               addLine(`📖 正在查阅维基百科知识...`);
-              const res = await fetch(`https://zh.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(args.title)}`);
-              if (res.ok) {
-                const data = await res.json();
-                result = data.extract || "No summary available.";
-              } else {
-                throw new Error(`Wikipedia API returned ${res.status}`);
+              try {
+                let res = await fetch(`https://zh.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(args.title)}`);
+                if (res.ok) {
+                  const data = await res.json();
+                  result = data.extract || "No summary available.";
+                } else {
+                  const searchRes = await fetch(`https://zh.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(args.title)}&utf8=&format=json&origin=*`);
+                  if (searchRes.ok) {
+                    const searchData = await searchRes.json();
+                    if (searchData.query && searchData.query.search && searchData.query.search.length > 0) {
+                      const firstHit = searchData.query.search[0].title;
+                      const summaryRes = await fetch(`https://zh.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(firstHit)}`);
+                      if (summaryRes.ok) {
+                        const summaryData = await summaryRes.json();
+                        result = summaryData.extract || "No summary available.";
+                      } else {
+                        result = searchData.query.search[0].snippet.replace(/<[^>]+>/g, '');
+                      }
+                    } else {
+                      result = "No Wikipedia page found for this query.";
+                    }
+                  } else {
+                    throw new Error(`Wikipedia API returned ${res.status}`);
+                  }
+                }
+              } catch (e) {
+                result = `Search error: ${e.message}`;
               }
             } else if (tc.function.name === "get_world_time") {
               addLine(`🕧 正在获取时区与时间数据...`);
