@@ -4417,16 +4417,10 @@ window.executeClientIntentTools = function(queryText, replyText, containerEl) {
       };
       const isThinkingEnabled = document.getElementById('chat-thinking-toggle')?.classList.contains('active');
       if (isThinkingEnabled) {
-        const thinkInstruction = `\n\n[CRITICAL INSTRUCTION: You are in DEEP THINKING MODE. You MUST strictly follow this exact output format:\n<think>\n(Your detailed, step-by-step logical reasoning here)\n</think>\n(Your final, user-facing response here. This MUST be the actual conversational reply to the user. DO NOT repeat or copy-paste your reasoning here.)]`;
-        let lastUserMsg = reqBody.messages.slice().reverse().find(m => m.role === 'user');
-        if (lastUserMsg) {
-          lastUserMsg.content += thinkInstruction;
-        } else {
-          reqBody.messages.push({
-            role: 'user',
-            content: thinkInstruction.trim()
-          });
-        }
+        reqBody.messages = [{
+          role: 'system',
+          content: "[CRITICAL INSTRUCTION: The user has enabled DEEP THINKING MODE. You MUST wrap your detailed, step-by-step logical reasoning and thoughts inside <think>...</think> tags BEFORE providing your final response. Do NOT skip this.]"
+        }, ...messages];
       }
       if (tools && tools.length > 0) {
         reqBody.tools = tools;
@@ -4451,7 +4445,6 @@ window.executeClientIntentTools = function(queryText, replyText, containerEl) {
       const decoder = new TextDecoder("utf-8");
       let buffer = "";
       let currentThinkStreamEl = null;
-      let allThinkingText = ""; // Track ALL thinking text from both native API and <think> tags
 
       while (true) {
         const { done, value } = await reader.read();
@@ -4577,9 +4570,7 @@ window.executeClientIntentTools = function(queryText, replyText, containerEl) {
                 newText += delta.content;
               }
 
-              // Track native thinking (structured API)
               if (newThinking) {
-                allThinkingText += newThinking;
                 if (!currentThinkStreamEl || !thinkContentEl.contains(currentThinkStreamEl)) {
                   currentThinkStreamEl = document.createElement('span');
                   currentThinkStreamEl.style.whiteSpace = 'pre-wrap';
@@ -4607,11 +4598,8 @@ window.executeClientIntentTools = function(queryText, replyText, containerEl) {
                   visibleReply = reply.replace(thinkRegex, '').trim();
                 }
 
-                // Track <think> tag extracted thinking
                 if (extractedThink) {
-                  allThinkingText = extractedThink;
                   if (!currentThinkStreamEl || !thinkContentEl.contains(currentThinkStreamEl)) {
-                    thinkContentEl.innerHTML = ''; // clear placeholder
                     currentThinkStreamEl = document.createElement('span');
                     currentThinkStreamEl.style.whiteSpace = 'pre-wrap';
                     currentThinkStreamEl.style.color = '#666';
@@ -4619,44 +4607,6 @@ window.executeClientIntentTools = function(queryText, replyText, containerEl) {
                   }
                   currentThinkStreamEl.textContent = extractedThink;
                   $chatLog.scrollTop = $chatLog.scrollHeight;
-                }
-
-                // ══════ UNIVERSAL DEDUPLICATION (Fingerprint Cascade) ══════
-                // Strip repeated thinking text from main reply regardless of source
-                const thinkTrimmed = allThinkingText.trim();
-                if (thinkTrimmed.length > 10) {
-                  let visTrimmed = visibleReply.trim();
-                  let stripped = false;
-                  
-                  // Try full indexOf first
-                  let idx = visTrimmed.indexOf(thinkTrimmed);
-                  if (idx !== -1) {
-                    visibleReply = (visTrimmed.substring(0, idx) + visTrimmed.substring(idx + thinkTrimmed.length)).trim();
-                    stripped = true;
-                  }
-                  
-                  // If full match failed, try progressively shorter fingerprints
-                  if (!stripped) {
-                    for (const fpLen of [50, 30, 15]) {
-                      if (thinkTrimmed.length < fpLen) continue;
-                      const fp = thinkTrimmed.substring(0, fpLen);
-                      idx = visTrimmed.indexOf(fp);
-                      if (idx !== -1) {
-                        const endIdx = Math.min(idx + thinkTrimmed.length, visTrimmed.length);
-                        visibleReply = (visTrimmed.substring(0, idx) + visTrimmed.substring(endIdx)).trim();
-                        stripped = true;
-                        break;
-                      }
-                    }
-                  }
-                  
-                  // Still streaming partial duplicate
-                  if (!stripped && visTrimmed.length > 5 && visTrimmed.length <= thinkTrimmed.length) {
-                    const visFp = visTrimmed.substring(0, Math.min(15, visTrimmed.length));
-                    if (thinkTrimmed.startsWith(visFp)) {
-                      visibleReply = "";
-                    }
-                  }
                 }
 
                 let cleanText = sanitizeChatOutput(visibleReply);
@@ -7194,42 +7144,6 @@ ${cleanHtml}
       }
     } finally {
       endThinking(true);
-
-      // ══════ FINAL POST-STREAM DEDUP SAFETY NET ══════
-      // After stream is fully complete, do one final check and re-render if thinking text leaked into the reply
-      if (allThinkingText.trim().length > 10) {
-        let finalReply = reply;
-        // Remove <think> tags
-        finalReply = finalReply.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
-        // Strip thinking text using fingerprint cascade
-        const thinkClean = allThinkingText.trim();
-        let didStrip = false;
-        let fIdx = finalReply.indexOf(thinkClean);
-        if (fIdx !== -1) {
-          finalReply = (finalReply.substring(0, fIdx) + finalReply.substring(fIdx + thinkClean.length)).trim();
-          didStrip = true;
-        }
-        if (!didStrip) {
-          for (const fpLen of [50, 30, 15]) {
-            if (thinkClean.length < fpLen) continue;
-            const fp = thinkClean.substring(0, fpLen);
-            fIdx = finalReply.indexOf(fp);
-            if (fIdx !== -1) {
-              const endIdx = Math.min(fIdx + thinkClean.length, finalReply.length);
-              finalReply = (finalReply.substring(0, fIdx) + finalReply.substring(endIdx)).trim();
-              didStrip = true;
-              break;
-            }
-          }
-        }
-        if (didStrip && finalReply.length > 0) {
-          let ct = sanitizeChatOutput(finalReply);
-          let rp = window.marked ? marked.parse(window.preProcessMath ? window.preProcessMath(ct) : ct) : ct;
-          replyContent.innerHTML = parseInteractiveActionChips(rp);
-          renderMath(replyContent);
-        }
-      }
-
       isChatActive = false;
       currentAbortController = null;
       if ($sendBtn) {
@@ -9981,44 +9895,40 @@ if (document.readyState === 'loading') {
 const chatThinkingToggle = document.getElementById('chat-thinking-toggle');
 const chatModelSelect = document.getElementById('chat-model-select');
 
-function updateThinkingToggleVisuals() {
-  if (chatThinkingToggle.classList.contains('active')) {
-    chatThinkingToggle.style.color = '#3b82f6'; // Blue when active
-    chatThinkingToggle.style.background = 'rgba(59, 130, 246, 0.1)';
-    chatThinkingToggle.style.border = '1px solid rgba(59, 130, 246, 0.2)';
+function updateThinkingToggleState() {
+  if (!chatThinkingToggle || !chatModelSelect) return;
+  const model = chatModelSelect.value;
+  // Only allow thinking mode for Mistral Large, Medium, and Small
+  if (model.includes('mistral-large') || model.includes('mistral-medium') || model.includes('mistral-small')) {
+    chatThinkingToggle.style.opacity = '1';
+    chatThinkingToggle.style.pointerEvents = 'auto';
   } else {
+    chatThinkingToggle.style.opacity = '0.5';
+    chatThinkingToggle.style.pointerEvents = 'none';
+    chatThinkingToggle.classList.remove('active');
     chatThinkingToggle.style.color = 'var(--text-secondary)';
     chatThinkingToggle.style.background = 'transparent';
     chatThinkingToggle.style.border = '1px solid transparent';
   }
 }
 
-if (chatThinkingToggle) {
-  chatThinkingToggle.addEventListener('click', () => {
-    // Prevent clicking if disabled
-    if (chatThinkingToggle.style.opacity === '0.3') return;
-    
-    chatThinkingToggle.classList.toggle('active');
-    updateThinkingToggleVisuals();
-  });
+if (chatModelSelect) {
+  chatModelSelect.addEventListener('change', updateThinkingToggleState);
 }
 
-if (chatModelSelect && chatThinkingToggle) {
-  chatModelSelect.addEventListener('change', () => {
-    const model = chatModelSelect.value;
-    if (model === 'codestral-latest' || model === 'pixtral-12b-2409') {
-      // Disable
-      chatThinkingToggle.classList.remove('active');
-      chatThinkingToggle.style.opacity = '0.3';
-      chatThinkingToggle.style.cursor = 'not-allowed';
-      updateThinkingToggleVisuals();
+if (chatThinkingToggle) {
+  chatThinkingToggle.addEventListener('click', () => {
+    chatThinkingToggle.classList.toggle('active');
+    if (chatThinkingToggle.classList.contains('active')) {
+      chatThinkingToggle.style.color = '#3b82f6'; // Blue when active
+      chatThinkingToggle.style.background = 'rgba(59, 130, 246, 0.1)';
+      chatThinkingToggle.style.border = '1px solid rgba(59, 130, 246, 0.2)';
     } else {
-      // Enable
-      chatThinkingToggle.style.opacity = '1';
-      chatThinkingToggle.style.cursor = 'pointer';
+      chatThinkingToggle.style.color = 'var(--text-secondary)';
+      chatThinkingToggle.style.background = 'transparent';
+      chatThinkingToggle.style.border = '1px solid transparent';
     }
   });
-  
-  // Trigger once on load to set initial state
-  chatModelSelect.dispatchEvent(new Event('change'));
+  // Initialize state on load
+  updateThinkingToggleState();
 }
