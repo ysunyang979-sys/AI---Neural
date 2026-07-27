@@ -9899,17 +9899,46 @@ if (document.readyState === 'loading') {
 
 // --- Thinking Mode Toggle ---
 const chatThinkingToggle = document.getElementById('chat-thinking-toggle');
+const chatModelSelect = document.getElementById('chat-model-select');
+
+function updateThinkingToggleVisuals() {
+  if (chatThinkingToggle.classList.contains('active')) {
+    chatThinkingToggle.style.color = '#3b82f6'; // Blue when active
+    chatThinkingToggle.style.background = 'rgba(59, 130, 246, 0.1)';
+    chatThinkingToggle.style.border = '1px solid rgba(59, 130, 246, 0.2)';
+  } else {
+    chatThinkingToggle.style.color = 'var(--text-secondary)';
+    chatThinkingToggle.style.background = 'transparent';
+    chatThinkingToggle.style.border = '1px solid transparent';
+  }
+}
+
 if (chatThinkingToggle) {
   chatThinkingToggle.addEventListener('click', () => {
+    // Prevent clicking if disabled
+    if (chatThinkingToggle.style.opacity === '0.3') return;
+    
     chatThinkingToggle.classList.toggle('active');
-    if (chatThinkingToggle.classList.contains('active')) {
-      chatThinkingToggle.style.color = '#3b82f6'; // Blue when active
-      chatThinkingToggle.style.background = 'rgba(59, 130, 246, 0.1)';
-      chatThinkingToggle.style.border = '1px solid rgba(59, 130, 246, 0.2)';
+    updateThinkingToggleVisuals();
+  });
+}
+
+if (chatModelSelect && chatThinkingToggle) {
+  chatModelSelect.addEventListener('change', () => {
+    const model = chatModelSelect.value;
+    if (model === 'codestral-latest' || model === 'pixtral-12b-2409') {
+      // Disable
+      chatThinkingToggle.classList.remove('active');
+      chatThinkingToggle.style.opacity = '0.3';
+      chatThinkingToggle.style.cursor = 'not-allowed';
+      updateThinkingToggleVisuals();
     } else {
-      chatThinkingToggle.style.color = 'var(--text-secondary)';
-      chatThinkingToggle.style.background = 'transparent';
-      chatThinkingToggle.style.border = '1px solid transparent';
+      // Enable
+      chatThinkingToggle.style.opacity = '1';
+      chatThinkingToggle.style.cursor = 'pointer';
     }
   });
+  
+  // Trigger once on load to set initial state
+  chatModelSelect.dispatchEvent(new Event('change'));
 }
