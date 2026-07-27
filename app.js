@@ -7202,121 +7202,125 @@ You operate under an advanced Adaptive Thinking (自适应思考) and Structured
   }
 
   const USER_FAVORITE_LINKS_PROMPT = `\n\n[USER RESOURCE DIRECTORY]
-When the user's request matches any scenario below, you MUST provide the corresponding resource link using EXACTLY this Markdown format: \`[<Button_Text>](<URL>)\`.
-Example: If the user asks for porn or NSFW manga, output: \`[🐼 逛 E 站 (NSFW)](https://e-hentai.org/)\`
+When the user's request matches any scenario below, you MUST:
+1. Converse naturally and warmly to the user FIRST (do not just output the link).
+2. Provide the corresponding resource link on a new line using EXACTLY this HTML format.
+Example: If the user asks for porn or NSFW manga, output: 
+"马上为您安排！您可以去这里看看："
+<a href="https://e-hentai.org/" target="_blank" class="ai-resource-btn">🐼 逛 E 站 (NSFW)</a>
 
 🤖 AI 对话 & 智能助手
-- 日常AI问答/写文: [🤖 开启智能对话](https://chatgpt.com/)
-- 长文本/代码分析: [🧠 Claude 智能助手](https://claude.ai/new)
-- 深度推理/编程写代码: [🐳 唤醒 DeepSeek](https://chat.deepseek.com/)
-- 谷歌生态AI辅助: [✨ 使用 Gemini](https://gemini.google.com/)
-- 实时信息检索/无限制AI: [🚀 开启 Grok](https://grok.com/)
-- 开源大模型体验: [🌪️ 体验 Mistral](https://chat.mistral.ai/)
-- 微软办公/绘图搜索: [💬 微软 Copilot](https://copilot.microsoft.com/)
-- 匿名隐私AI聊天: [🦆 隐私 AI 对话](https://duckduckgo.com/?q=DuckDuckGo+AI+Chat&ia=chat)
-- 虚拟角色扮演聊天: [🎭 找虚拟角色聊天](https://character.ai/)
-- 开发者测试大模型: [🛠️ 开发者 AI 平台](https://aistudio.google.com/)
+- 日常AI问答/写文: <a href="https://chatgpt.com/" target="_blank" class="ai-resource-btn">🤖 开启智能对话</a>
+- 长文本/代码分析: <a href="https://claude.ai/new" target="_blank" class="ai-resource-btn">🧠 Claude 智能助手</a>
+- 深度推理/编程写代码: <a href="https://chat.deepseek.com/" target="_blank" class="ai-resource-btn">🐳 唤醒 DeepSeek</a>
+- 谷歌生态AI辅助: <a href="https://gemini.google.com/" target="_blank" class="ai-resource-btn">✨ 使用 Gemini</a>
+- 实时信息检索/无限制AI: <a href="https://grok.com/" target="_blank" class="ai-resource-btn">🚀 开启 Grok</a>
+- 开源大模型体验: <a href="https://chat.mistral.ai/" target="_blank" class="ai-resource-btn">🌪️ 体验 Mistral</a>
+- 微软办公/绘图搜索: <a href="https://copilot.microsoft.com/" target="_blank" class="ai-resource-btn">💬 微软 Copilot</a>
+- 匿名隐私AI聊天: <a href="https://duckduckgo.com/?q=DuckDuckGo+AI+Chat&ia=chat" target="_blank" class="ai-resource-btn">🦆 隐私 AI 对话</a>
+- 虚拟角色扮演聊天: <a href="https://character.ai/" target="_blank" class="ai-resource-btn">🎭 找虚拟角色聊天</a>
+- 开发者测试大模型: <a href="https://aistudio.google.com/" target="_blank" class="ai-resource-btn">🛠️ 开发者 AI 平台</a>
 
 🔍 AI 搜索 & 效率写作
-- AI学术/知识搜索: [🔍 开启 AI 搜索](https://www.perplexity.ai/)
-- 跨语言精准搜索: [🌐 Felo 智能搜索](https://felo.ai/)
-- 程序员/开发者搜索: [💻 程序员专搜](https://www.phind.com/)
-- 个人知识库/文档总结: [📓 智能总结文档](https://notebooklm.google.com/)
-- 文字一键生成流程图/配图: [✍️ 智能图文排版](https://app.napkin.ai/)
-- 多模态/音视频内容搜索: [🎥 搜视频/多媒体](https://www.lumona.ai/)
-- 智能问答引擎: [💡 寻找答案](https://www.xanswer.com/)
-- 视频/播客智能摘要总结: [🎙️ 媒体内容总结](https://noiz.ai/)
-- 开源 AI 搜索引擎: [🦋 体验 Farfalle](https://www.farfalle.dev/)
-- 查论文/文献综述: [📚 AI 科研助手](https://elicit.com/)
-- 查论文引用图谱: [🕸️ 探索文献图谱](https://www.connectedpapers.com/)
+- AI学术/知识搜索: <a href="https://www.perplexity.ai/" target="_blank" class="ai-resource-btn">🔍 开启 AI 搜索</a>
+- 跨语言精准搜索: <a href="https://felo.ai/" target="_blank" class="ai-resource-btn">🌐 Felo 智能搜索</a>
+- 程序员/开发者搜索: <a href="https://www.phind.com/" target="_blank" class="ai-resource-btn">💻 程序员专搜</a>
+- 个人知识库/文档总结: <a href="https://notebooklm.google.com/" target="_blank" class="ai-resource-btn">📓 智能总结文档</a>
+- 文字一键生成流程图/配图: <a href="https://app.napkin.ai/" target="_blank" class="ai-resource-btn">✍️ 智能图文排版</a>
+- 多模态/音视频内容搜索: <a href="https://www.lumona.ai/" target="_blank" class="ai-resource-btn">🎥 搜视频/多媒体</a>
+- 智能问答引擎: <a href="https://www.xanswer.com/" target="_blank" class="ai-resource-btn">💡 寻找答案</a>
+- 视频/播客智能摘要总结: <a href="https://noiz.ai/" target="_blank" class="ai-resource-btn">🎙️ 媒体内容总结</a>
+- 开源 AI 搜索引擎: <a href="https://www.farfalle.dev/" target="_blank" class="ai-resource-btn">🦋 体验 Farfalle</a>
+- 查论文/文献综述: <a href="https://elicit.com/" target="_blank" class="ai-resource-btn">📚 AI 科研助手</a>
+- 查论文引用图谱: <a href="https://www.connectedpapers.com/" target="_blank" class="ai-resource-btn">🕸️ 探索文献图谱</a>
 
 🎨 设计素材 & 图像处理
-- 找免费高清配图: [🌄 免费图库下载](https://pikwizard.com/)
-- 找透明免抠素材: [🖼️ 下载免抠图](https://www.cleanpng.com/)
-- 找矢量图标/插画: [🎨 下载矢量图](https://www.hyvector.com/)
-- 找免版税视频/音效: [🎬 获取音视频素材](https://mixkit.co/)
-- 一键图片抠图/去背景: [✂️ 一键在线抠图](https://remove.photos/)
-- 老照片/模糊图片变清晰: [🪄 修复画质](https://revizepic.toolooz.com/)
-- 在线P图/简易设计: [🛠️ 开启在线设计](https://toolooz.com/)
-- 找趣味贴纸素材: [🏷️ 下载可爱贴纸](https://openstickers.craftwork.design/)
-- 找免费/商用中文字体: [🔠 挑选好看字体](https://zitiku.org/)
-- 找英文书法字体生成: [🖋️ 生成书法字体](https://calligraphyfontgenerator.org/)
-- 找有趣的 Emoji 表情包: [😂 获取趣味 Emoji](https://funnyemoji.com/)
-- 找像素风游戏设计素材: [👾 像素风素材](https://dotown.maeda-design.net/)
-- 找纸张纹理/背景素材: [📜 纸质纹理下载](https://free-paper-texture.com/)
-- 随手画/AI智能辅助绘画: [🖍️ AI 辅助画画](https://www.autodraw.com/)
-- 黑白照片一键上色: [🎨 智能照片上色](https://palette.fm/)
-- 自己制作/排版证件照: [👔 制作标准证件照](https://huggingface.co/spaces/TheEeeeLin/HivisionIDPhotos)
-- 极速无损放大图片/画质提升: [🔍 画质增强放大](https://huggingface.co/spaces/JOY-Huang/InstantIR)
-- AI融合生成人脸/艺术图: [🧬 创造艺术图像](https://www.artbreeder.com/)
-- 找 3D 模型素材/在线预览: [🧊 探索 3D 模型](https://sketchfab.com/)
+- 找免费高清配图: <a href="https://pikwizard.com/" target="_blank" class="ai-resource-btn">🌄 免费图库下载</a>
+- 找透明免抠素材: <a href="https://www.cleanpng.com/" target="_blank" class="ai-resource-btn">🖼️ 下载免抠图</a>
+- 找矢量图标/插画: <a href="https://www.hyvector.com/" target="_blank" class="ai-resource-btn">🎨 下载矢量图</a>
+- 找免版税视频/音效: <a href="https://mixkit.co/" target="_blank" class="ai-resource-btn">🎬 获取音视频素材</a>
+- 一键图片抠图/去背景: <a href="https://remove.photos/" target="_blank" class="ai-resource-btn">✂️ 一键在线抠图</a>
+- 老照片/模糊图片变清晰: <a href="https://revizepic.toolooz.com/" target="_blank" class="ai-resource-btn">🪄 修复画质</a>
+- 在线P图/简易设计: <a href="https://toolooz.com/" target="_blank" class="ai-resource-btn">🛠️ 开启在线设计</a>
+- 找趣味贴纸素材: <a href="https://openstickers.craftwork.design/" target="_blank" class="ai-resource-btn">🏷️ 下载可爱贴纸</a>
+- 找免费/商用中文字体: <a href="https://zitiku.org/" target="_blank" class="ai-resource-btn">🔠 挑选好看字体</a>
+- 找英文书法字体生成: <a href="https://calligraphyfontgenerator.org/" target="_blank" class="ai-resource-btn">🖋️ 生成书法字体</a>
+- 找有趣的 Emoji 表情包: <a href="https://funnyemoji.com/" target="_blank" class="ai-resource-btn">😂 获取趣味 Emoji</a>
+- 找像素风游戏设计素材: <a href="https://dotown.maeda-design.net/" target="_blank" class="ai-resource-btn">👾 像素风素材</a>
+- 找纸张纹理/背景素材: <a href="https://free-paper-texture.com/" target="_blank" class="ai-resource-btn">📜 纸质纹理下载</a>
+- 随手画/AI智能辅助绘画: <a href="https://www.autodraw.com/" target="_blank" class="ai-resource-btn">🖍️ AI 辅助画画</a>
+- 黑白照片一键上色: <a href="https://palette.fm/" target="_blank" class="ai-resource-btn">🎨 智能照片上色</a>
+- 自己制作/排版证件照: <a href="https://huggingface.co/spaces/TheEeeeLin/HivisionIDPhotos" target="_blank" class="ai-resource-btn">👔 制作标准证件照</a>
+- 极速无损放大图片/画质提升: <a href="https://huggingface.co/spaces/JOY-Huang/InstantIR" target="_blank" class="ai-resource-btn">🔍 画质增强放大</a>
+- AI融合生成人脸/艺术图: <a href="https://www.artbreeder.com/" target="_blank" class="ai-resource-btn">🧬 创造艺术图像</a>
+- 找 3D 模型素材/在线预览: <a href="https://sketchfab.com/" target="_blank" class="ai-resource-btn">🧊 探索 3D 模型</a>
 
 📖 学习、语言 & 文献
-- 背单词/英语阅读: [📖 单词记忆助手](https://2study.top/words)
-- 趣味背单词/词汇拓展: [🌲 探索单词森林](https://wordforest.cn/)
-- 听新概念英语原文: [🎧 新概念点读](https://nce.ichochy.com/)
-- 看英文原版小说/分级阅读: [📚 阅读英文小说](https://yingyuxiaoshuo.com/)
-- 找英文电子书/原版书: [📥 下载英文原版书](https://oceanofpdf.com/)
-- 找中文电子书/PDF下载: [📖 搜索中文电子书](https://welib.org/)
-- 学数学/解题辅助: [🔢 数学学习工具](https://mathcheap.xyz/)
-- 学习AI提示词/Prompt技巧: [🗣️ 学习提示词技巧](https://learnprompting.thinkific.com/)
-- 查大学信息/志愿填报: [🏫 查询高校信息](https://laosheng.top/)
+- 背单词/英语阅读: <a href="https://2study.top/words" target="_blank" class="ai-resource-btn">📖 单词记忆助手</a>
+- 趣味背单词/词汇拓展: <a href="https://wordforest.cn/" target="_blank" class="ai-resource-btn">🌲 探索单词森林</a>
+- 听新概念英语原文: <a href="https://nce.ichochy.com/" target="_blank" class="ai-resource-btn">🎧 新概念点读</a>
+- 看英文原版小说/分级阅读: <a href="https://yingyuxiaoshuo.com/" target="_blank" class="ai-resource-btn">📚 阅读英文小说</a>
+- 找英文电子书/原版书: <a href="https://oceanofpdf.com/" target="_blank" class="ai-resource-btn">📥 下载英文原版书</a>
+- 找中文电子书/PDF下载: <a href="https://welib.org/" target="_blank" class="ai-resource-btn">📖 搜索中文电子书</a>
+- 学数学/解题辅助: <a href="https://mathcheap.xyz/" target="_blank" class="ai-resource-btn">🔢 数学学习工具</a>
+- 学习AI提示词/Prompt技巧: <a href="https://learnprompting.thinkific.com/" target="_blank" class="ai-resource-btn">🗣️ 学习提示词技巧</a>
+- 查大学信息/志愿填报: <a href="https://laosheng.top/" target="_blank" class="ai-resource-btn">🏫 查询高校信息</a>
 
 🍿 影视、音乐 & 媒体
-- 看全球热门长视频: [📺 观看 YouTube](https://www.youtube.com/)
-- 看二次元/学习/UP主视频: [📺 哔哩哔哩干杯](https://www.bilibili.com/)
-- 看弹幕视频/硬核游戏二次元: [🥭 逛 A 站](https://www.acfun.cn/)
-- 听广播剧/有声书/ASMR: [🎧 听 M 站音频](https://www.missevan.com/)
-- 下载 FLAC 无损歌曲: [🎵 下载无损音乐](https://www.isflac.com/)
-- 找高品质/流行音乐下载: [🎶 下载高品质音乐](https://www.23ape.net/)
-- 在线听歌/找全网音乐: [🌊 畅听歌曲海](https://www.gequhai.com/)
-- 找游戏BGM/原声带: [🎮 下载游戏原声](https://downloads.khinsider.com/)
-- 听白噪音/工作专注背景音: [🌧️ 播放专注环境音](https://ambiph.one/)
+- 看全球热门长视频: <a href="https://www.youtube.com/" target="_blank" class="ai-resource-btn">📺 观看 YouTube</a>
+- 看二次元/学习/UP主视频: <a href="https://www.bilibili.com/" target="_blank" class="ai-resource-btn">📺 哔哩哔哩干杯</a>
+- 看弹幕视频/硬核游戏二次元: <a href="https://www.acfun.cn/" target="_blank" class="ai-resource-btn">🥭 逛 A 站</a>
+- 听广播剧/有声书/ASMR: <a href="https://www.missevan.com/" target="_blank" class="ai-resource-btn">🎧 听 M 站音频</a>
+- 下载 FLAC 无损歌曲: <a href="https://www.isflac.com/" target="_blank" class="ai-resource-btn">🎵 下载无损音乐</a>
+- 找高品质/流行音乐下载: <a href="https://www.23ape.net/" target="_blank" class="ai-resource-btn">🎶 下载高品质音乐</a>
+- 在线听歌/找全网音乐: <a href="https://www.gequhai.com/" target="_blank" class="ai-resource-btn">🌊 畅听歌曲海</a>
+- 找游戏BGM/原声带: <a href="https://downloads.khinsider.com/" target="_blank" class="ai-resource-btn">🎮 下载游戏原声</a>
+- 听白噪音/工作专注背景音: <a href="https://ambiph.one/" target="_blank" class="ai-resource-btn">🌧️ 播放专注环境音</a>
 
 🛠️ 资源下载 & 系统工具
-- 找各类盗版/破解/免费资源导航: [🏴‍☠️ 探索 FMHY 宝库](https://fmhy.net/)
-- 下载 Chrome 离线扩展/插件: [🧩 下载浏览器插件](https://crxdl.com/)
-- 下载安全无毒的开源软件: [🐧 下载开源软件](https://www.fosshub.com/)
-- 电脑装机/原版系统镜像下载: [💻 电脑装机必备](https://zhuangit.ababtools.com/)
-- 找综合资源/软件工具合集: [🧊 找 IIICE 资源](https://www.iiice.cn/)
-- 找创业项目/商业模式/工具: [💼 探索创业指南](https://cy.urongda.com/)
-- 找前端开源库 CDN 链接: [⚡ 获取 CDN 链接](https://cdnjs.znnu.com/)
+- 找各类盗版/破解/免费资源导航: <a href="https://fmhy.net/" target="_blank" class="ai-resource-btn">🏴‍☠️ 探索 FMHY 宝库</a>
+- 下载 Chrome 离线扩展/插件: <a href="https://crxdl.com/" target="_blank" class="ai-resource-btn">🧩 下载浏览器插件</a>
+- 下载安全无毒的开源软件: <a href="https://www.fosshub.com/" target="_blank" class="ai-resource-btn">🐧 下载开源软件</a>
+- 电脑装机/原版系统镜像下载: <a href="https://zhuangit.ababtools.com/" target="_blank" class="ai-resource-btn">💻 电脑装机必备</a>
+- 找综合资源/软件工具合集: <a href="https://www.iiice.cn/" target="_blank" class="ai-resource-btn">🧊 找 IIICE 资源</a>
+- 找创业项目/商业模式/工具: <a href="https://cy.urongda.com/" target="_blank" class="ai-resource-btn">💼 探索创业指南</a>
+- 找前端开源库 CDN 链接: <a href="https://cdnjs.znnu.com/" target="_blank" class="ai-resource-btn">⚡ 获取 CDN 链接</a>
 
 💻 开发、编程 & 博客
-- 前端代码在线演示/测试: [✍️ 在线写前端](https://codepen.io/)
-- 看程序员技术文章/博客: [⛏️ 逛掘金社区](https://juejin.cn/)
-- C# / .NET 代码在线运行: [⚙️ 运行 C# 代码](https://dotnetfiddle.net/)
-- 在线画 UML 架构/流程图: [📊 绘制 UML 图](https://www.planttext.com/)
-- 万物皆可 RSS 订阅源生成: [📡 获取 RSS 订阅](https://rsshub.netlify.app/)
-- GitHub 星标仓库管理/探索: [⭐ 发现 GitHub 宝藏](https://ghubstar.com/)
-- 文档智能分块/RAG预处理: [📑 智能文档分块](https://www.chunkr.ai/)
-- 白嫖免费的 AI 大模型 API: [🔑 获取免费 API](https://jscheah.me/free-llm-api-resources/)
-- 看趣味物理/WebGL交互作品: [🕹️ 体验 WebGL 交互](https://oimo.io/works)
-- 文本生成 3D 模型/动画: [🦄 AI 3D 创作](https://app.masterpiecex.com/)
+- 前端代码在线演示/测试: <a href="https://codepen.io/" target="_blank" class="ai-resource-btn">✍️ 在线写前端</a>
+- 看程序员技术文章/博客: <a href="https://juejin.cn/" target="_blank" class="ai-resource-btn">⛏️ 逛掘金社区</a>
+- C# / .NET 代码在线运行: <a href="https://dotnetfiddle.net/" target="_blank" class="ai-resource-btn">⚙️ 运行 C# 代码</a>
+- 在线画 UML 架构/流程图: <a href="https://www.planttext.com/" target="_blank" class="ai-resource-btn">📊 绘制 UML 图</a>
+- 万物皆可 RSS 订阅源生成: <a href="https://rsshub.netlify.app/" target="_blank" class="ai-resource-btn">📡 获取 RSS 订阅</a>
+- GitHub 星标仓库管理/探索: <a href="https://ghubstar.com/" target="_blank" class="ai-resource-btn">⭐ 发现 GitHub 宝藏</a>
+- 文档智能分块/RAG预处理: <a href="https://www.chunkr.ai/" target="_blank" class="ai-resource-btn">📑 智能文档分块</a>
+- 白嫖免费的 AI 大模型 API: <a href="https://jscheah.me/free-llm-api-resources/" target="_blank" class="ai-resource-btn">🔑 获取免费 API</a>
+- 看趣味物理/WebGL交互作品: <a href="https://oimo.io/works" target="_blank" class="ai-resource-btn">🕹️ 体验 WebGL 交互</a>
+- 文本生成 3D 模型/动画: <a href="https://app.masterpiecex.com/" target="_blank" class="ai-resource-btn">🦄 AI 3D 创作</a>
 
 ✅ 效率生活 & 服务
-- 不知道吃什么/按食材生成菜谱: [🍳 智能生成菜谱](https://eat.lz-t.top/)
-- 查 Excel 公式/表格办公技巧: [📊 学习 Excel 技巧](https://www.lanrenexcel.com/)
-- 记录待办事项/日常任务: [✅ 记录待办事项](https://todo.uiineed.com/)
-- 注册安全/隐私加密邮箱: [📧 登录加密邮箱](https://mail.proton.me/)
-- 团队沟通/办公协同聊天: [💬 打开 Slack](https://slack.com/)
-- 免费画流程图/思维导图: [✏️ 开始画流程图](https://app.diagrams.net/)
-- 生成虚拟学生证/教育优惠辅助: [🎓 生成学生证](https://student.frp.gs/)
-- 给儿童用的安全无广告搜索引擎: [🧒 儿童安全搜索](https://www.qwantjunior.com/)
+- 不知道吃什么/按食材生成菜谱: <a href="https://eat.lz-t.top/" target="_blank" class="ai-resource-btn">🍳 智能生成菜谱</a>
+- 查 Excel 公式/表格办公技巧: <a href="https://www.lanrenexcel.com/" target="_blank" class="ai-resource-btn">📊 学习 Excel 技巧</a>
+- 记录待办事项/日常任务: <a href="https://todo.uiineed.com/" target="_blank" class="ai-resource-btn">✅ 记录待办事项</a>
+- 注册安全/隐私加密邮箱: <a href="https://mail.proton.me/" target="_blank" class="ai-resource-btn">📧 登录加密邮箱</a>
+- 团队沟通/办公协同聊天: <a href="https://slack.com/" target="_blank" class="ai-resource-btn">💬 打开 Slack</a>
+- 免费画流程图/思维导图: <a href="https://app.diagrams.net/" target="_blank" class="ai-resource-btn">✏️ 开始画流程图</a>
+- 生成虚拟学生证/教育优惠辅助: <a href="https://student.frp.gs/" target="_blank" class="ai-resource-btn">🎓 生成学生证</a>
+- 给儿童用的安全无广告搜索引擎: <a href="https://www.qwantjunior.com/" target="_blank" class="ai-resource-btn">🧒 儿童安全搜索</a>
 
 🧭 综合导航 & 社交社区
-- 找全网各种奇怪/实用网站导航: [🧭 逛老王导航](https://nav.eooce.com/)
-- 找 TG 群组/频道/机器人: [✈️ 探索 TG 群组](https://github.com/AZeC4/TelegramGroup)
-- 看极客/科技资讯推送: [📰 订阅科技资讯](https://www.newlearner.site/)
-- 快速搜 Icon/设计图标: [🔍 搜设计图标](https://icontool.pages.dev/)
-- 找科学上网/代理工具: [🚀 科学上网导航](https://jichangvpn.github.io/)
-- 找 Stable Diffusion 模型/提示词: [🖼️ 逛 C 站找模型](https://civitai.com/)
-- 找全球艺术画作/插画: [🎨 探索艺术社区](https://www.deviantart.com/)
-- 找二次元同人本/漫画 (NSFW): [🐼 逛 E 站 (NSFW)](https://e-hentai.org/)
-- 看二次元 MMD/3D 动画 (NSFW): [💃 逛 Iwara (NSFW)](https://www.iwara.tv/)
-- 搜二次元动漫插画/壁纸: [🌸 搜动漫壁纸](https://gelbooru.com/)
-- 找高清二次元动漫壁纸: [🖼️ 找高清壁纸](https://konachan.com/)
-- 看成人/网络文学小说 (NSFW): [📖 看小说 (NSFW)](https://www.xbookcn.net/)
+- 找全网各种奇怪/实用网站导航: <a href="https://nav.eooce.com/" target="_blank" class="ai-resource-btn">🧭 逛老王导航</a>
+- 找 TG 群组/频道/机器人: <a href="https://github.com/AZeC4/TelegramGroup" target="_blank" class="ai-resource-btn">✈️ 探索 TG 群组</a>
+- 看极客/科技资讯推送: <a href="https://www.newlearner.site/" target="_blank" class="ai-resource-btn">📰 订阅科技资讯</a>
+- 快速搜 Icon/设计图标: <a href="https://icontool.pages.dev/" target="_blank" class="ai-resource-btn">🔍 搜设计图标</a>
+- 找科学上网/代理工具: <a href="https://jichangvpn.github.io/" target="_blank" class="ai-resource-btn">🚀 科学上网导航</a>
+- 找 Stable Diffusion 模型/提示词: <a href="https://civitai.com/" target="_blank" class="ai-resource-btn">🖼️ 逛 C 站找模型</a>
+- 找全球艺术画作/插画: <a href="https://www.deviantart.com/" target="_blank" class="ai-resource-btn">🎨 探索艺术社区</a>
+- 找二次元同人本/漫画 (NSFW): <a href="https://e-hentai.org/" target="_blank" class="ai-resource-btn">🐼 逛 E 站 (NSFW)</a>
+- 看二次元 MMD/3D 动画 (NSFW): <a href="https://www.iwara.tv/" target="_blank" class="ai-resource-btn">💃 逛 Iwara (NSFW)</a>
+- 搜二次元动漫插画/壁纸: <a href="https://gelbooru.com/" target="_blank" class="ai-resource-btn">🌸 搜动漫壁纸</a>
+- 找高清二次元动漫壁纸: <a href="https://konachan.com/" target="_blank" class="ai-resource-btn">🖼️ 找高清壁纸</a>
+- 看成人/网络文学小说 (NSFW): <a href="https://www.xbookcn.net/" target="_blank" class="ai-resource-btn">📖 看小说 (NSFW)</a>
 `;
 
   let dynamicSysPrompt = `${currentSysPrompt}\n\n[SYSTEM INSTRUCTION: The current real-time date and time is strictly ${new Date().toLocaleString()}. Always use this exact time if the user asks for the current time. You MUST automatically and proactively call appropriate tools (e.g. search_web, search_wikipedia, calculate, math_logic_engine, fetch_web_article, open_browser_url, render_code_diff, create_flashcard_deck, latex_step_math, code_linter_ast, tot_reasoning_pipeline, task_planner_solver) in single or multi-tool combinations whenever a task requires it, WITHOUT asking for permission first. For unknown acronyms, search_web FIRST before wikipedia.]${memoryContext}${USER_FAVORITE_LINKS_PROMPT}${BRAIN_COGNITIVE_FRAMEWORK_PROMPT}`;
