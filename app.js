@@ -4148,8 +4148,10 @@ window.executeClientIntentTools = function(queryText, replyText, containerEl) {
         document.getElementById("chat-model-select")?.value ||
         "mistral-small-latest";
         
-      if (currentAttachedImages.length > 0) {
-        model = "magistral-medium-latest"; // Using the magistral version which might have less strict alignment
+      // currentAttachedImages is cleared before executeChat, so we must check the messages array for images
+      const hasVision = messages.some(m => Array.isArray(m.content) && m.content.some(p => p.type === "image_url"));
+      if (hasVision) {
+        model = "pixtral-12b-2409"; // Switch to vision-capable Pixtral model (Nemo)
       }
 
       // ─── Dify Cloud RAG App API Execution Branch ───
