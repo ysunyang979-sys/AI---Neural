@@ -4417,10 +4417,16 @@ window.executeClientIntentTools = function(queryText, replyText, containerEl) {
       };
       const isThinkingEnabled = document.getElementById('chat-thinking-toggle')?.classList.contains('active');
       if (isThinkingEnabled) {
-        reqBody.messages = [{
-          role: 'system',
-          content: "[CRITICAL INSTRUCTION: The user has enabled DEEP THINKING MODE. You MUST wrap your detailed, step-by-step logical reasoning and thoughts inside <think>...</think> tags BEFORE providing your final response. Do NOT skip this.]"
-        }, ...messages];
+        reqBody.messages = messages.map(m => ({...m}));
+        let lastUserMsg = reqBody.messages.slice().reverse().find(m => m.role === 'user');
+        if (lastUserMsg) {
+          lastUserMsg.content += "\n\n[CRITICAL INSTRUCTION: You are in DEEP THINKING MODE. First, wrap your reasoning inside <think>...</think> tags. Since the user can see these tags, DO NOT repeat your reasoning. Immediately after the </think> tag, you MUST output the exact line '===FINAL_ANSWER===' (without quotes), then provide your final conversational response.]";
+        } else {
+          reqBody.messages = [{
+            role: 'system',
+            content: "[CRITICAL INSTRUCTION: You are in DEEP THINKING MODE. First, wrap your reasoning inside <think>...</think> tags. Since the user can see these tags, DO NOT repeat your reasoning. Immediately after the </think> tag, you MUST output the exact line '===FINAL_ANSWER===' (without quotes), then provide your final conversational response.]"
+          }, ...reqBody.messages];
+        }
       }
       if (tools && tools.length > 0) {
         reqBody.tools = tools;
@@ -4595,7 +4601,64 @@ window.executeClientIntentTools = function(queryText, replyText, containerEl) {
                 
                 if (match) {
                   extractedThink = match[1];
-                  visibleReply = reply.replace(thinkRegex, '').trim();
+                  visibleReply = reply.replace(thinkRegex, '').trimStart();
+                  
+                  // --- DEEP SEMANTIC DEDUPLICATION ENGINE ---
+                  if (visibleReply.includes("===FINAL_ANSWER===")) {
+                    visibleReply = visibleReply.split("===FINAL_ANSWER===").pop().trimStart();
+                  } 
+                  else if (reply.includes("</think>")) {
+                    let rawThought = extractedThink;
+                    if (typeof currentThinkStreamEl !== 'undefined' && currentThinkStreamEl && currentThinkStreamEl.textContent) {
+                       rawThought = currentThinkStreamEl.textContent;
+                    }
+                    
+                    if (rawThought && rawThought.length > 10) {
+                      const isGarbage = (char) => /[\s\p{P}\p{S}\p{Z}\p{C}]/u.test(char);
+                      let thoughtStripped = "";
+                      for (let char of rawThought) if (!isGarbage(char)) thoughtStripped += char;
+                      
+                      let replyStripped = "";
+                      let replyChars = [];
+                      for (let char of visibleReply) {
+                        replyChars.push(char);
+                        if (!isGarbage(char)) replyStripped += char;
+                      }
+                      
+                      if (thoughtStripped.length > 5 && replyStripped.length > 0) {
+                        const prefixLen = Math.min(10, thoughtStripped.length);
+                        const thoughtPrefix = thoughtStripped.substring(0, prefixLen);
+                        
+                        if (replyStripped.startsWith(thoughtPrefix)) {
+                           let matchLen = 0;
+                           while (matchLen < replyStripped.length && matchLen < thoughtStripped.length && replyStripped[matchLen] === thoughtStripped[matchLen]) {
+                             matchLen++;
+                           }
+                           
+                           if (matchLen === replyStripped.length || matchLen > 10) {
+                             let strippedCount = 0;
+                             let sliceIdx = 0;
+                             for (let i = 0; i < replyChars.length; i++) {
+                               if (strippedCount >= matchLen) {
+                                 sliceIdx = i;
+                                 break;
+                               }
+                               if (!isGarbage(replyChars[i])) {
+                                 strippedCount++;
+                               }
+                             }
+                             visibleReply = replyChars.slice(sliceIdx).join('').trimStart();
+                           }
+                        } else if (thoughtPrefix.startsWith(replyStripped)) {
+                           visibleReply = "";
+                        }
+                      }
+                    }
+                  } else {
+                    visibleReply = "";
+                  }
+                  
+                  visibleReply = visibleReply.replace(/===FINAL_ANSWER===/g, '').trimStart();
                 }
 
                 if (extractedThink) {
