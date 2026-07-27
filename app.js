@@ -25,7 +25,7 @@ window.collabApis = {
     mistral: {
         url: '/api/mistral',
         key: 'dummy',
-        models: ['mistral-large-latest', 'codestral-latest', 'pixtral-12b-2409']
+        models: ['mistral-large-latest', 'mistral-medium-latest', 'codestral-latest', 'pixtral-12b-2409']
     }
 };
 
@@ -3648,6 +3648,7 @@ async function handleChatSend() {
         else if (mode === 'single_glm') { provider = 'glm'; modelId = 'glm-4-flash'; }
         else if (mode === 'single_qwen') { provider = 'siliconflow'; modelId = 'Qwen/Qwen2.5-7B-Instruct'; }
         else if (mode === 'single_mistral') { provider = 'mistral'; modelId = 'mistral-large-latest'; }
+        else if (mode === 'single_mistral_medium') { provider = 'mistral'; modelId = 'mistral-medium-latest'; }
         else if (mode === 'single_mistral_code') { provider = 'mistral'; modelId = 'codestral-latest'; }
         else if (mode === 'single_pixtral') { provider = 'mistral'; modelId = 'pixtral-12b-2409'; }
         
@@ -3748,11 +3749,12 @@ async function handleChatSend() {
                 { id: 'single_glm', provider: 'glm', model: 'glm-4-flash', name: 'GLM', avatar: '⚡' },
                 { id: 'single_qwen', provider: 'siliconflow', model: 'Qwen/Qwen2.5-7B-Instruct', name: 'Qwen', avatar: '💠' },
                 { id: 'single_mistral', provider: 'mistral', model: 'mistral-large-latest', name: 'Mistral L', avatar: '☁️' },
+                { id: 'single_mistral_medium', provider: 'mistral', model: 'mistral-medium-latest', name: 'Mistral M', avatar: '🌤️' },
                 { id: 'single_mistral_code', provider: 'mistral', model: 'codestral-latest', name: 'Codestral', avatar: '💻' },
                 { id: 'single_pixtral', provider: 'mistral', model: 'pixtral-12b-2409', name: 'Pixtral', avatar: '🖼️' }
             ];
             
-            const experts = allExperts.filter(e => (window.activeCollaborators || ['single_groq', 'single_deepseek', 'single_glm', 'single_qwen', 'single_mistral', 'single_mistral_code', 'single_pixtral']).includes(e.id));
+            const experts = allExperts.filter(e => (window.activeCollaborators || ['single_groq', 'single_deepseek', 'single_glm', 'single_qwen', 'single_mistral', 'single_mistral_medium', 'single_mistral_code', 'single_pixtral']).includes(e.id));
             if(experts.length === 0) {
                 appendMessage(`<span style="color:red;">❌ 未选择任何模型参与圆桌会议，请在菜单中点击模型图标激活至少一个。</span>`, 'ai', false);
                 return;
