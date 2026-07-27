@@ -4621,23 +4621,41 @@ window.executeClientIntentTools = function(queryText, replyText, containerEl) {
                   $chatLog.scrollTop = $chatLog.scrollHeight;
                 }
 
-                // ══════ UNIVERSAL DEDUPLICATION ══════
+                // ══════ UNIVERSAL DEDUPLICATION (Fingerprint Cascade) ══════
                 // Strip repeated thinking text from main reply regardless of source
                 const thinkTrimmed = allThinkingText.trim();
-                if (thinkTrimmed.length > 20) {
+                if (thinkTrimmed.length > 10) {
                   let visTrimmed = visibleReply.trim();
-                  // Case 1: visibleReply contains the full thought text → strip it
-                  const idx = visTrimmed.indexOf(thinkTrimmed);
+                  let stripped = false;
+                  
+                  // Try full indexOf first
+                  let idx = visTrimmed.indexOf(thinkTrimmed);
                   if (idx !== -1) {
                     visibleReply = (visTrimmed.substring(0, idx) + visTrimmed.substring(idx + thinkTrimmed.length)).trim();
+                    stripped = true;
                   }
-                  // Case 2: Still streaming the duplicate (partial match at start)
-                  else if (thinkTrimmed.startsWith(visTrimmed) && visTrimmed.length > 10) {
-                    visibleReply = "";
+                  
+                  // If full match failed, try progressively shorter fingerprints
+                  if (!stripped) {
+                    for (const fpLen of [50, 30, 15]) {
+                      if (thinkTrimmed.length < fpLen) continue;
+                      const fp = thinkTrimmed.substring(0, fpLen);
+                      idx = visTrimmed.indexOf(fp);
+                      if (idx !== -1) {
+                        const endIdx = Math.min(idx + thinkTrimmed.length, visTrimmed.length);
+                        visibleReply = (visTrimmed.substring(0, idx) + visTrimmed.substring(endIdx)).trim();
+                        stripped = true;
+                        break;
+                      }
+                    }
                   }
-                  // Case 3: visibleReply starts with thought (startsWith check)
-                  else if (visTrimmed.startsWith(thinkTrimmed)) {
-                    visibleReply = visTrimmed.substring(thinkTrimmed.length).trim();
+                  
+                  // Still streaming partial duplicate
+                  if (!stripped && visTrimmed.length > 5 && visTrimmed.length <= thinkTrimmed.length) {
+                    const visFp = visTrimmed.substring(0, Math.min(15, visTrimmed.length));
+                    if (thinkTrimmed.startsWith(visFp)) {
+                      visibleReply = "";
+                    }
                   }
                 }
 
@@ -7176,6 +7194,42 @@ ${cleanHtml}
       }
     } finally {
       endThinking(true);
+
+      // ══════ FINAL POST-STREAM DEDUP SAFETY NET ══════
+      // After stream is fully complete, do one final check and re-render if thinking text leaked into the reply
+      if (allThinkingText.trim().length > 10) {
+        let finalReply = reply;
+        // Remove <think> tags
+        finalReply = finalReply.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+        // Strip thinking text using fingerprint cascade
+        const thinkClean = allThinkingText.trim();
+        let didStrip = false;
+        let fIdx = finalReply.indexOf(thinkClean);
+        if (fIdx !== -1) {
+          finalReply = (finalReply.substring(0, fIdx) + finalReply.substring(fIdx + thinkClean.length)).trim();
+          didStrip = true;
+        }
+        if (!didStrip) {
+          for (const fpLen of [50, 30, 15]) {
+            if (thinkClean.length < fpLen) continue;
+            const fp = thinkClean.substring(0, fpLen);
+            fIdx = finalReply.indexOf(fp);
+            if (fIdx !== -1) {
+              const endIdx = Math.min(fIdx + thinkClean.length, finalReply.length);
+              finalReply = (finalReply.substring(0, fIdx) + finalReply.substring(endIdx)).trim();
+              didStrip = true;
+              break;
+            }
+          }
+        }
+        if (didStrip && finalReply.length > 0) {
+          let ct = sanitizeChatOutput(finalReply);
+          let rp = window.marked ? marked.parse(window.preProcessMath ? window.preProcessMath(ct) : ct) : ct;
+          replyContent.innerHTML = parseInteractiveActionChips(rp);
+          renderMath(replyContent);
+        }
+      }
+
       isChatActive = false;
       currentAbortController = null;
       if ($sendBtn) {
