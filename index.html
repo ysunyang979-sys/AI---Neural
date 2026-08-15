@@ -827,9 +827,10 @@
         </div>
       </div>
 
-      <!-- ═══ ABOUT AI MODAL ═══ -->
+      <!-- ═══ ABOUT AI MODAL (Single-Page Premium Edition) ═══ -->
       <div class="ai-settings-overlay" id="ai-about-modal" style="display:none;">
-        <div class="ai-about-box">
+        <div class="ai-about-box single-page-about">
+          <!-- Hero Header -->
           <div class="ai-about-hero">
             <button class="chat-header-btn ai-about-close-btn" id="close-about-btn" title="Close"><i data-lucide="x"></i></button>
             <div class="ai-about-brand">
@@ -879,161 +880,111 @@
                   <h2>Neural Core AI</h2>
                   <span class="ai-about-badge">v2.5 Pro</span>
                 </div>
-                <p class="ai-about-subtitle">下一代全能型 AI 智能助手与全栈协同工作台</p>
+                <p class="ai-about-subtitle">新一代全能型认知智能与多智能体协同工作台</p>
               </div>
             </div>
           </div>
 
-          <!-- Navigation Tabs -->
-          <div class="ai-about-tabs">
-            <button class="ai-about-tab active" data-tab="features"><i data-lucide="sparkles"></i> 核心功能</button>
-            <button class="ai-about-tab" data-tab="models"><i data-lucide="cpu"></i> 模型矩阵</button>
-            <button class="ai-about-tab" data-tab="architecture"><i data-lucide="layers"></i> 技术架构</button>
-            <button class="ai-about-tab" data-tab="shortcuts"><i data-lucide="keyboard"></i> 快捷指南</button>
-          </div>
+          <!-- Single Scroll Content -->
+          <div class="ai-about-body ai-about-single-scroll">
+            <!-- Intro Paragraph -->
+            <div class="ai-about-intro-card">
+              <p class="ai-intro-lead">
+                <strong>Neural Core AI</strong> 是专为追求极致生产力打造的下一代智能工作空间。平台深度融合<strong>多旗舰大模型集群推理</strong>与<strong>浏览器端侧高算力环境</strong>，实现零延迟代码执行、全域联网检索、端侧向量记忆与开放协议互联，为复杂问题解决与创意工程提供全栈级赋能。
+              </p>
+            </div>
 
-          <div class="ai-about-body">
-            <!-- TAB 1: 核心功能 -->
-            <div class="ai-about-tab-content active" id="about-tab-features">
-              <div class="ai-feature-grid">
-                <div class="ai-feature-card">
-                  <div class="ai-feature-icon" style="background: rgba(139, 92, 246, 0.12); color: #8b5cf6;"><i data-lucide="swords"></i></div>
-                  <div class="ai-feature-info">
-                    <h4>多模型协同与辩论</h4>
-                    <p>支持 Mistral Large、DeepSeek-R1、Groq 等多模型交叉验证与圆桌协作。</p>
+            <!-- Pillars Title -->
+            <div class="ai-pillars-section-title">
+              <i data-lucide="sparkles"></i> 核心能力与技术矩阵
+            </div>
+
+            <!-- 4 Core Pillars Grid -->
+            <div class="ai-pillars-grid">
+              <!-- Pillar 1 -->
+              <div class="ai-pillar-card">
+                <div class="ai-pillar-header">
+                  <div class="ai-pillar-icon" style="background: rgba(251, 140, 0, 0.14); color: #fb8c00;">
+                    <i data-lucide="cpu"></i>
+                  </div>
+                  <div class="ai-pillar-title">
+                    <h4>多旗舰模型集群与圆桌辩论</h4>
+                    <span class="ai-pillar-sub">Mistral Large · DeepSeek-R1 · Groq · Codestral</span>
                   </div>
                 </div>
-                <div class="ai-feature-card">
-                  <div class="ai-feature-icon" style="background: rgba(16, 185, 129, 0.12); color: #10b981;"><i data-lucide="globe"></i></div>
-                  <div class="ai-feature-info">
-                    <h4>全网智能实时搜索</h4>
-                    <p>集成联网搜索与维基百科、学术数据，快速抓取最新时效信息。</p>
+                <p class="ai-pillar-desc">
+                  汇聚通用逻辑、数学深度思考与全栈代码模型，支持多模型交叉验证与协作辩论，确保输出的高精确度与多维洞察。
+                </p>
+              </div>
+
+              <!-- Pillar 2 -->
+              <div class="ai-pillar-card">
+                <div class="ai-pillar-header">
+                  <div class="ai-pillar-icon" style="background: rgba(16, 185, 129, 0.14); color: #10b981;">
+                    <i data-lucide="globe"></i>
+                  </div>
+                  <div class="ai-pillar-title">
+                    <h4>全网实时感知与学术级检索</h4>
+                    <span class="ai-pillar-sub">Tavily Search · Wikipedia · arXiv · 气象感知</span>
                   </div>
                 </div>
-                <div class="ai-feature-card">
-                  <div class="ai-feature-icon" style="background: rgba(245, 158, 11, 0.12); color: #f59e0b;"><i data-lucide="terminal"></i></div>
-                  <div class="ai-feature-info">
-                    <h4>Pyodide 客户端 Python</h4>
-                    <p>WebAssembly 驱动的零延迟本地 Python 执行、绘图与数据挖掘。</p>
+                <p class="ai-pillar-desc">
+                  毫秒级接入全球实时网络、权威学术论文与百科知识库，自动溯源引用，让 AI 拥有不受限于训练时效的最新认知。
+                </p>
+              </div>
+
+              <!-- Pillar 3 -->
+              <div class="ai-pillar-card">
+                <div class="ai-pillar-header">
+                  <div class="ai-pillar-icon" style="background: rgba(56, 189, 248, 0.14); color: #38bdf8;">
+                    <i data-lucide="layout-panel-left"></i>
+                  </div>
+                  <div class="ai-pillar-title">
+                    <h4>Canvas 工作区与端侧 Python</h4>
+                    <span class="ai-pillar-sub">Pyodide (Wasm) · React/Vue/SVG 即时预览</span>
                   </div>
                 </div>
-                <div class="ai-feature-card">
-                  <div class="ai-feature-icon" style="background: rgba(6, 182, 212, 0.12); color: #06b6d4;"><i data-lucide="layout-panel-left"></i></div>
-                  <div class="ai-feature-info">
-                    <h4>Canvas 实时工作区</h4>
-                    <p>多文件代码可视化在线预览、编辑与一键 ZIP 压缩包打包导出。</p>
+                <p class="ai-pillar-desc">
+                  内置完整 Python 3.11 浏览器原生执行环境与 Canvas 多文件可视化工作台，支持代码实时调试、图表渲染与工程打包。
+                </p>
+              </div>
+
+              <!-- Pillar 4 -->
+              <div class="ai-pillar-card">
+                <div class="ai-pillar-header">
+                  <div class="ai-pillar-icon" style="background: rgba(139, 92, 246, 0.14); color: #8b5cf6;">
+                    <i data-lucide="plug"></i>
+                  </div>
+                  <div class="ai-pillar-title">
+                    <h4>端侧向量知识库与 MCP 协议</h4>
+                    <span class="ai-pillar-sub">IndexedDB 零上传隐私 · 长期记忆 · 开放协议</span>
                   </div>
                 </div>
-                <div class="ai-feature-card">
-                  <div class="ai-feature-icon" style="background: rgba(236, 72, 153, 0.12); color: #ec4899;"><i data-lucide="sparkles"></i></div>
-                  <div class="ai-feature-info">
-                    <h4>思维 Skill 与人设蒸馏</h4>
-                    <p>内置马斯克、乔布斯、纳瓦尔、女娲造人等 16+ 深度专家人格库。</p>
-                  </div>
-                </div>
-                <div class="ai-feature-card">
-                  <div class="ai-feature-icon" style="background: rgba(59, 130, 246, 0.12); color: #3b82f6;"><i data-lucide="image"></i></div>
-                  <div class="ai-feature-info">
-                    <h4>AI 绘画与多比例渲染</h4>
-                    <p>支持 1:1, 16:9, 9:16, 4:3 等多尺寸创意图像生成与构图调节。</p>
-                  </div>
-                </div>
+                <p class="ai-pillar-desc">
+                  支持文档拖拽本地向量切片检索 (RAG) 与长期记忆卡片，全面兼容 MCP (Model Context Protocol) 开放标准生态。
+                </p>
               </div>
             </div>
 
-            <!-- TAB 2: 模型矩阵 -->
-            <div class="ai-about-tab-content" id="about-tab-models" style="display:none;">
-              <div class="ai-models-list">
-                <div class="ai-model-item">
-                  <span class="ai-model-tag tag-primary">Mistral Large</span>
-                  <div class="ai-model-details">
-                    <strong>旗舰级通用推理引擎</strong>
-                    <span>具备强大的逻辑推导、长文本理解与精细指令遵循能力。</span>
-                  </div>
-                </div>
-                <div class="ai-model-item">
-                  <span class="ai-model-tag tag-purple">DeepSeek-R1</span>
-                  <div class="ai-model-details">
-                    <strong>深度思维与数学逻辑</strong>
-                    <span>强化学习推理模型，擅长解构复杂算法、数学推演与底层 Debug。</span>
-                  </div>
-                </div>
-                <div class="ai-model-item">
-                  <span class="ai-model-tag tag-orange">Groq Llama 3 70B</span>
-                  <div class="ai-model-details">
-                    <strong>极速响应推理引擎</strong>
-                    <span>每秒数百 Token 极致输出，满足极速实时对话与交互需求。</span>
-                  </div>
-                </div>
-                <div class="ai-model-item">
-                  <span class="ai-model-tag tag-green">Codestral</span>
-                  <div class="ai-model-details">
-                    <strong>全栈代码专家</strong>
-                    <span>针对 80+ 编程语言优化的专门代码补全、重构与架构设计模型。</span>
-                  </div>
-                </div>
-                <div class="ai-model-item">
-                  <span class="ai-model-tag tag-blue">Pixtral 12B</span>
-                  <div class="ai-model-details">
-                    <strong>多模态视觉理解</strong>
-                    <span>原生的图像分析、图表识别与视觉问答多模态能力。</span>
-                  </div>
-                </div>
-            <!-- TAB 3: 技术架构 -->
-            <div class="ai-about-tab-content" id="about-tab-architecture" style="display:none;">
-              <div class="ai-arch-specs">
-                <div class="ai-arch-row">
-                  <span class="ai-arch-label">核心底层 (Core Engine)</span>
-                  <span class="ai-arch-value">Mistral AI API & Edge Gateway</span>
-                </div>
-                <div class="ai-arch-row">
-                  <span class="ai-arch-label">前端运行环境 (Frontend)</span>
-                  <span class="ai-arch-value">ES6 Modules + HTML5 + CSS3 Variables</span>
-                </div>
-                <div class="ai-arch-row">
-                  <span class="ai-arch-label">Wasm 交互引擎 (Runtime)</span>
-                  <span class="ai-arch-value">Pyodide 0.25.0 (Python 3.11 in Browser)</span>
-                </div>
-                <div class="ai-arch-row">
-                  <span class="ai-arch-label">渲染与可视化 (Visualization)</span>
-                  <span class="ai-arch-value">KaTeX / Mermaid.js / Leaflet / Highlight.js</span>
-                </div>
-                <div class="ai-arch-row">
-                  <span class="ai-arch-label">隐私与存储 (Privacy)</span>
-                  <span class="ai-arch-value">100% 客户端本地持久化存储 (LocalStorage)</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- TAB 4: 快捷指南 -->
-            <div class="ai-about-tab-content" id="about-tab-shortcuts" style="display:none;">
-              <div class="ai-shortcuts-list">
-                <div class="ai-shortcut-item">
-                  <span>发送消息</span>
-                  <div class="kbd-group"><kbd>Enter</kbd></div>
-                </div>
-                <div class="ai-shortcut-item">
-                  <span>输入框换行</span>
-                  <div class="kbd-group"><kbd>Shift</kbd> + <kbd>Enter</kbd></div>
-                </div>
-                <div class="ai-shortcut-item">
-                  <span>切换/关闭 Canvas 面板</span>
-                  <div class="kbd-group"><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd></div>
-                </div>
-                <div class="ai-shortcut-item">
-                  <span>关闭任何弹窗面板</span>
-                  <div class="kbd-group"><kbd>Esc</kbd></div>
-                </div>
+            <!-- Shortcuts Ribbon -->
+            <div class="ai-shortcuts-bar">
+              <div class="ai-shortcuts-title"><i data-lucide="keyboard"></i> 快捷操作：</div>
+              <div class="ai-shortcuts-chips">
+                <span class="ai-chip"><kbd>Enter</kbd> 发送</span>
+                <span class="ai-chip"><kbd>Shift</kbd> + <kbd>Enter</kbd> 换行</span>
+                <span class="ai-chip"><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd> Canvas</span>
+                <span class="ai-chip"><kbd>Esc</kbd> 关闭弹窗</span>
               </div>
             </div>
           </div>
 
+          <!-- Footer -->
           <div class="ai-about-footer">
             <div class="ai-about-stats">
               <span><i data-lucide="check-circle-2"></i> System Ready</span>
-              <span><i data-lucide="shield-check"></i> Private & Encrypted</span>
+              <span><i data-lucide="shield-check"></i> 100% 客户端端侧隐私加密</span>
             </div>
-            <button class="chat-new-btn" id="ai-about-confirm-btn">开始体验</button>
+            <button class="chat-new-btn" id="ai-about-confirm-btn">进入工作台</button>
           </div>
         </div>
       </div>

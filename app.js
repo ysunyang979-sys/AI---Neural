@@ -1211,30 +1211,6 @@ if (aboutModal) {
       aboutModal.style.display = "none";
     }
   });
-
-  const aboutTabs = aboutModal.querySelectorAll(".ai-about-tab");
-  const tabContents = aboutModal.querySelectorAll(".ai-about-tab-content");
-
-  aboutTabs.forEach((tab) => {
-    tab.addEventListener("click", () => {
-      const targetTab = tab.dataset.tab;
-      aboutTabs.forEach((t) => t.classList.remove("active"));
-      tab.classList.add("active");
-
-      tabContents.forEach((content) => {
-        if (content.id === `about-tab-${targetTab}`) {
-          content.style.display = "block";
-          content.classList.add("active");
-        } else {
-          content.style.display = "none";
-          content.classList.remove("active");
-        }
-      });
-      if (typeof lucide !== "undefined") {
-        lucide.createIcons();
-      }
-    });
-  });
 }
 
 document.addEventListener("keydown", (e) => {
