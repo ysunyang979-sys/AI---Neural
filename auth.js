@@ -37,11 +37,12 @@
         document.body.classList.add("nc-auth-locked");
         setTimeout(() => {
           const accInput = document.getElementById("nc-login-account");
-          if (accInput && !accInput.value) {
-            accInput.value = AUTH_ACCOUNT;
+          if (accInput) {
+            accInput.value = "";
+            accInput.focus();
           }
           const pwInput = document.getElementById("nc-login-password");
-          if (pwInput) pwInput.focus();
+          if (pwInput) pwInput.value = "";
         }, 150);
       }
 
@@ -214,7 +215,10 @@
       }
 
       if (pwInput) pwInput.value = "";
-      if (accInput && !accInput.value) accInput.value = AUTH_ACCOUNT;
+      if (accInput) {
+        accInput.value = "";
+        accInput.focus();
+      }
       if (errBox) errBox.style.display = "none";
 
       this.switchTab("login");
@@ -225,7 +229,6 @@
         overlay.style.pointerEvents = "auto";
         document.body.classList.add("nc-auth-locked");
       }
-      if (pwInput) pwInput.focus();
 
       const userPopup = document.getElementById("user-menu-popup");
       if (userPopup) userPopup.classList.remove("active");
