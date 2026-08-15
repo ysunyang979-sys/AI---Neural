@@ -3988,3 +3988,515 @@ label.chat-input-action-btn,
 #chat-code-mode-toggle {
     display: none !important;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   🔐 NEURAL CORE AI — AUTHENTICATION & LOGIN GATEWAY
+   ═══════════════════════════════════════════════════════════════ */
+
+body.nc-auth-locked {
+    overflow: hidden !important;
+}
+
+body.nc-auth-locked .chat-page-container {
+    filter: blur(8px) brightness(0.6);
+    pointer-events: none !important;
+    user-select: none !important;
+}
+
+.nc-auth-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(10, 10, 14, 0.88);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    padding: 16px;
+    box-sizing: border-box;
+    transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nc-auth-container {
+    position: relative;
+    width: 100%;
+    max-width: 450px;
+    margin: auto;
+}
+
+.nc-auth-glow {
+    position: absolute;
+    top: -60px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 280px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(217, 119, 87, 0.25) 0%, rgba(217, 119, 87, 0) 70%);
+    filter: blur(40px);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.nc-auth-card {
+    position: relative;
+    background: #18181c;
+    background: linear-gradient(180deg, rgba(28, 28, 34, 0.95) 0%, rgba(18, 18, 22, 0.98) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 24px;
+    padding: 32px 28px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.05), 0 0 35px rgba(217, 119, 87, 0.12);
+    z-index: 1;
+    color: #F3F4F6;
+    font-family: var(--font-sans, system-ui, sans-serif);
+}
+
+.nc-auth-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.nc-auth-logo-wrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    margin-bottom: 12px;
+}
+
+.nc-auth-logo-svg {
+    width: 46px;
+    height: 46px;
+}
+
+.nc-auth-title {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin: 0 0 4px 0;
+    background: linear-gradient(135deg, #FFFFFF 30%, #E8956A 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.nc-auth-subtitle {
+    font-size: 13px;
+    color: #9CA3AF;
+    margin: 0;
+}
+
+/* 📢 Notice Banner */
+.nc-auth-notice-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    background: rgba(245, 158, 11, 0.12);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+.nc-auth-notice-icon {
+    font-size: 16px;
+    line-height: 1.4;
+    flex-shrink: 0;
+}
+
+.nc-auth-notice-text {
+    font-size: 12px;
+    line-height: 1.5;
+    color: #FCD34D;
+}
+
+.nc-auth-notice-text strong {
+    color: #FDE68A;
+}
+
+/* Tabs */
+.nc-auth-tabs {
+    display: flex;
+    background: rgba(0, 0, 0, 0.35);
+    padding: 4px;
+    border-radius: 12px;
+    gap: 4px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.nc-auth-tab {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    background: transparent;
+    color: #9CA3AF;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.nc-auth-tab:hover {
+    color: #FFFFFF;
+}
+
+.nc-auth-tab.active {
+    background: rgba(217, 119, 87, 0.2);
+    color: #E8956A;
+    border: 1px solid rgba(217, 119, 87, 0.35);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.nc-auth-tab i, .nc-auth-tab svg {
+    width: 15px;
+    height: 15px;
+}
+
+/* Inputs */
+.nc-input-group {
+    margin-bottom: 16px;
+    text-align: left;
+}
+
+.nc-input-group label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #D1D5DB;
+    margin-bottom: 7px;
+}
+
+.nc-input-group label i, .nc-input-group label svg {
+    width: 14px;
+    height: 14px;
+    color: #D97757;
+}
+
+.nc-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.nc-input-wrapper input {
+    width: 100%;
+    background: rgba(10, 10, 14, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 14px;
+    color: #FFFFFF;
+    outline: none;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.nc-input-wrapper input:focus {
+    border-color: #D97757;
+    background: rgba(15, 15, 20, 0.85);
+    box-shadow: 0 0 0 3px rgba(217, 119, 87, 0.25);
+}
+
+.nc-input-wrapper input::placeholder {
+    color: rgba(156, 163, 175, 0.6);
+    font-size: 13px;
+}
+
+.nc-pw-toggle-btn {
+    position: absolute;
+    right: 10px;
+    background: transparent;
+    border: none;
+    color: #9CA3AF;
+    padding: 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.15s ease;
+}
+
+.nc-pw-toggle-btn:hover {
+    color: #FFFFFF;
+}
+
+.nc-pw-toggle-btn i, .nc-pw-toggle-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* Error Alert */
+.nc-auth-error-msg {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 16px;
+    color: #F87171;
+    font-size: 12.5px;
+    font-weight: 500;
+    animation: fadeIn 0.2s ease;
+}
+
+.nc-auth-error-msg i, .nc-auth-error-msg svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+
+/* Options */
+.nc-auth-options {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 22px;
+    font-size: 12.5px;
+}
+
+.nc-checkbox-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    color: #9CA3AF;
+    user-select: none;
+}
+
+.nc-checkbox-label input[type="checkbox"] {
+    accent-color: #D97757;
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+}
+
+.nc-link-btn {
+    color: #E8956A;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.15s;
+}
+
+.nc-link-btn:hover {
+    text-decoration: underline;
+    color: #FFA726;
+}
+
+/* Submit Button */
+.nc-auth-submit-btn {
+    width: 100%;
+    padding: 13px 20px;
+    background: linear-gradient(135deg, #D97757 0%, #E8956A 100%);
+    color: #FFFFFF;
+    border: none;
+    border-radius: 12px;
+    font-size: 14.5px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 16px rgba(217, 119, 87, 0.35);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nc-auth-submit-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(217, 119, 87, 0.45);
+    filter: brightness(1.06);
+}
+
+.nc-auth-submit-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 8px rgba(217, 119, 87, 0.3);
+}
+
+.nc-btn-content, .nc-btn-spinner {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nc-btn-content i, .nc-btn-content svg, .nc-btn-spinner i, .nc-btn-spinner svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* Spin animation */
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+/* Shake animation */
+@keyframes ncShake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-8px); }
+    40%, 80% { transform: translateX(8px); }
+}
+.nc-shake {
+    animation: ncShake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+/* Register / Invite Box */
+.nc-invite-info-box {
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 16px;
+    text-align: left;
+}
+
+.nc-invite-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 8px;
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    color: #F87171;
+    font-size: 11.5px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.nc-invite-badge i, .nc-invite-badge svg {
+    width: 13px;
+    height: 13px;
+}
+
+.nc-invite-info-box h4 {
+    margin: 0 0 8px 0;
+    font-size: 15px;
+    color: #FFFFFF;
+    font-weight: 700;
+}
+
+.nc-invite-info-box p {
+    margin: 0 0 16px 0;
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: #9CA3AF;
+}
+
+.nc-invite-input-wrap label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #D1D5DB;
+    margin-bottom: 6px;
+}
+
+.nc-invite-input-wrap label i, .nc-invite-input-wrap label svg {
+    width: 14px;
+    height: 14px;
+    color: #38bdf8;
+}
+
+.nc-invite-verify-btn {
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px 16px;
+    background: rgba(56, 189, 248, 0.15);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    color: #38bdf8;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.nc-invite-verify-btn:hover {
+    background: rgba(56, 189, 248, 0.25);
+    border-color: #38bdf8;
+}
+
+.nc-invite-verify-btn i, .nc-invite-verify-btn svg {
+    width: 15px;
+    height: 15px;
+}
+
+.nc-back-to-login-btn {
+    width: 100%;
+    padding: 11px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #D1D5DB;
+    border-radius: 12px;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.15s ease;
+}
+
+.nc-back-to-login-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #FFFFFF;
+}
+
+.nc-back-to-login-btn i, .nc-back-to-login-btn svg {
+    width: 15px;
+    height: 15px;
+}
+
+/* Footer */
+.nc-auth-footer {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 11px;
+    color: #6B7280;
+}
+
+.nc-auth-footer i, .nc-auth-footer svg {
+    width: 13px;
+    height: 13px;
+    color: #10B981;
+}
+
+@media (max-width: 480px) {
+    .nc-auth-card {
+        padding: 24px 18px;
+        border-radius: 18px;
+    }
+    .nc-auth-title {
+        font-size: 20px;
+    }
+}
+

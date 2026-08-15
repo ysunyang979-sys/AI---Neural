@@ -16,8 +16,184 @@
   <script src="https://cdn.jsdelivr.net/npm/alasql"></script>
   <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="auth.js"></script>
 </head>
-<body>
+<body class="nc-auth-locked">
+
+  <!-- ═══════════════════════════════════════════
+       🔐 NEURAL CORE AI 访问权限验证与登录拦截弹窗
+       ═══════════════════════════════════════════ -->
+  <div id="nc-auth-overlay" class="nc-auth-overlay">
+    <div class="nc-auth-container">
+      <div class="nc-auth-glow"></div>
+      
+      <div class="nc-auth-card">
+        <!-- Logo & Header -->
+        <div class="nc-auth-header">
+          <div class="nc-auth-logo-wrap">
+            <svg class="nc-auth-logo-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="authSunGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#FFA726"/>
+                  <stop offset="50%" stop-color="#FB8C00"/>
+                  <stop offset="100%" stop-color="#E65100"/>
+                </linearGradient>
+                <filter id="authWhiteGlow" x="-30%" y="-30%" width="160%" height="160%">
+                  <feGaussianBlur stdDeviation="1.5" result="blur"/>
+                  <feMerge>
+                    <feMergeNode in="blur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
+                <g id="authSunRay">
+                  <path d="M45.5 25 L50 6 L54.5 25 Z" fill="url(#authSunGrad)"/>
+                </g>
+              </defs>
+              <g>
+                <use href="#authSunRay"/>
+                <use href="#authSunRay" transform="rotate(30 50 50)"/>
+                <use href="#authSunRay" transform="rotate(60 50 50)"/>
+                <use href="#authSunRay" transform="rotate(90 50 50)"/>
+                <use href="#authSunRay" transform="rotate(120 50 50)"/>
+                <use href="#authSunRay" transform="rotate(150 50 50)"/>
+                <use href="#authSunRay" transform="rotate(180 50 50)"/>
+                <use href="#authSunRay" transform="rotate(210 50 50)"/>
+                <use href="#authSunRay" transform="rotate(240 50 50)"/>
+                <use href="#authSunRay" transform="rotate(270 50 50)"/>
+                <use href="#authSunRay" transform="rotate(300 50 50)"/>
+                <use href="#authSunRay" transform="rotate(330 50 50)"/>
+              </g>
+              <circle cx="50" cy="50" r="26" fill="none" stroke="#FFFFFF" stroke-width="2.5"/>
+              <circle cx="50" cy="50" r="25" fill="url(#authSunGrad)"/>
+              <g filter="url(#authWhiteGlow)">
+                <path d="M50 30 C50 43 57 50 70 50 C57 50 50 57 50 70 C50 57 43 50 30 50 C43 50 50 43 50 30 Z" fill="#FFFFFF"/>
+                <circle cx="50" cy="50" r="3" fill="#FFFFFF"/>
+              </g>
+            </svg>
+          </div>
+          <h2 class="nc-auth-title">Neural Core AI</h2>
+          <p class="nc-auth-subtitle">智能平台 · 访问身份验证</p>
+        </div>
+
+        <!-- 注册说明通知栏 -->
+        <div class="nc-auth-notice-banner">
+          <div class="nc-auth-notice-icon">📢</div>
+          <div class="nc-auth-notice-text">
+            <strong>访问须知：</strong> 当前系统为内测阶段，<strong>注册仅限有邀请码的用户</strong>。请使用已授权账号密码直接登录进入。
+          </div>
+        </div>
+
+        <!-- 选项卡切换: 登录 / 注册说明 -->
+        <div class="nc-auth-tabs">
+          <button type="button" class="nc-auth-tab active" id="nc-tab-login" onclick="window.NC_AUTH.switchTab('login')">
+            <i data-lucide="log-in"></i> 账号登录
+          </button>
+          <button type="button" class="nc-auth-tab" id="nc-tab-register" onclick="window.NC_AUTH.switchTab('register')">
+            <i data-lucide="key-round"></i> 注册说明与邀请码
+          </button>
+        </div>
+
+        <!-- 登录表单 -->
+        <div id="nc-auth-login-view" class="nc-auth-view active">
+          <form id="nc-login-form" onsubmit="window.NC_AUTH.handleLogin(event)">
+            <!-- 账号输入 -->
+            <div class="nc-input-group">
+              <label for="nc-login-account">
+                <i data-lucide="mail"></i> 登录账号 / 邮箱
+              </label>
+              <div class="nc-input-wrapper">
+                <input 
+                  type="text" 
+                  id="nc-login-account" 
+                  name="username"
+                  value="358966OoOo@proton.me"
+                  placeholder="358966OoOo@proton.me" 
+                  autocomplete="username" 
+                  required
+                />
+              </div>
+            </div>
+
+            <!-- 密码输入 -->
+            <div class="nc-input-group">
+              <label for="nc-login-password">
+                <i data-lucide="lock"></i> 访问密码
+              </label>
+              <div class="nc-input-wrapper">
+                <input 
+                  type="password" 
+                  id="nc-login-password" 
+                  name="password"
+                  placeholder="请输入登录密码" 
+                  autocomplete="current-password" 
+                  required
+                />
+                <button type="button" class="nc-pw-toggle-btn" id="nc-pw-toggle" onclick="window.NC_AUTH.togglePasswordVisibility()" title="显示/隐藏密码">
+                  <i data-lucide="eye" id="nc-pw-eye-icon"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- 错误提示框 -->
+            <div id="nc-auth-error-msg" class="nc-auth-error-msg" style="display: none;">
+              <i data-lucide="alert-circle"></i>
+              <span id="nc-auth-error-text">账号或密码错误，请核对后重试！</span>
+            </div>
+
+            <!-- 记住密码与辅助链接 -->
+            <div class="nc-auth-options">
+              <label class="nc-checkbox-label">
+                <input type="checkbox" id="nc-remember-me" checked />
+                <span>记住登录状态</span>
+              </label>
+              <a href="javascript:void(0)" onclick="window.NC_AUTH.switchTab('register')" class="nc-link-btn">注册说明</a>
+            </div>
+
+            <!-- 登录按钮 -->
+            <button type="submit" class="nc-auth-submit-btn" id="nc-login-submit-btn">
+              <span class="nc-btn-content">
+                <i data-lucide="arrow-right-circle"></i> 立即验证并进入网站
+              </span>
+              <span class="nc-btn-spinner" style="display: none;">
+                <i data-lucide="loader-2" class="spin"></i> 正在验证身份...
+              </span>
+            </button>
+          </form>
+        </div>
+
+        <!-- 注册说明与邀请码视图 -->
+        <div id="nc-auth-register-view" class="nc-auth-view" style="display: none;">
+          <div class="nc-invite-info-box">
+            <div class="nc-invite-badge"><i data-lucide="shield-alert"></i> 注册通道权限限制</div>
+            <h4>注册仅限有邀请码的用户</h4>
+            <p>为保障算力资源的稳定与合规服务体验，Neural Core AI 当前处于封闭式内测阶段。<strong>未持有邀请码的用户无法自行注册新账户</strong>。请使用已授权的测试账号直接登录。</p>
+            
+            <div class="nc-invite-input-wrap">
+              <label for="nc-invite-code-input"><i data-lucide="ticket"></i> 内测专属邀请码 (Invitation Code)</label>
+              <div class="nc-input-wrapper">
+                <input type="text" id="nc-invite-code-input" placeholder="请输入内测邀请码" />
+              </div>
+              <button type="button" class="nc-invite-verify-btn" onclick="window.NC_AUTH.handleInviteVerify()">
+                <i data-lucide="check-circle-2"></i> 验证邀请码
+              </button>
+            </div>
+            <div id="nc-invite-feedback" style="display:none; font-size:12px; margin-top:8px;"></div>
+          </div>
+          <button type="button" class="nc-back-to-login-btn" onclick="window.NC_AUTH.switchTab('login')">
+            <i data-lucide="arrow-left"></i> 返回已有账号登录
+          </button>
+        </div>
+
+        <!-- 底部安全提示 -->
+        <div class="nc-auth-footer">
+          <span><i data-lucide="shield-check"></i> 端侧安全与加密认证</span>
+          <span>•</span>
+          <span>Neural Core AI</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="chat-page-container">
 
     <!-- ═══ LEFT SIDEBAR ═══ -->
@@ -89,6 +265,7 @@
               <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle Theme"></button>
             </div>
             <button class="user-menu-item" id="user-menu-about-btn"><i data-lucide="info"></i> 介绍 AI</button>
+            <button class="user-menu-item" id="user-menu-logout-btn" onclick="window.NC_AUTH.logout()" style="color: #ef4444;"><i data-lucide="log-out"></i> 退出登录 (Logout)</button>
           </div>
           <button class="chat-sidebar-user" id="chat-sidebar-user-btn">
             <div class="user-avatar">S</div>
@@ -910,5 +1087,6 @@
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
   <script src="keys.js"></script>
   <script src="app.js?v=173"></script>
+  <script src="auth.js"></script>
 </body>
 </html>

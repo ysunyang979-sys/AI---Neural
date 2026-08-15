@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PS Robotic Painter</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --panel-bg: rgba(30, 41, 59, 0.7);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.15), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(147, 51, 234, 0.15), transparent 25%);
+        }
+
+        .container {
+            width: 90%;
+            max-width: 600px;
+            background: var(--panel-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            margin-top: 0;
+            font-size: 28px;
+            font-weight: 600;
+            text-align: center;
+            background: linear-gradient(to right, #60a5fa, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 30px;
+        }
+
+        .drop-zone {
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .drop-zone.dragover {
+            border-color: var(--primary);
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .drop-zone input {
+            display: none;
+        }
+
+        .icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+            color: var(--text-muted);
+        }
+
+        .preview-img {
+            max-width: 100%;
+            max-height: 200px;
+            display: none;
+            border-radius: 8px;
+            margin: 0 auto 15px auto;
+        }
+
+        .controls {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        button.btn-primary {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            width: 100%;
+        }
+
+        button.btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        button.btn-primary:disabled {
+            background: #475569;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .status {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: var(--text-muted);
+            min-height: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>PS Robotic Painter</h1>
+    <p class="subtitle">Drag & drop an image to draw it stroke-by-stroke in Photoshop</p>
+
+    <div class="drop-zone" id="dropZone">
+        <input type="file" id="fileInput" accept="image/png, image/jpeg, image/webp">
+        <img id="preview" class="preview-img" src="" alt="Preview">
+        <div id="dropText">
+            <div class="icon">🖼️</div>
+            <p>Click or drag image here (JPG/PNG)</p>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button id="drawBtn" class="btn-primary" disabled>Start Drawing in Photoshop</button>
+    </div>
+    
+    <div class="status" id="statusText"></div>
+</div>
+
+<script>
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const preview = document.getElementById('preview');
+    const dropText = document.getElementById('dropText');
+    const drawBtn = document.getElementById('drawBtn');
+    const statusText = document.getElementById('statusText');
+
+    let currentFile = null;
+
+    // Handle Drag & Drop
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        if (e.dataTransfer.files.length) {
+            handleFile(e.dataTransfer.files[0]);
+        }
+    });
+
+    // Handle Click
+    dropZone.addEventListener('click', () => {
+        fileInput.click();
+    });
+
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files.length) {
+            handleFile(fileInput.files[0]);
+        }
+    });
+
+    function handleFile(file) {
+        if (!file.type.startsWith('image/')) {
+            alert('Please select a valid image file (JPG/PNG).');
+            return;
+        }
+        currentFile = file;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+            dropText.style.display = 'none';
+            drawBtn.disabled = false;
+            statusText.innerText = 'Ready to draw!';
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // Handle API Call
+    drawBtn.addEventListener('click', async () => {
+        if (!currentFile) return;
+
+        const formData = new FormData();
+        formData.append('file', currentFile);
+
+        drawBtn.disabled = true;
+        statusText.innerText = 'Extracting contours and sending to Photoshop... (Look at PS!)';
+
+        try {
+            const response = await fetch('/api/upload_and_draw', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+            
+            if (response.ok) {
+                statusText.innerHTML = `<span style="color: #4ade80">Success! Drawn ${result.strokes_drawn} strokes.</span>`;
+            } else {
+                statusText.innerHTML = `<span style="color: #f87171">Error: ${result.detail}</span>`;
+            }
+        } catch (error) {
+            statusText.innerHTML = `<span style="color: #f87171">Network error. Is the server running?</span>`;
+        } finally {
+            drawBtn.disabled = false;
+        }
+    });
+</script>
+
+</body>
+</html>
